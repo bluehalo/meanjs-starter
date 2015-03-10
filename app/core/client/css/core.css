@@ -1,0 +1,84 @@
+
+/*------------------------*/
+/* Navigation Bar		 */
+/*------------------------*/
+.navbar-blaze {
+	border-color: #aaa;
+}
+.navbar-blaze.navbar-inverse .navbar-toggle {
+	border-color: #444;
+	color: #ccc;
+}
+
+.navbar-blaze .navbar-container {
+	padding-left: 30px;
+	padding-right: 30px;
+}
+
+img.logo {
+	margin: 5px 40px 0 0;
+}
+
+/*------------------------*/
+/*	Back Links			  */
+/*------------------------*/
+a.back-link {
+	font-size: 12px;
+	color: #999;
+}
+a.back-link:hover {
+	color: #111;
+}
+
+
+/*------------------------*/
+/* Content Area		   */
+/*------------------------*/
+.content {
+	padding: 80px 40px 40px 40px; 
+}
+
+
+/*------------------------*/
+/* Footer				 */
+/*------------------------*/
+.footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	z-index: 9999;
+}
+
+
+/*------------------------*/
+/* Footer				 */
+/*------------------------*/
+.classification {
+	text-align: center;
+}
+
+.classification-U {
+	background-color: #080;
+	color: white;
+}
+.classification-S {
+	background-color: #800;
+	color: white;
+}
+.classification-K {
+	background-color: #f5ae07;
+	color: white;
+}
+
+/* ---------------------- */
+/* Bootstrap			  */
+/* ---------------------- */
+.undecorated-link:hover {
+	text-decoration: none;
+}
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+	display: none !important;
+}
+.ng-invalid.ng-touched{
+	border-color:#FA787E;
+}

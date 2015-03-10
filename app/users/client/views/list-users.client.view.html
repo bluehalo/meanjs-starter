@@ -1,0 +1,109 @@
+<section>
+
+	<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
+
+	<h3 class="page-header">
+		Users
+		<small>Administer User Accounts</small>
+		<a data-ui-sref="admin.user.create" type="button" class="btn btn-default btn-sm pull-right">
+			<span class="fa fa-user-plus"></span> Create User
+		</a>
+	</h3>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<!-- Search Input -->
+			<div class="input-group">
+				<input placeholder="Enter a search..." type="text" class="form-control input-sm" data-ng-model="search" data-ng-keypress="applySearchKeypress($event)" data-ng-change="subscriptionSearch.$setPristine()">
+				<span class="input-group-btn">
+					<button class="btn btn-default btn-sm" type="button" data-ng-click="applySearch()">
+						<i class="fa fa-search"></i>
+					</button>
+				</span>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<!-- Sorting/Paging Controls -->
+			<div data-ng-show="results.totalSize > 1">
+				<div class="controls">
+					<div class="paging-sort" style="float:left;">
+						<span>Sort By:</span>
+						<a type="button" data-ng-class="{selected: options.sort===sort.relevance}" class="no-link btn-link" data-ng-click="setSort(sort.relevance)">Relevance</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.created}" class="no-link btn-link" data-ng-click="setSort(sort.created)">Created</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.name}" class="no-link btn-link" data-ng-click="setSort(sort.name)">Name</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.username}" class="no-link btn-link" data-ng-click="setSort(sort.username)">Username</a>
+					</div>
+					<div class="paging-controls pull-right">
+						<span data-ng-show="results.totalSize > 0">
+							{{(results.pageSize*results.pageNumber)+1}} - {{(results.pageSize*results.pageNumber) + users.length}} of {{results.totalSize}}
+						</span>
+						<span data-ng-show="results.totalPages > 1">
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(0)"><i class="fa fa-angle-double-left"></i></a>
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.pageNumber-1)"><i class="fa fa-angle-left"></i></a>
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.pageNumber+1)"><i class="fa fa-angle-right"></i></a>
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.totalPages-1)"><i class="fa fa-angle-double-right"></i></a>
+						</span>
+					</div>
+				</div>
+				<br style="clear:both;"/>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="row" data-ng-show="results.resolved">
+		<div class="col-md-12">
+
+			<!-- Actual results -->
+			<table class="asymmetrik table table-condensed table-hover table-striped" data-ng-show="results.totalSize > 0">
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Username</th>
+						<th>Last Login</th>
+						<th>Roles</th>
+						<th>&nbsp;</th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr data-ng-repeat="user in users">
+						<td >{{user.name}}</td>
+						<td ><div class="hideOverflow" style="max-width:400px;">{{user.username}}</div></td>
+						<td >{{user.lastLogin | agoDateFilter}}</td>
+						<td style="width: 240px;">
+							<div class="btn-group">
+								<button data-ng-repeat="role in roles"
+										type="button" class="btn btn-sm" disabled
+										data-ng-class="{ 'btn-selected': user.roles[role.role], 'btn-unselected': !user.roles[role.role] }" data-ng-attr-title="{{role.description}}">
+									<i class="fa fa-fw" data-ng-class="{ 'fa-check-square-o': user.roles[role.role], 'fa-square-o': !user.roles[role.role] }"></i>
+									{{role.label}}
+								</button>
+							</div>
+						</td>
+						<td style="width: 100px;">
+							<div class="pull-right">
+								<a title="Edit" data-ui-sref="admin.user.edit({ userId: user._id })" type="button" class="btn btn-default btn-sm"><span class="fa fa-edit"></span></a>
+								<button title="Delete" type="button" class="btn btn-danger btn-sm" data-ng-click="deleteUser(user)"><span class="fa fa-trash-o"></span></button>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="col-md-6 col-md-offset-3 center" data-ng-hide="results.totalSize > 0">
+				<h3>
+					<small>No Users matched your search</small>
+				</h3>
+			</div>
+
+		</div>
+	</div>
+
+</section>
