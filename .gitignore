@@ -1,0 +1,13 @@
+.project
+.DS_Store
+.nodemonignore
+.sass-cache/
+npm-debug.log
+node_modules/
+app/tests/coverage/
+.bower-*/
+.idea/
+*.iml
+config/env/reblace.js
+config/env/mgaulin.js
+config/env/rstjohn.js
