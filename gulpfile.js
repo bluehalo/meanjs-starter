@@ -175,6 +175,6 @@ gulp.task('debug', function(done) {
 
 // Run the project in production mode (you still need to manually set NODE_ENV)
 gulp.task('prod', function(done) {
-	runSequence('config', 'build', 'lint', ['nodemon', 'watch'], done);
+	runSequence('config', 'lint', 'build', ['nodemon', 'watch'], done);
 });
 

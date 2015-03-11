@@ -2,18 +2,22 @@
 
 module.exports = {
 	app: {
-		title: 'Blaze (Default Settings)',
-		instanceName: 'Blaze'
+		title: 'Appliction (Default Settings)',
+		instanceName: 'Application'
 	},
 
-	deploymentMode: 'development',
+	assets: 'development',
 
-	// Ports for development applications
-	devPorts: {
-		liveReload: 35729,
-		nodeInspector: 1337,
-		debug: 5858,
-		karma: 9876
+	mongoose: {
+		debug: false
+	},
+
+	karma: {
+		port: 9876
+	},
+
+	liveReload: {
+		enabled: false
 	},
 
 	classification: {
@@ -21,7 +25,7 @@ module.exports = {
 		showBanner: true,
 
 		// The classification string to display in this environment
-		string: 'DEFAULT BLAZE SETTINGS',
+		string: 'DEFAULT SETTINGS',
 
 		// Code that determines applied header/footer style ('U' - unclass, 'S' - secret, 'K' - ts)
 		code: 'K'
@@ -36,14 +40,14 @@ module.exports = {
 
 		// Session settings are required regardless of auth strategy
 		sessionSecret: 'MASs1f349062j3sHjSDhkl7n824nhfufdjn1z383i1345',
-		sessionCollection: 'blaze.sessions',
+		sessionCollection: 'sessions',
 		sessionCookie: {
 			maxAge: 60*60*24*1000	// 24 hours
 		}
 
 	},
 
-	port: process.env.PORT || 4000,
+	port: process.env.PORT || 3000,
 	templateEngine: 'swig'
 
 };

@@ -2,40 +2,32 @@
 
 module.exports = {
 	app: {
-		title: 'Blaze',
-		instanceName: 'Blaze'
+		title: 'Application',
+		instanceName: 'Application'
 	},
 
-	deploymentMode: 'production',
-
-	classification: {
-		showBanner: false
-	},
-
-	auth: {
-		// 'local' uses local username/password auth
-		strategy: 'local',
-
-		sessionSecret: 'MASs1f349062j3sHjSDhkl7n824nhfufdjn1z383i1345',
-		sessionCollection: 'blaze.sessions'
-	},
+	assets: 'production',
 
 	mongoose: {
 		debug: false
 	},
 
-	db: 'mongodb://username:password@server/blaze',
+	classification: {
+		showBanner: false
+	},
+
+	db: 'mongodb://username:password@server/application',
 
 	log: {
 		application: {
-			file: '/var/log/blaze/blaze.log',
+			file: '/var/log/application.log',
 			logstash: {
 				host: 'server',
 				port: 4561
 			}
 		},
 		audit: {
-			file: '/var/log/blaze/audit.log',
+			file: '/var/log/application.audit.log',
 			logstash: {
 				host: 'server',
 				port: 4562

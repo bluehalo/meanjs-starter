@@ -107,11 +107,6 @@ var initGlobalConfigFiles = function(config, assets) {
 	// Setting Globbed model files
 	config.files.server.models = getGlobbedPaths(assets.server.models);
 
-	setTimeout(function(){
-		// Setting Globbed route files
-		var routeFiles = getGlobbedPaths(assets.server.routes);
-	}, 30000);
-
 	// Setting Globbed route files
 	config.files.server.routes = getGlobbedPaths(assets.server.routes);
 
@@ -132,12 +127,14 @@ var initGlobalConfigFiles = function(config, assets) {
 
 	// Setting Globbed test files
 	config.files.client.tests = getGlobbedPaths(assets.client.tests);
+
 };
 
 /**
  * Initialize global configuration
  */
 var initGlobalConfig = function() {
+
 	// Validate NDOE_ENV existance
 	validateEnvironmentVariable();
 
@@ -151,7 +148,7 @@ var initGlobalConfig = function() {
 	var config = _.extend(defaultConfig, environmentConfig);
 
 	// Determine the deployment mode (defaults to 'development')
-	var mode = (null != config.deploymentMode) ? config.deploymentMode : 'development';
+	var mode = (null != config.assets) ? config.assets : 'development';
 
 	// Get the default assets
 	var defaultAssets = require(path.join(process.cwd(), 'config/assets/default'));
@@ -167,6 +164,9 @@ var initGlobalConfig = function() {
 
 	// Initialize global globbed folders
 	initGlobalConfigFolders(config, assets);
+
+	// Store the original assets in the config
+	config.assets = assets;
 
 	// Expose configuration utilities
 	config.utils = {

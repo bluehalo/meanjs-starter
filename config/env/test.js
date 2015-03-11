@@ -1,9 +1,9 @@
 'use strict';
 
 module.exports = {
-	deploymentMode: 'test',
+	assets: 'test',
 
-	db: 'mongodb://localhost/blaze-test',
+	db: 'mongodb://localhost/application-test',
 
 	port: 3001
 };

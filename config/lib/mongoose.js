@@ -65,8 +65,11 @@ module.exports.disconnect = function(cb) {
 	if(null != dbs.primary && null != dbs.primary.disconnect) {
 		// Disconnect
 		dbs.primary.disconnect(function(err) {
+			logger.info('Disconnected from MongoDB!');
 			cb(err);
 		});
+	} else {
+		logger.warn('No MongoDB connection to disconnect!');
 	}
 };
 

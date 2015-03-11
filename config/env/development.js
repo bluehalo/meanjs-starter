@@ -2,9 +2,23 @@
 
 module.exports = {
 	app: {
-		title: 'Blaze (Development)',
-		instanceName: 'Blaze'
+		title: 'Application (Development)',
+		instanceName: 'Application'
 	},
+
+	liveReload: {
+		enabled: true,
+		port: 35729
+	},
+
+	// Ports for development applications
+	devPorts: {
+		nodeInspector: 1337,
+		debug: 5858,
+		karma: 9876
+	},
+
+	db: 'mongodb://localhost/application-dev',
 
 	classification: {
 		showBanner: true,
@@ -12,30 +26,16 @@ module.exports = {
 		code: 'S'
 	},
 
-	auth: {
-		// 'local' uses locally stored username/password sessions
-		strategy: 'local',
-
-		sessionSecret: 'MASs1f349062j3sHjSDhkl7n824nhfufdjn1z383i1345',
-		sessionCollection: 'blaze.sessions'
-	},
-
-	mongoose: {
-		debug: true
-	},
-
-	db: 'mongodb://localhost/wildfire',
-
 	log: {
 		application: {
-			file: '/usr/local/var/log/blaze/blaze.log',
+			file: '/usr/local/var/log/application.log',
 			logstash: {
 				host: 'localhost',
 				port: 4561
 			}
 		},
 		audit: {
-			file: '/usr/local/var/log/blaze/audit.log',
+			file: '/usr/local/var/log/application.audit.log',
 			logstash: {
 				host: 'localhost',
 				port: 4562

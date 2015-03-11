@@ -22,7 +22,7 @@ module.exports = function(karmaConfig) {
 		reporters: ['progress'],
 
 		// Web server port
-		port: config.devPorts.karma,
+		port: config.karma.port,
 
 		// Enable / disable colors in the output (reporters and logs)
 		colors: true,

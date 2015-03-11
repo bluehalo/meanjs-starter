@@ -81,7 +81,7 @@ var UserSchema = new Schema({
 				type: String,
 				default: false
 			},
-			editor: {
+			manager: {
 				type: String,
 				default: false
 			},

@@ -34,6 +34,9 @@ function initLocalVariables(app) {
 	app.locals.jsFiles = config.files.client.js;
 	app.locals.cssFiles = config.files.client.css;
 
+	app.locals.liveReload = (config.liveReload != null && config.liveReload.enabled);
+	app.locals.liveReloadPort = (config.liveReload != null) ? config.liveReload.port : undefined;
+
 	// Passing the request url to environment locals
 	app.use(function (req, res, next) {
 		res.locals.host = req.protocol + '://' + req.hostname;
@@ -108,6 +111,7 @@ function initSession(app, db) {
 		saveUninitialized: true,
 		resave: true,
 		secret: config.auth.sessionSecret,
+		cookie: config.auth.sessionCookie,
 		store: new MongoStore({
 			db: db.connection.db,
 			collection: config.auth.sessionCollection
