@@ -19,7 +19,7 @@
 				</button>
 	
 				<!-- Logo Image -->
-				<a href="/#!/" style="margin-top:-15px;" class="navbar-brand"><img class="logo" src="app/core/img/brand/logo-dark-background.png"/></a>
+				<a href="/#!/" style="margin-top:-15px;" class="navbar-brand"><img class="logo" src="app/core/img/brand/logo-dark-bg.png"/></a>
 			</div>
 	
 	
@@ -64,6 +64,24 @@
 							<!-- User Signout -->
 							<li class="divider"></li>
 							<li><a href="/auth/signout">Sign out</a></li>
+
+						</ul>
+					</li>
+					<li class="dropdown" data-dropdown>
+						<a data-ng-href="/#!/" class="dropdown-toggle" style="padding-top:12px; padding-bottom:10px;" data-dropdown-toggle>
+							<span class="fa-stack fa">
+								<i class="fa fa-circle-o fa-stack-2x"></i>
+								<i class="fa fa-question fa-stack-1x"></i>
+							</span>
+							<span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu" role="menu">
+
+							<!-- Help -->
+							<li><a data-ui-sref="help.overview">Help</a></li>
+
+							<!-- About -->
+							<li><a data-ui-sref="about">About</a></li>
 
 						</ul>
 					</li>

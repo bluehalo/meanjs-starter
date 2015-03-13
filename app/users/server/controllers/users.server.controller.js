@@ -13,5 +13,6 @@ module.exports = _.extend(
 	require(path.resolve('./app/users/server/controllers/users/users.authentication.server.controller.js')),
 	require(path.resolve('./app/users/server/controllers/users/users.authorization.server.controller.js')),
 	require(path.resolve('./app/users/server/controllers/users/users.password.server.controller.js')),
-	require(path.resolve('./app/users/server/controllers/users/users.profile.server.controller.js'))
+	require(path.resolve('./app/users/server/controllers/users/users.profile.server.controller.js')),
+	require(path.resolve('./app/users/server/controllers/users/eua.server.controller.js'))
 );
