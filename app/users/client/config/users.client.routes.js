@@ -60,6 +60,18 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			}
 		})
 
+		// Show the End-user Agreement page
+		.state('user.eua', {
+			url: '/auth/eua',
+			controller: 'EuaController',
+			templateUrl: 'app/users/views/eua/eua.client.view.html',
+			resolve: {
+				UserAgreement: function(authService) {
+					return authService.getCurrentEua();
+				}
+			}
+		})
+
 		// Show unauthorized error
 		.state('user.unauthorized', {
 			url: '/auth/unauthorized',
@@ -99,6 +111,40 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			data: {
 				requiresAuthentication: true,
 				roles: [ 'admin' ]
+			}
+		})
+
+		// EUA management parent state
+		.state('admin.eua', {
+			abstract: true,
+			template: '<ui-view/>',
+			data: { roles: [ 'admin' ] }
+		})
+
+		.state('admin.eua.list', {
+			url: '/admin/euas',
+			controller: 'ListEuasController',
+			templateUrl: 'app/users/views/eua/list-euas.client.view.html',
+			data: { roles: [ 'admin' ] }
+		})
+
+		.state('admin.eua.create', {
+			url: '/admin/eua',
+			controller: 'ManageEuaController',
+			templateUrl: 'app/users/views/eua/manage-eua.client.view.html',
+			data: {
+				mode: 'create',
+				roles : [ 'admin' ]
+			}
+		})
+
+		.state('admin.eua.edit', {
+			url: '/admin/eua/:euaId',
+			controller: 'ManageEuaController',
+			templateUrl: 'app/users/views/eua/manage-eua.client.view.html',
+			data: {
+				mode: 'edit',
+				roles : [ 'admin' ]
 			}
 		})
 

@@ -2,21 +2,21 @@
 /*------------------------*/
 /* Navigation Bar		 */
 /*------------------------*/
-.navbar-blaze {
+.navbar-asymmetrik {
 	border-color: #aaa;
 }
-.navbar-blaze.navbar-inverse .navbar-toggle {
+.navbar-asymmetrik.navbar-inverse .navbar-toggle {
 	border-color: #444;
 	color: #ccc;
 }
 
-.navbar-blaze .navbar-container {
+.navbar-asymmetrik .navbar-container {
 	padding-left: 30px;
 	padding-right: 30px;
 }
 
 img.logo {
-	margin: 5px 40px 0 0;
+	margin: 10px 40px 0 0;
 }
 
 /*------------------------*/

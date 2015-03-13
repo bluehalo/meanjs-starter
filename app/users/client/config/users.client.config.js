@@ -76,6 +76,19 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 				return;
 			}
 
+			// -----------------------------------------------------------
+			// Does the user need to accept the user agreement??
+			// -----------------------------------------------------------
+
+			// Check to see if the user needs to agree to the end user agreement
+			if(Authentication.isAuthenticated() && !Authentication.isAdmin() && !Authentication.isEuaCurrent() ) {
+				if(toState.name !== 'user.eua') {
+					event.preventDefault();
+					$log.info('go to user.eua');
+					$state.go('user.eua');
+					return;
+				}
+			}
 
 			if (!Authentication.isAdmin()) {
 				// -----------------------------------------------------------
