@@ -1,4 +1,4 @@
-# Starter Project for a MEAN Stack Application #
+# Novo - Self-refreshing Object Cache #
 
 ## Dependencies ##
 1. MongoDB (http://mongodb.org)
@@ -8,7 +8,7 @@
 1. Bunyan.js (https://github.com/trentm/node-bunyan)
 
 ## Overview ##
-This starter project is based on the official MEAN.js project (https://github.com/meanjs/mean)
+
 
 ## Organization ##
 At the top-level are various configuration files including those for jshint (.jshintrc), csslint (.csslintrc), bower (.bowerrc), and karma. Also, the two project dependency files bower.json and package.json which manage dependencies for the client and server javascript respectively. The primary build configuration is contained in gulpfile.js. The server.js file is the main entry point for the node application.

@@ -3,7 +3,7 @@
 module.exports = {
 	assets: 'test',
 
-	db: 'mongodb://localhost/application-test',
+	db: 'mongodb://localhost/novo-test',
 
 	port: 3001
 };

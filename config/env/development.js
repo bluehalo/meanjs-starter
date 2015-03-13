@@ -2,34 +2,42 @@
 
 module.exports = {
 	app: {
-		title: 'Application',
-		instanceName: 'Application'
+		title: 'Novo (Development)',
+		instanceName: 'Novo'
 	},
 
-	assets: 'production',
-
-	mongoose: {
-		debug: false
+	liveReload: {
+		enabled: true,
+		port: 35729
 	},
+
+	// Ports for development applications
+	devPorts: {
+		nodeInspector: 1337,
+		debug: 5858,
+		karma: 9876
+	},
+
+	db: 'mongodb://localhost/novo-dev',
 
 	classification: {
-		showBanner: false
+		showBanner: true,
+		string: 'DEVELOPMENT ENVIRONMENT',
+		code: 'S'
 	},
-
-	db: 'mongodb://username:password@server/application',
 
 	log: {
 		application: {
-			file: '/var/log/application.log',
+			file: '/usr/local/var/log/novo.log',
 			logstash: {
-				host: 'server',
+				host: 'localhost',
 				port: 4561
 			}
 		},
 		audit: {
-			file: '/var/log/application.audit.log',
+			file: '/usr/local/var/log/novo.audit.log',
 			logstash: {
-				host: 'server',
+				host: 'localhost',
 				port: 4562
 			}
 		}

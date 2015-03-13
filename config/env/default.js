@@ -2,8 +2,8 @@
 
 module.exports = {
 	app: {
-		title: 'Appliction (Default Settings)',
-		instanceName: 'Application'
+		title: 'Novo (Default Settings)',
+		instanceName: 'Novo'
 	},
 
 	assets: 'development',
