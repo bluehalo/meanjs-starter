@@ -1,0 +1,79 @@
+<div data-ng-controller="HeaderController">
+
+	<nav class="navbar navbar-wildfire navbar-inverse navbar-fixed-top" role="navigation">
+
+		<div class="classification"
+			data-ng-class="classification.css"
+			data-ng-show="classification.showBanner" 
+			data-ng-controller="ClassificationController">{{classification.string}}</div>
+
+		<div class="navbar-container">
+	
+			<!-- The navbar toggle button and logo -->
+			<div class="navbar-header">
+	
+				<!-- Toggle Button for collapsing the menu based on media type -->
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle Navbar</span>
+					<i class="fa fa-bars fa-lg"></i>
+				</button>
+	
+				<!-- Logo Image -->
+				<a href="/#!/" style="margin-top:-15px;" class="navbar-brand"><img class="logo" src="app/core/img/brand/logo-dark-background.png"/></a>
+			</div>
+	
+	
+			<!-- Main navbar -->
+			<div class="navbar-collapse collapse">
+	
+				<!-- Left part of navbar -->
+				<ul class="nav navbar-nav">
+					<li>
+						<a data-ui-sref="entries.list" data-ng-show="auth.isAuthenticated()">Entries</a>
+					</li>
+				</ul>
+	
+	
+				<!-- Right side Signin/Signup area -->
+				<ul class="nav navbar-nav navbar-right" data-ng-hide="auth.isAuthenticated()">
+					<li class="divider-vertical"></li>
+					<li data-ng-class="{active: $uiRoute}">
+						<a data-ui-sref="auth.signin">Sign In</a>
+					</li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right" data-ng-hide="auth.isAuthenticated()">
+					<li class="divider-vertical"></li>
+					<li data-ng-class="{active: $uiRoute}">
+						<a data-ui-sref="auth.signup">Request Account</a>
+					</li>
+				</ul>
+	
+	
+				<!-- Right side user logged in area -->
+				<ul class="nav navbar-nav navbar-right" data-ng-show="auth.isAuthenticated()">
+					<li class="dropdown" data-dropdown>
+						<a data-ng-href="/#!/" class="dropdown-toggle" data-dropdown-toggle>{{auth.user.name}} <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+
+							<!-- Manage User Account -->
+							<li><a data-ng-href="/#!/user">My Account</a></li>
+
+							<!-- Admin Page (only admins should see this) -->
+							<li data-ng-show="auth.isAdmin()"><a data-ui-sref="admin.user.list">ADMIN</a></li>
+
+							<!-- User Signout -->
+							<li class="divider"></li>
+							<li><a href="/auth/signout">Sign out</a></li>
+
+						</ul>
+					</li>
+				</ul>
+
+
+			</div><!--/.navbar-collapse -->
+		</div>
+
+	</nav>
+
+
+</div>

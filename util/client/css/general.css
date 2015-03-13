@@ -1,0 +1,321 @@
+/*
+=====================================
+ General Purpose Styles 
+===================================== 
+*/
+
+/* Adds ellipsis to any DOM element that is too long */
+.hideOverflow {
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+}
+
+/*
+=====================================
+	List Elements
+=====================================
+*/
+.tile {
+	background-color: #fefefe;
+	margin: 8px 16px 4px 16px;
+	padding: 4px 8px 4px 8px;
+	border: 1px solid #eee;
+	border-radius: 3px;
+}
+.tile:hover {
+	background-color: #f5f5f5;
+	border-color: #ddd;
+}
+.tile-header {
+	margin-bottom: 8px;
+}
+.tile-title {
+	font-size: 14px;
+	font-weight: bold;
+}
+.tile-description {
+	margin: 0 16px 0 16px;
+}
+.tile-footer .metadata {
+	margin-top: 8px;
+	font-size: 12px;
+	color: #999;
+}
+
+/*
+=====================================
+	Definition Lists
+=====================================
+*/
+
+dl.dl-horizontal > dd, dl.dl-horizontal > dt {
+	padding-top: 12px;
+}
+
+/*
+=====================================
+	Blocks
+=====================================
+*/
+.block {
+	margin-bottom: 16px;
+}
+.block > h4 {
+	text-transform: uppercase;
+	margin-bottom: 12px;
+	margin-top: 12px;
+	padding: 7px 10px;
+	border-left: 5px solid;
+}
+.block p:last-child {
+	margin-bottom: 0;
+}
+
+/* Variations */
+.block-default > h4 {
+	background: #e4eaf0;
+	border-left-color: #cbd0d6;
+	color: #777f93;
+}
+.block-danger > h4 {
+	background: #e99897;
+	border-left-color: #c25152;
+	color: #7f2a2a;
+}
+.block-warning > h4 {
+	background: #fed;
+	border-left-color: #c96;
+	color: #a63;
+}
+.block-info > h4 {
+	background: #def;
+	border-left-color: #5bc0de;
+	color: #3a87ad;
+}
+
+
+/*
+=====================================
+	Buttons
+=====================================
+*/
+.btn-link {
+	background: none;
+	border: none;
+}
+.btn-link.subtle {
+	color: #999;
+}
+.btn-link.subtle:hover {
+	color: #444;
+}
+.btn-link.danger:hover {
+	color: #d55;
+}
+
+a.no-link {
+	color: #888;
+	text-decoration: none;
+	cursor: pointer;
+}
+a.no-link:hover {
+	color: #444;
+	text-decoration: none;
+}
+a.no-link.danger:hover {
+	color: #d55;
+	text-decoration: none;
+}
+a.no-href {
+	cursor: pointer; 
+}
+
+.btn-selected {
+	color: #222;
+	background-color: #cec;
+	border-color: #686;
+	background-image: none;
+}
+.btn-unselected {
+	color: #222;
+	background-color: #fff;
+	border-color: #777;
+	background-image: none;
+}
+
+.btn-selected:focus,
+.btn-selected:hover,
+.btn-selected:active,
+.btn-selected.active:active {
+	border-color: #aaa;
+}
+
+.btn-unselected:focus,
+.btn-unselected:hover,
+.btn-unselected:active,
+.btn-unselected.active:active {
+	border-color: #aaa;
+}
+/*
+=====================================
+	Callouts
+=====================================
+*/
+.callout {
+	margin: 12px 0;
+	padding: 20px;
+	border: 1px solid #eee;
+	border-left-width: 5px;
+	border-radius: 3px;
+}
+.callout h4 {
+	margin-top: 0;
+	margin-bottom: 5px;
+}
+.callout p:last-child {
+	margin-bottom: 0;
+}
+
+/* Variations */
+.callout-danger {
+	border-left-color: #eb3636;
+}
+.callout-danger h4 {
+	color: #bd0000;
+}
+.callout-warning {
+	border-left-color: #eb7e36;
+}
+.callout-warning h4 {
+	color: #d15700;
+}
+.callout-info {
+	border-left-color: #5bc0de;
+}
+.callout-info h4 {
+	color: #3a87ad;
+}
+.callout-default {
+	border-left-color: #dbe0e6;
+}
+.callout-default h4 {
+	color: #666e82;
+}
+
+
+/*
+=====================================
+	Lists
+=====================================
+*/
+ul.items {
+	padding: 0;
+	list-style-type: none;
+	list-style-position: initial;
+	list-style-image: initial;
+}
+ul.items li {
+	padding-bottom: 2px;
+	padding-top: 2px;
+}
+ul.items.inline li {
+	padding-right: 4px;
+	padding-left: 4px;
+	float: left;
+}
+ul.items .title {
+	font-size: 14px;
+	font-weight: bold;
+	color: #444;
+}
+ul.items label {
+	color: #999;
+	font-size: 12px;
+	text-transform: capitalize;
+	font-weight: normal;
+	margin-bottom: 2px;
+}
+ul.items .value {
+	line-height: 20px;
+	font-size: 18px;
+	font-weight: 300;
+}
+
+
+/*
+=====================================
+	Labels and Values
+=====================================
+*/
+.label {
+	color: #888;
+	font-weight: normal;
+}
+.label-sm {
+	font-size: 12px;
+}
+.value-md {
+	font-size: 14px;
+}
+
+/* Table Settings */
+table.asymmetrik tr td {
+	vertical-align: middle;
+}
+table.asymmetrik, table.asymmetrik thead>tr>th{
+	border-bottom: 1px solid #ddd;
+}
+
+
+/*
+=====================================
+	Text Button Controls
+=====================================
+*/
+.controls {
+	color: #888;
+	font-size: 12px;
+	margin: 4px 2px;
+}
+.controls span {
+	vertical-align: middle;
+}
+.controls a.btn-link {
+	color: #888;
+	font-size: 12px;
+	margin: 0 2px 0 2px;
+}
+.controls a.btn-link.selected {
+	color: #333;
+}
+.controls a.btn-link:hover {
+	color: #333;
+	text-decoration: none;
+}
+
+
+/*
+=====================================
+	Fix for modal backdrop
+=====================================
+*/
+html {
+    height: 100%;
+}
+body {
+    min-height: 100%;
+}
+.modal-backdrop {
+    bottom: 0;
+}
+
+h1.page-header {
+    margin-top: 24px;
+}
+h2.page-header {
+    margin-top: 18px;
+}
+h3.page-header {
+    margin-top: 12px;
+}
