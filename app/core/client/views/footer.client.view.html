@@ -1,6 +1,9 @@
-<div class="footer" data-ng-controller="FooterController">
+<div class="footer" data-ng-controller="BannerController">
+
+	<div class="copyright"
+		data-ng-show="copyright.showBanner">{{copyright.string}}</div>
+
 	<div class="classification"
 		data-ng-show="classification.showBanner"
-		data-ng-class="classification.css"
-		data-ng-controller="ClassificationController">{{classification.string}}</div>
+		data-ng-class="classification.css">{{classification.string}}</div>
 </div>

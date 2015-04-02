@@ -16,15 +16,9 @@ exports.read = function(req, res) {
 	var toReturn = {
 		auth: config.auth.strategy,
 		classification: config.classification,
+		copyright: config.copyright,
 		version: pjson.version
 	};
-
-
-	/**
-	 * Add secured configuration data
-	 */
-	//if(null != req.user){
-	//}
 
 	res.json(toReturn);
 };

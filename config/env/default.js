@@ -31,6 +31,11 @@ module.exports = {
 		code: 'K'
 	},
 
+	copyright: {
+		showBanner: true,
+		string: 'Copyright © 2015 Asymmetrik, Ltd. All Rights Reserved.'
+	},
+
 	auth: {
 		strategy: 'local',
 
