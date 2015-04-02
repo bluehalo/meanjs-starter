@@ -27,25 +27,23 @@ var getGlobbedPaths = function(globPatterns, excludes) {
 		if (urlRegex.test(globPatterns)) {
 			output.push(globPatterns);
 		} else {
-			glob(globPatterns, {
-				sync: true
-			}, function(err, files) {
-				if (excludes) {
-					files = files.map(function(file) {
-						if (_.isArray(excludes)) {
-							for (var i in excludes) {
-								file = file.replace(excludes[i], '');
-							}
-						} else {
-							file = file.replace(excludes, '');
+			var files = glob.sync(globPatterns);
+
+			if (excludes) {
+				files = files.map(function(file) {
+					if (_.isArray(excludes)) {
+						for (var i in excludes) {
+							file = file.replace(excludes[i], '');
 						}
+					} else {
+						file = file.replace(excludes, '');
+					}
 
-						return file;
-					});
-				}
+					return file;
+				});
+			}
 
-				output = _.union(output, files);
-			});
+			output = _.union(output, files);
 		}
 	}
 
@@ -67,16 +65,13 @@ var validateEnvironmentVariable = function() {
 	}
 
 	// Try to get the environment file and see if we can load it
-	glob('./config/env/' + process.env.NODE_ENV + '.js', {
-		sync: true
-	}, function(err, environmentFiles) {
+	var environmentFiles = glob.sync('./config/env/' + process.env.NODE_ENV + '.js');
 
-		if (!environmentFiles.length) {
-			console.log(chalk.red('No configuration files found matching environment: "' + process.env.NODE_ENV + '"'));
-			// Reset console color
-			console.log(chalk.white(''));
-		}
-	});
+	if (!environmentFiles.length) {
+		console.log(chalk.red('No configuration files found matching environment: "' + process.env.NODE_ENV + '"'));
+		// Reset console color
+		console.log(chalk.white(''));
+	}
 
 };
 
