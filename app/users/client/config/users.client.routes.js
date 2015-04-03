@@ -29,7 +29,7 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			url: '/auth/signup',
 			controller: 'ManageUserController',
 			templateUrl: 'app/users/views/manage-user.client.view.html',
-			data: {
+			data: { 
 				mode: 'signup'
 			}
 		})
@@ -93,7 +93,6 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 				mode: 'edit'
 			}
 		})
-
 
 		/*
 		 * States for admin users

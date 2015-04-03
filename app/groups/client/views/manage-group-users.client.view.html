@@ -1,0 +1,102 @@
+<section>
+
+	<a class="back-link" data-ui-sref="group.list"><i class="fa fa-angle-double-left"></i> Back to Groups</a>
+
+	<h3 class="page-header">
+		Manage 
+		<small data-ng-show="group.title"> {{group.title}}</small>
+	</h3>
+
+	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
+
+	<div class="row">
+		<div class="col-md-10">
+
+			<script type="text/ng-template" id="userTemplate.html">
+				<a><span data-ng-bind-html="match.model | userTypeaheadFilter | typeaheadHighlight:query"></span></a>
+			</script>
+
+			<!-- Adding new users -->
+			<div class="input-group">
+
+				<!-- typeahead control -->
+				<input id="user" type="text" class="form-control input-sm"
+					data-ng-model="user" 
+					placeholder="Search for a User..." 
+					data-typeahead="user for user in searchUsers($viewValue) | orderBy:'displayName':true"
+					data-typeahead-input-formatter="$model | userTypeaheadFilter"
+					data-typeahead-template-url="userTemplate.html" 
+					data-typeahead-editable="false"
+					data-typeahead-min-length="2"
+					data-typeahead-wait-ms="300"
+					data-ng-keypress="addUserKeypress($event)">
+
+				<!-- Add button -->
+				<span class="input-group-btn">
+					<button class="btn btn-default btn-sm" type="button"
+							data-ng-disabled="user == null || !user.username" 
+							data-ng-click="addUser(user)">
+						<i class="fa fa-user-plus"> Add User to Group</i>
+					</button>
+				</span>
+			</div>
+
+		</div>
+	</div>
+
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<table class="asymmetrik table table-condensed table-hover table-striped">
+				<thead>
+					<tr>
+						<th>&nbsp;</th>
+						<th>Name</th>
+						<th>Username</th>
+						<th>Roles <i class="fa fa-question-circle" data-ng-click="help.modal('groups/roles')"></i></th>
+					</tr>
+				</thead>
+
+				<tbody>
+					<tr data-ng-repeat="user in members.results.elements">
+
+						<!--  Remove Button -->
+						<td style="width:110px;">
+							<div class="pull-left">
+								<button type="button" class="btn btn-danger btn-sm" data-ng-click="removeUser(user)"><span class="fa fa-user-times"> Remove</span></button>
+							</div>
+						</td>
+
+						<!-- Name -->
+						<td>
+							<div class="hideOverflow" style="max-width: 200px;">{{user.name}}</div>
+						</td>
+
+						<!-- Username -->
+						<td>
+							<div class="hideOverflow" style="max-width:400px;">{{user.username}}</div>
+						</td>
+
+						<!-- Role Buttons -->
+						<td style="width:300px;">
+							<div class="pull-left">
+
+								<div class="btn-group btn-group-sm" role="group">
+									<button data-ng-repeat="role in roles" type="button" class="btn btn-sm" 
+											data-ng-class="{ 'btn-selected': user.groups[0].roles[role.role], 'btn-unselected': !user.groups[0].roles[role.role] }" data-ng-attr-title="{{role.description}}" 
+											data-ng-click="toggleRole(user, role.role)">
+										<i class="fa fa-fw" data-ng-class="{ 'fa-check-square-o': user.groups[0].roles[role.role], 'fa-square-o': !user.groups[0].roles[role.role] }"></i>
+										{{role.label}}
+									</button>
+								</div>
+
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+</section>

@@ -1,0 +1,24 @@
+/* Groups */
+.group-tile {
+	background-color: #fefefe;
+	margin: 8px 16px 4px 16px;
+	padding: 4px 8px 4px 8px;
+	border: 1px solid #eee;
+	border-radius: 3px;
+}
+.group-header {
+	margin-bottom: 8px;
+}
+.group-title {
+	font-size: 14px;
+	font-weight: bold;
+}
+.group-description {
+	margin: 0 16px 0 16px;
+}
+.group-footer .metadata{
+	margin-top: 8px;
+	font-size: 12px;
+	color: #999;
+}
+

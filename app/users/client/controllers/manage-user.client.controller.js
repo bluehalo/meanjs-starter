@@ -2,10 +2,10 @@
 
 angular.module('asymmetrik.users').controller('ManageUserController',
 		[ '$scope', '$location', '$log', '$stateParams', '$state', 
-		  'userService', 'adminService', 'authService', 'Authentication', 'UserConfig', 'Alerts',
+		  'userService', 'adminService', 'authService', 'configService', 'Authentication', 'UserConfig', 'Alerts',
 
 	function( $scope, $location, $log, $stateParams, $state, 
-			  userService, adminService, authService, Authentication, UserConfig, Alerts ) {
+			  userService, adminService, authService, configService, Authentication, UserConfig, Alerts ) {
 
 		// Store our global objects in the scope
 		$scope.auth = Authentication;
@@ -14,14 +14,26 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 		$scope.mode = $state.current.data.mode;
 
 		/**
+		 * Provides validation on the input form, throwing exceptions if
+		 * any validation errors occur and setting the scoped 'error' field
+		 */
+		function validateInput() {
+			// Check the password
+			if($scope.password !== $scope.verifyPassword){
+				$scope.error = 'Passwords do not match';
+				throw 'Invalid Password';
+			}
+		}
+
+		/**
 		 * Create a user based on the current state of the controller
 		 */
 		function createUserAdmin() {
 			$log.info('Create user: ' + $scope.user.username );
 
-			// Check the password
-			if($scope.password !== $scope.verifyPassword){
-				$scope.error = 'Passwords do not match';
+			try {
+				validateInput(); // throws exception if invalid
+			} catch(ex) {
 				return;
 			}
 
@@ -47,9 +59,9 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 		function updateUserAdmin() {
 			$log.info('Edit user: ' + $scope.user.username );
 
-			// Check the password
-			if($scope.password !== $scope.verifyPassword) {
-				$scope.error = 'Passwords do not match';
+			try {
+				validateInput(); // throws exception if invalid
+			} catch(ex) {
 				return;
 			}
 
@@ -58,6 +70,7 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 				username: $scope.user.username, 
 				name: $scope.user.name, 
 				email: $scope.user.email, 
+				phone: $scope.user.phone,
 				roles: $scope.user.roles, 
 				password: $scope.password
 			}).then(
@@ -76,9 +89,9 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 		function createUser() {
 			$log.info('Signup user: ' + $scope.user.username );
 
-			// Check the password
-			if($scope.password !== $scope.verifyPassword){
-				$scope.error = 'Passwords do not match';
+			try {
+				validateInput(); // throws exception if invalid
+			} catch(ex) {
 				return;
 			}
 
@@ -86,6 +99,7 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 				username: $scope.user.username, 
 				name: $scope.user.name, 
 				email: $scope.user.email, 
+				phone: $scope.user.phone,
 				roles: $scope.user.roles, 
 				password: $scope.password
 			}).then(
@@ -105,16 +119,17 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 		function updateUser() {
 			$log.info('Update user: ' + $scope.user.username );
 
-			// Check the password
-			if($scope.password !== $scope.verifyPassword){
-				$scope.error = 'Passwords do not match.';
+			try {
+				validateInput(); // throws exception if invalid
+			} catch(ex) {
 				return;
 			}
 
 			userService.update({
 				username : $scope.user.username,
 				name : $scope.user.name, 
-				email : $scope.user.email, 
+				email : $scope.user.email,
+				phone : $scope.user.phone,
 				password: $scope.password,
 				currentPassword: $scope.currentPassword 
 			})

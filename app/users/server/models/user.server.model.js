@@ -40,6 +40,24 @@ var validatePassword = function(password) {
 var passwordMessage = 'Password must be at least 6 characters long.';
 
 
+var GroupPermissionSchema = new Schema({
+	_id: {
+		type: Schema.ObjectId,
+		ref: 'Group'
+	},
+	roles: {
+		type: {
+			editor: {
+				type: String,
+				default: false
+			},
+			admin: {
+				type: String,
+				default: false
+			}
+		}
+	}
+});
 
 var UserSchema = new Schema({
 	name: {
@@ -81,7 +99,7 @@ var UserSchema = new Schema({
 				type: String,
 				default: false
 			},
-			manager: {
+			editor: {
 				type: String,
 				default: false
 			},
@@ -112,6 +130,10 @@ var UserSchema = new Schema({
 	lastLogin: {
 		type: Date,
 		default: null
+	},
+	groups: {
+		type: [GroupPermissionSchema],
+		default: []
 	}
 });
 
@@ -121,7 +143,7 @@ var UserSchema = new Schema({
  */
 
 // Text-search index
-UserSchema.index({ name: 'text', email: 'text', username: 'text'});
+UserSchema.index({ name: 'text', email: 'text', username: 'text', 'groups.group': 1 });
 
 
 /**
@@ -210,6 +232,33 @@ UserSchema.statics.filteredCopy = function(user) {
 	return toReturn;
 };
 
+//Group Copy of a User (has group roles for the group )
+UserSchema.statics.groupCopy = function(user, groupId) {
+	var toReturn = null;
+
+	if(null != user){
+		toReturn = {};
+
+		toReturn._id = user._id;
+		toReturn.name = user.name;
+		toReturn.username = user.username;
+		toReturn.created = user.created;
+		toReturn.lastLogin = toReturn.lastLogin;
+
+		// Copy only the relevant group roles
+		toReturn.groups = [];
+		if(null != user.groups) {
+			user.groups.forEach(function(element){
+				if(null != element._id && element._id.equals(groupId)) {
+					toReturn.groups.push(element);
+				}
+			});
+		}
+	}
+
+	return toReturn;
+};
+
 // Full Copy of a User (admin)
 UserSchema.statics.fullCopy = function(user) {
 	var toReturn = null;
@@ -220,12 +269,14 @@ UserSchema.statics.fullCopy = function(user) {
 		toReturn._id = user._id;
 		toReturn.name = user.name;
 		toReturn.email = user.email;
+		toReturn.phone = user.phone;
 		toReturn.username = user.username;
 		toReturn.roles = user.roles;
 		toReturn.updated = user.updated;
 		toReturn.created = user.created;
 		toReturn.acceptedEua = user.acceptedEua;
 		toReturn.lastLogin = user.lastLogin;
+		toReturn.groups = user.groups;
 	}
 
 	return toReturn;
@@ -237,6 +288,7 @@ UserSchema.statics.createCopy = function(user) {
 
 	toReturn.name = user.name;
 	toReturn.email = user.email;
+	toReturn.phone = user.phone;
 	toReturn.username = user.username;
 	toReturn.password = user.password;
 	toReturn.created = Date.now();
@@ -261,3 +313,4 @@ UserSchema.statics.auditCopy = function(user) {
  * Model Registration
  */
 mongoose.model('User', UserSchema);
+mongoose.model('GroupPermission', GroupPermissionSchema);

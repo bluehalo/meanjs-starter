@@ -1,0 +1,46 @@
+<section>
+
+	<a class="back-link" data-ui-sref="group.list"><i class="fa fa-angle-double-left"></i> Back to Groups</a>
+
+	<!-- Page Header -->
+	<h3 class="page-header">
+		{{title}} <small>{{subtitle}}</small>
+	</h3>
+
+	<div class="row">
+
+		<div class="col-md-5">
+			<form novalidate class="form-horizontal" role="form">
+
+				<div class="form-group row">
+					<div class="col-sm-12">
+						<label for="title">Title<span class="text-danger"><strong> *</strong></span></label>
+						<input type="text" class="form-control" id="title" data-ng-model="group.title" required />
+					</div>
+				</div>
+				<div class="form-group row">
+					<div class="col-sm-12">
+						<label for="description">Description</label>
+						<textarea rows="4" class="form-control" id="description" data-ng-model="group.description"></textarea>
+					</div>
+				</div>
+
+				<div data-ng-show="error" class="form-group row">
+					<div class="col-sm-12 text-danger">
+						<strong>{{error}}</strong>
+					</div>
+				</div>
+
+				<div class="form-group row">
+					<div class="col-sm-12">
+						<button type="button" class="btn btn-default" data-ng-click="okAction()">{{okButtonText}}</button>
+						<a type="button" class="btn btn-link" data-ng-href="/#!/groups">Cancel</a>
+					</div>
+				</div>
+
+			</form>
+		</div>
+
+	</div>
+
+</section>

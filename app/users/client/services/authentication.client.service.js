@@ -71,13 +71,12 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 	data.hasEditableGroups = function() {
 		return data.isEditorOfAGroup;
 	};
-	data.canCreateSubscriptions = function() {
+	data.canCreateReports = function() {
 		return data.isAdmin() || data.isEditorOfAGroup;
 	};
-	data.canEditSubscriptions = function(groupId) {
+	data.canEditReports = function(groupId) {
 		return data.isAdmin() || data.hasGroupEdit(groupId);
 	};
-
 
 	data.setUser = function(user) {
 		if(null == user || null == user.username) {
@@ -120,7 +119,7 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 }]);
 
 // Authentication service for user variables
-angular.module('asymmetrik.users').factory('authService', 
+angular.module('wf.users').factory('authService', 
 		[ '$http', '$q', '$log', 'Authentication', 
 	function( $http, $q, $log, Authentication ) {
 

@@ -7,7 +7,8 @@ var passport = require('passport'),
 	config = deps.config,
 	logger = deps.logger,
 
-	users = require(path.resolve('./app/users/server/controllers/users.server.controller.js'));
+	users = require(path.resolve('./app/users/server/controllers/users.server.controller.js')),
+	groups = require(path.resolve('./app/groups/server/controllers/groups.server.controller.js'));
 
 
 module.exports = function(app) {
@@ -36,8 +37,6 @@ module.exports = function(app) {
 	// User match-based search for other users (this searches based on a fragment)
 	app.route('/users/match')
 		.post(users.requiresLogin, users.requiresRoles(['user']), users.matchUsers);
-
-
 
 	/**
 	 * Admin User Routes (requires admin)

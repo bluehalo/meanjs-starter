@@ -6,6 +6,7 @@ var _ = require('lodash'),
 	path = require('path'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
+	dbs = deps.dbs,
 	util = deps.utilService,
 	logger = deps.logger,
 	auditLogger = deps.auditLogger,

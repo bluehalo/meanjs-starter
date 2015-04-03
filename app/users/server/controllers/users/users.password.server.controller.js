@@ -10,6 +10,7 @@ var _ = require('lodash'),
 	q = require('q'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
+	dbs = deps.dbs,
 	config = deps.config,
 	errorHandler = deps.errorHandler,
 	logger = deps.logger,

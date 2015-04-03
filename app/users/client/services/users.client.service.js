@@ -1,7 +1,7 @@
 'use strict';
 
 // Users service used for communicating with the users REST endpoint
-angular.module('asymmetrik.users').factory('userService',
+angular.module('wf.users').factory('userService', 
 		['$http', '$q', '$log', 'Authentication', 
 		 function($http, $q, $log, Authentication ) {
 

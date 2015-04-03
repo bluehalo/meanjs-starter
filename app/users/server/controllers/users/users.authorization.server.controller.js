@@ -5,6 +5,7 @@ var _ = require('lodash'),
 	path = require('path'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
+	dbs = deps.dbs,
 
 	User = mongoose.model('User');
 

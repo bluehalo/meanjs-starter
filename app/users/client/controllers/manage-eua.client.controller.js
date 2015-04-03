@@ -1,10 +1,10 @@
 'use strict';
 
 angular.module('asymmetrik.users').controller('ManageEuaController',
-		[ '$scope', '$location', '$log', '$stateParams', '$state', 
+		[ '$scope', '$location', '$log', '$stateParams', '$state', '$modal',
 		  'euaService', 'Authentication', 'Alerts',
 
-	function( $scope, $location, $log, $stateParams, $state, 
+	function( $scope, $location, $log, $stateParams, $state, $modal,
 			  euaService, Authentication, Alerts ) {
 
 		// Store our global objects in the scope
@@ -34,12 +34,12 @@ angular.module('asymmetrik.users').controller('ManageEuaController',
 		 * Admin-mode update eua
 		 */
 		function updateEua() {
-			$log.info('Edit user: ' + $scope.eua.title );
+			$log.info('Edit eua: ' + $scope.eua.title );
 
 			euaService.update({
 				_id: $scope.eua._id,
-				title: $scope.eua.title, 
-				text: $scope.eua.text, 
+				title: $scope.eua.title,
+				text: $scope.eua.text,
 				published: $scope.eua.published
 			}).then(
 				function(result) {
@@ -52,9 +52,26 @@ angular.module('asymmetrik.users').controller('ManageEuaController',
 		}
 
 		/**
-		 * Initialization code. 
+		 * Load draft eua into a modal dialog
+		 */
+		function previewEua() {
+			$log.info('Preview eua: ' + $scope.eua.title );
+			$scope.preview = true;
+			var modalInstance = $modal.open({
+				templateUrl: 'app/users/views/eua/eua.client.view.html',
+				scope: $scope
+			});
+			var close = function(result){
+				delete $scope.preview;
+			};
+			modalInstance.result.then(close, close);
+		}
+
+		/**
+		 * Initialization code.
 		 * Determine which mode the controller is in and configure accordingly.
 		 */
+		$scope.previewAction = previewEua;
 		if($scope.mode === 'create') {
 			// Admin create mode
 			$scope.title = 'Create EUA';

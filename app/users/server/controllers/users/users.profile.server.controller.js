@@ -7,6 +7,7 @@ var _ = require('lodash'),
 	path = require('path'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
+	dbs = deps.dbs,
 	util = deps.utilService,
 	logger = deps.logger,
 	auditLogger = deps.auditLogger,
@@ -117,6 +118,7 @@ exports.updateCurrentUser = function(req, res) {
 		// Copy over the new user properties
 		user.name = req.body.name;
 		user.email = req.body.email;
+		user.phone = req.body.phone;
 		user.username = req.body.username;
 
 		// Update the updated date
@@ -285,6 +287,7 @@ exports.adminUpdateUser = function(req, res) {
 	// Copy over the new user properties
 	user.name = req.body.name;
 	user.email = req.body.email;
+	user.phone = req.body.phone;
 	user.username = req.body.username;
 	user.roles = req.body.roles;
 

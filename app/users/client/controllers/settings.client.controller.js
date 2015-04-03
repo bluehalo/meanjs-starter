@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('asymmetrik.users').controller('SettingsController',
+angular.module('asymmetrik.users').controller('SettingsController', 
 		[ '$scope', '$location',
 		  'Authentication', 'authService', 'userService', 
 
@@ -17,8 +17,7 @@ angular.module('asymmetrik.users').controller('SettingsController',
 				$scope.success = $scope.error = null;
 				userService.update($scope.user).then(function(response) {
 					$scope.success = true;
-					$scope.auth.user = response;
-					$scope.user = response;
+					$scope.auth.setUser(response);
 				}, function(error) {
 					$scope.error = error.message;
 				});
