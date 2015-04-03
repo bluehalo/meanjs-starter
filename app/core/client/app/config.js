@@ -6,6 +6,7 @@ var ApplicationConfiguration = (function() {
 	var applicationModuleName = 'app';
 	var applicationModuleVendorDependencies = [
 		'ngResource', 'ngAnimate',
+		'textAngular',
 		'ui.router', 'ui.bootstrap', 'ui.utils',
 		'sentio.realtime', 'sentio'
 	];

@@ -7,6 +7,7 @@ module.exports = {
 				'public/lib/bootstrap/dist/css/bootstrap.css',
 				'public/lib/bootstrap/dist/css/bootstrap-theme.css',
 				'public/lib/fontawesome/css/font-awesome.css',
+				'public/lib/textAngular/src/textAngular.css',
 				'public/lib/sentio-js/dist/sentio.css'
 			],
 			js: [
@@ -20,6 +21,12 @@ module.exports = {
 				'public/lib/angular-ui-router/release/angular-ui-router.js',
 				'public/lib/angular-ui-utils/ui-utils.js',
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
+
+				'public/lib/rangy/rangy-core.js',
+				'public/lib/rangy/rangy-selectionsaverestore.js',
+				'public/lib/textAngular/src/textAngular-sanitize.js',
+				'public/lib/textAngular/src/textAngularSetup.js',
+				'public/lib/textAngular/src/textAngular.js',
 
 				'public/lib/sentio-js/dist/sentio.js',
 				'public/lib/sentio-js/dist/sentio-angular.js'
