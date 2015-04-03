@@ -119,7 +119,7 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 }]);
 
 // Authentication service for user variables
-angular.module('wf.users').factory('authService', 
+angular.module('asymmetrik.users').factory('authService', 
 		[ '$http', '$q', '$log', 'Authentication', 
 	function( $http, $q, $log, Authentication ) {
 

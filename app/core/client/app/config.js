@@ -3,9 +3,10 @@
 // Init the application configuration module for AngularJS application
 var ApplicationConfiguration = (function() {
 	// Init module configuration options
-	var applicationModuleName = 'app';
+	var applicationModuleName = 'wildfire_ember';
 	var applicationModuleVendorDependencies = [
 		'ngResource', 'ngAnimate',
+		'textAngular',
 		'ui.router', 'ui.bootstrap', 'ui.utils',
 		'sentio.realtime', 'sentio'
 	];

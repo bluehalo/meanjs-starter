@@ -6,6 +6,12 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 		// Reports state routing
 		$stateProvider
 
+		// Abstract parent state
+		.state('report', {
+			abstract: true,
+			template: '<ui-view/>'
+		})
+
 		/*
 		 * States for managing and viewing reports
 		 */
@@ -15,7 +21,9 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 			url: '/reports',
 			templateUrl: 'app/reports/views/list-reports.client.view.html',
 			controller: 'ListReportsController',
-			roles : [ 'user' ]
+			data: {
+				roles : [ 'user' ]
+			}
 		})
 
 		/* Manage reports. Both Create and edit. */
@@ -23,13 +31,17 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 			url: '/report/create',
 			templateUrl: 'app/report/views/manage-report.client.view.html',
 			controller: 'ManageReportController',
-			roles : [ 'user' ]
+			data: {
+				roles : [ 'user' ]
+			}
 		})
 		.state('report.edit', {
 			url: '/report:reportId/edit',
 			templateUrl: 'app/reports/views/manage-report.client.view.html',
 			controller: 'ManageReportController',
-			roles : [ 'user' ]
+			data: {
+				roles : [ 'user' ]
+			}
 		})
 
 

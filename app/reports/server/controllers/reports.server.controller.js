@@ -92,7 +92,6 @@ exports.delete = function(req, res) {
 	report.remove(function(err) {
 		util.catchError(res, err, function() {
 			res.json(report);
-			sendStormUpdate(res);
 		});
 	});
 

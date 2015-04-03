@@ -1,7 +1,7 @@
 /* global moment */
 'use strict';
 
-angular.module('wf.users').filter('userTypeaheadFilter', function() {
+angular.module('asymmetrik.users').filter('userTypeaheadFilter', function() {
 
 	return function(user) {
 		if(null != user) {
