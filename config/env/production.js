@@ -2,8 +2,8 @@
 
 module.exports = {
 	app: {
-		title: 'Application',
-		instanceName: 'Application'
+		title: 'Wildfire Ember',
+		instanceName: 'Wildfire_Ember'
 	},
 
 	assets: 'production',
@@ -16,18 +16,18 @@ module.exports = {
 		showBanner: false
 	},
 
-	db: 'mongodb://username:password@server/application',
+	db: 'mongodb://username:password@server/ember',
 
 	log: {
 		application: {
-			file: '/var/log/application.log',
+			file: '/var/log/ember.log',
 			logstash: {
 				host: 'server',
 				port: 4561
 			}
 		},
 		audit: {
-			file: '/var/log/application.audit.log',
+			file: '/var/log/ember.audit.log',
 			logstash: {
 				host: 'server',
 				port: 4562

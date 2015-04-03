@@ -2,8 +2,8 @@
 
 module.exports = {
 	app: {
-		title: 'Application (Development)',
-		instanceName: 'Application'
+		title: 'Wildfire Ember (Development)',
+		instanceName: 'Wildfire_Ember'
 	},
 
 	liveReload: {
@@ -18,7 +18,7 @@ module.exports = {
 		karma: 9876
 	},
 
-	db: 'mongodb://localhost/application-dev',
+	db: 'mongodb://localhost/ember-dev',
 
 	classification: {
 		showBanner: true,
@@ -28,14 +28,14 @@ module.exports = {
 
 	log: {
 		application: {
-			file: '/usr/local/var/log/application.log',
+			file: '/usr/local/var/log/ember.log',
 			logstash: {
 				host: 'localhost',
 				port: 4561
 			}
 		},
 		audit: {
-			file: '/usr/local/var/log/application.audit.log',
+			file: '/usr/local/var/log/ember.audit.log',
 			logstash: {
 				host: 'localhost',
 				port: 4562

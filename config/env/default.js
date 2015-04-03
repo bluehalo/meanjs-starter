@@ -2,8 +2,8 @@
 
 module.exports = {
 	app: {
-		title: 'Appliction (Default Settings)',
-		instanceName: 'Application'
+		title: 'Wildfire Ember (Default Settings)',
+		instanceName: 'Wildfire_Ember'
 	},
 
 	assets: 'development',

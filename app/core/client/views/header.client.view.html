@@ -1,4 +1,4 @@
-<div data-ng-controller="BannerController">
+<div data-ng-controller="CoreController">
 
 	<nav class="navbar navbar-asymmetrik navbar-inverse navbar-fixed-top" role="navigation">
 
@@ -12,27 +12,27 @@
 			<div class="navbar-header">
 	
 				<!-- Toggle Button for collapsing the menu based on media type -->
-				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<button type="button" class="navbar-toggle" data-ng-click="collapsed = !collapsed">
 					<span class="sr-only">Toggle Navbar</span>
 					<i class="fa fa-bars fa-lg"></i>
 				</button>
-	
+
 				<!-- Logo Image -->
 				<a href="/#!/" style="margin-top:-15px;" class="navbar-brand"><img class="logo" src="app/core/img/brand/logo-dark-bg.png"/></a>
 			</div>
-	
-	
+
+
 			<!-- Main navbar -->
-			<div class="navbar-collapse collapse">
-	
+			<div class="navbar-collapse collapse" data-collapse="!collapsed">
+
 				<!-- Left part of navbar -->
 				<ul class="nav navbar-nav">
 					<li>
 						<a data-ui-sref="entries.list" data-ng-show="auth.isAuthenticated()">Entries</a>
 					</li>
 				</ul>
-	
-	
+
+
 				<!-- Right side Signin/Signup area -->
 				<ul class="nav navbar-nav navbar-right" data-ng-hide="auth.isAuthenticated()">
 					<li class="divider-vertical"></li>

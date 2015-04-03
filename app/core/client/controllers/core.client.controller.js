@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('app.core').controller('BannerController',
+angular.module('app.core').controller('CoreController',
 		[ '$scope', 'Authentication', 'authService', 'configService',
 
 	function( $scope, Authentication, authService, configService) {
