@@ -55,6 +55,11 @@ angular.module('asymmetrik.reports').controller('ManageReportController',
 			$scope.okButtonText = 'Create';
 			$scope.okAction = createReport;
 
+			// Initialize the report object
+			$scope.report = {
+				period: $scope.periods.map.day.value
+			};
+
 		} else if($scope.mode === 'edit') {
 			// Admin edit a user mode
 			$scope.title = 'Edit Report';

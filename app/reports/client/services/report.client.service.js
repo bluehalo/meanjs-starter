@@ -5,6 +5,26 @@ angular.module('asymmetrik.reports').factory('reportService',
 		['$http', '$q', '$log', 
 		 function($http, $q, $log) {
 
+	var sort = {};
+	sort.map = {
+		title: { label: 'Name', sort: 'name', dir: 'ASC' },
+		created: { label: 'Created', sort: 'created', dir: 'DESC' },
+		enabled: { label: 'Enabled', sort: 'enabled', dir: 'DESC' },
+		relevance: { label: 'Relevance', sort: 'score', dir: 'DESC' }
+	};
+	sort.array = [ sort.map.title, sort.map.created, sort.map.enabled, sort.map.relevance ];
+
+	var periods = {};
+	periods.map = {
+		hour: { label: 'hour', value: 60*60 },
+		sixHours: { label: '6 hours', value: 6*60*60 },
+		twelveHours: { label: '12 hours', value: 12*60*60 },
+		day: { label: 'day', value: 24*60*60 },
+		week: { label: 'week', value: 7*24*60*60 }
+	};
+	periods.array = [ periods.map.hour, periods.map.sixHours, periods.map.twelveHours, periods.map.day, periods.map.week ];
+
+
 	/**
 	 * Public methods to be exposed through the service
 	 */
@@ -88,19 +108,8 @@ angular.module('asymmetrik.reports').factory('reportService',
 
 	// Return the public API
 	return ({
-		sort: {
-			title: { label: 'Name', sort: 'name', dir: 'ASC' },
-			created: { label: 'Created', sort: 'created', dir: 'DESC' },
-			enabled: { label: 'Enabled', sort: 'enabled', dir: 'DESC' },
-			relevance: { label: 'Relevance', sort: 'score', dir: 'DESC' }
-		},
-		periods: [
-			{ label: 'hour', value: 60*60 },
-			{ label: '6 hours', value: 6*60*60 },
-			{ label: '12 hours', value: 12*60*60 },
-			{ label: 'day', value: 24*60*60 },
-			{ label: 'week', value: 7*24*60*60 }
-		],
+		sort: sort,
+		periods: periods,
 		create: create,
 		get: get,
 		search: search,

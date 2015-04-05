@@ -1,4 +1,4 @@
-<section>
+<section class="container">
 
 	<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
 

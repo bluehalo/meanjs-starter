@@ -18,7 +18,7 @@ angular.module('asymmetrik.reports').controller('ListReportsController',
 		$scope.search = '';
 
 		// Sort options for the page
-		$scope.sort = reportService.sort;
+		$scope.sort = reportService.sort.map;
 
 		// Metadata about the currently displayed set of data
 		$scope.results = {

@@ -17,7 +17,7 @@
 		<!-- Basic Information -->
 		<div class="form-group row">
 			<div class="col-md-12">
-				<label for="group">Group<span class="text-danger"><strong> *</strong></span></label>
+				<label for="group">Which group controls this report?<span class="text-danger"><strong> *</strong></span></label>
 				<select class="form-control" 
 					data-ng-model="criteria.group" 
 					data-ng-options="group._id as group.title for group in groups | orderBy:'title'"></select>
@@ -28,7 +28,7 @@
 		<!-- Title -->
 		<div class=" form-group row">
 			<div class="col-md-12">
-				<label class="control-label" for="title">Title of the Report<span class="text-danger"><strong> *</strong></span></label>
+				<label class="control-label" for="title">What is the title of the report?<span class="text-danger"><strong> *</strong></span></label>
 				<input type="text" class="form-control" id="title" data-ng-model="report.title" required />
 			</div>
 		</div>
@@ -37,7 +37,7 @@
 		<!-- Description -->
 		<div class="form-group row">
 			<div class="col-md-12">
-				<label class="control-label" for="description">Description</label>
+				<label class="control-label" for="description">Describe the report</label>
 				<textarea rows="4" class="form-control" id="description" data-ng-model="report.description"></textarea>
 			</div>
 		</div>
@@ -74,10 +74,10 @@
 		<div class="form-group row">
 			<div class="col-md-12">
 
-				<label for="group">Run the report every<span class="text-danger"><strong> *</strong></span></label>
+				<label for="group">This report should run every<span class="text-danger"><strong> *</strong></span></label>
 					<select class="form-control" 
 						data-ng-model="report.period" 
-						data-ng-options="period.value as period.label for period in periods | orderBy:'value'"></select>
+						data-ng-options="period.value as period.label for period in periods.array | orderBy:'value'"></select>
 
 			</div>
 		</div>
