@@ -3,8 +3,8 @@
 
 	<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
 
-	<form novalidate name="euaForm" autocomplete="off" class="form-horizontal" role="form"
-		data-ng-submit="updateEua(euaForm.$valid)" >
+	<form novalidate name="reportForm" autocomplete="off" class="form-horizontal" role="form"
+		data-ng-submit="updateReport(reportForm.$valid)" >
 
 		<div class="page-header">
 			<h2>
@@ -13,31 +13,93 @@
 			</h2>
 		</div>
 
-		<!-- Basic Information -->
-		<div class="col-md-12 form-group">
-			<label class="control-label" for="title">Title of the Agreement<span class="text-danger"><strong> *</strong></span></label>
-			<div><input type="text" class="form-control" id="title" data-ng-model="eua.title" required /></div>
-		</div>
 
-		<div class="col-md-12 form-group">
-			<label class="control-label" for="text">Text Content of the Agreement<span class="text-danger"><strong> *</strong></span></label>
-			<div>
-				<div data-text-angular id="text" data-ng-model="eua.text" required></div>
+		<!-- Basic Information -->
+		<div class="form-group row">
+			<div class="col-sm-12">
+				<label for="group">Group<span class="text-danger"><strong> *</strong></span></label>
+				<select class="form-control" 
+					data-ng-model="criteria.group" 
+					data-ng-options="group._id as group.title for group in groups | orderBy:'title'"></select>
 			</div>
 		</div>
 
-		<div class="col-md-12 form-group" data-ng-show="error">
-			<div class="pull-right">
-				<div class="text-danger">
-					<strong>{{error}}</strong>
+
+		<!-- Title -->
+		<div class=" form-group row">
+			<div class="col-md-12">
+				<label class="control-label" for="title">Title of the Report<span class="text-danger"><strong> *</strong></span></label>
+				<input type="text" class="form-control" id="title" data-ng-model="report.title" required />
+			</div>
+		</div>
+
+
+		<!-- Description -->
+		<div class="form-group row">
+			<div class="col-sm-12">
+				<label class="control-label" for="description">Description</label>
+				<textarea rows="4" class="form-control" id="description" data-ng-model="report.description"></textarea>
+			</div>
+		</div>
+
+
+		<div class="page-header">
+			<h3>
+				Report Criteria
+				<small>These parameters affect the behavior and content of the report</small>
+			</h3>
+		</div>
+
+
+		<!-- List of Users -->
+		<div class="form-group row">
+			<div class="col-md-12">
+				<label class="control-label" for="users">Users of Interest<span class="text-danger"><strong> *</strong></span></label>
+				<textarea type="text" class="form-control" id="users" data-ng-list="," data-ng-model="report.criteria.users" required ></textarea>
+			</div>
+		</div>
+
+		<div>
+			<ul class="items inline" id="users">
+				<li data-ng-repeat="user in report.criteria.users track by $index">
+					<div class="item">
+						<div class="item-label hideOverflow">{{user}}</div>
+						<div class="item-delete"><a data-ng-click="deleteFn($index)" class="no-link danger btn-xs"><i class="fa fa-trash-o"></i></a></div>
+					</div>
+				</li>
+			</ul>
+		</div>
+
+		<!-- Period Select -->
+		<div class="form-group row">
+			<div class="col-sm-12">
+
+				<label for="group">Execution Schedule<span class="text-danger"><strong> *</strong></span></label>
+					<select class="form-control" 
+						data-ng-model="report.period" 
+						data-ng-options="period.value as period.label for period in periods | orderBy:'value'"></select>
+
+			</div>
+		</div>
+
+
+		<!--  Form Validation errors -->
+		<div class="form-group row">
+			<div class="col-md-12" data-ng-show="error">
+				<div class="pull-right">
+					<div class="text-danger">
+						<strong>{{error}}</strong>
+					</div>
 				</div>
 			</div>
 		</div>
 
+
+		<!-- Ok/Cancel buttons -->
 		<div class="col-md-12 form-group">
 			<div class="pull-right">
 				<button type="submit" class="btn btn-default" data-ng-click="okAction()">{{okButtonText}}</button>
-				<a type="button" class="btn btn-link" data-ng-show="mode === 'create' || mode === 'edit'" data-ui-sref="admin.eua.list">Cancel</a>
+				<a type="button" class="btn btn-link" data-ng-show="mode === 'create' || mode === 'edit'" data-ui-sref="report.list">Cancel</a>
 			</div>
 		</div>
 

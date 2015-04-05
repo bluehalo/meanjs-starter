@@ -10,6 +10,7 @@ angular.module('asymmetrik.reports').controller('ManageReportController',
 		// Store our global objects in the scope
 		$scope.auth = Authentication;
 		$scope.mode = $state.current.data.mode;
+		$scope.periods = reportService.periods;
 
 		/**
 		 * Create a user based on the current state of the controller
@@ -70,7 +71,7 @@ angular.module('asymmetrik.reports').controller('ManageReportController',
 
 		} else {
 			// Invalid mode
-			$scope.user = {};
+			$scope.report = {};
 			$log.error('Invalid mode');
 		}
 	}

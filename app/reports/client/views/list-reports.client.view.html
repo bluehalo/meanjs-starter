@@ -3,10 +3,9 @@
 	<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
 
 	<h3 class="page-header">
-		EUAs
-		<small>Administer End User Agreements</small>
-		<a data-ui-sref="admin.eua.create" type="button" class="btn btn-default btn-sm pull-right">
-			<span class="glyphicon glyphicon-plus"></span> Create EUA
+		Reports
+		<a data-ui-sref="report.create" type="button" class="btn btn-default btn-sm pull-right">
+			<span class="glyphicon glyphicon-plus"></span> Create Report
 		</a>
 	</h3>
 
@@ -15,7 +14,7 @@
 
 			<!-- Search Input -->
 			<div class="input-group">
-				<input placeholder="Enter a search..." type="text" class="form-control input-sm" data-ng-model="search" data-ng-keypress="applySearchKeypress($event)" data-ng-change="subscriptionSearch.$setPristine()">
+				<input placeholder="Enter a search..." type="text" class="form-control input-sm" data-ng-model="search" data-ng-keypress="applySearchKeypress($event)">
 				<span class="input-group-btn">
 					<button class="btn btn-default btn-sm" type="button" data-ng-click="applySearch()">
 						<i class="fa fa-search"></i>
@@ -37,10 +36,9 @@
 						<a type="button" data-ng-class="{selected: options.sort===sort.relevance}" class="no-link btn-link" data-ng-click="setSort(sort.relevance)">Relevance</a> /
 						<a type="button" data-ng-class="{selected: options.sort===sort.created}" class="no-link btn-link" data-ng-click="setSort(sort.created)">Created</a> /
 						<a type="button" data-ng-class="{selected: options.sort===sort.title}" class="no-link btn-link" data-ng-click="setSort(sort.title)">Title</a> /
-						<a type="button" data-ng-class="{selected: options.sort===sort.published}" class="no-link btn-link" data-ng-click="setSort(sort.published)">Published</a>
 					</div>
 					<div class="paging-controls pull-right">
-						<span data-ng-show="results.totalSize > 0">{{(results.pageSize*results.pageNumber)+1}} - {{(results.pageSize*results.pageNumber) + euas.length}} of {{results.totalSize}}</span>
+						<span data-ng-show="results.totalSize > 0">{{(results.pageSize*results.pageNumber)+1}} - {{(results.pageSize*results.pageNumber) + reports.length}} of {{results.totalSize}}</span>
 						<span data-ng-show="results.totalPages > 1">
 							<a type="button" class="no-link btn-link" data-ng-click="goToPage(0)"><i class="fa fa-angle-double-left"></i></a>
 							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.pageNumber-1)"><i class="fa fa-angle-left"></i></a>
@@ -64,30 +62,30 @@
 					<tr>
 						<th>Title</th>
 						<th>Created</th>
-						<th>Published</th>
+						<th>Last Run</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
 	
 				<tbody>
-					<tr data-ng-repeat="eua in euas">
-						<td ><div class="hideOverflow" style="max-width:400px;">{{eua.title}}</div></td>
-						<td >{{eua.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
-						<td >{{eua.published | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
+					<tr data-ng-repeat="report in reports">
+						<td ><div class="hideOverflow" style="max-width:400px;">{{report.title}}</div></td>
+						<td >{{report.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
+						<td >{{report.lastRun | agoDateFilter}}</td>
 						<td >
 							<div class="pull-right" style="width:120px;">
-								<a title="Edit" data-ui-sref="admin.eua.edit({ euaId: eua._id })" type="button" class="btn btn-default btn-sm"><span class="fa fa-edit"></span></a>
-								<button title="Publish" type="button" class="btn btn-default btn-sm" data-ng-click="publishEua(eua)"><span class="fa fa-share-square-o"></span></button>
-								<button title="Delete" type="button" class="btn btn-danger btn-sm" data-ng-click="deleteEua(eua)"><span class="fa fa-trash-o"></span></button>
+								<a title="Edit" data-ui-sref="report.edit({ reportId: report._id })" type="button" class="btn btn-default btn-sm"><span class="fa fa-edit"></span></a>
+								<button title="Run" type="button" class="btn btn-default btn-sm" data-ng-click="runReport(report)"><span class="fa fa-play-o"></span></button>
+								<button title="Toggle" type="button" class="btn btn-danger btn-sm" data-ng-click="toggleReport(report)"><span class="fa fa-power-o"></span></button>
 							</div>
 						</td>
 					</tr>
 				</tbody>
 			</table>
 	
-			<div class="col-md-6 col-md-offset-3 center" data-ng-hide="results.totalSize > 0">
+			<div class="col-md-6 col-md-offset-3 text-center" data-ng-hide="results.totalSize > 0">
 				<h3>
-					<small>No End User Agreements? Either there were no EAU that matched your search or there are no EAUs in the system.</small>
+					<small>No reports? Either there were no reports that matched your search or there are no reports in the system.</small>
 				</h3>
 			</div>
 		</div>

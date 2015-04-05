@@ -59,6 +59,15 @@ var ReportSchema = new Schema({
 		type: Date,
 		default: Date.now
 	},
+	lastExecuted: {
+		type: Date,
+		default: null
+	},
+	period: {
+		type: Number,
+		default: 24*60*60  // 24 hours
+	},
+
 	group: {
 		type: Schema.ObjectId,
 		ref: 'Group'
@@ -70,9 +79,9 @@ var ReportSchema = new Schema({
 	creatorName: {
 		type: String
 	},
+
 	criteria: {
-		type: Object,
-		default: null,
+		users: [ String ],
 		validate: [validateCriteria, 'Please provide a valid criteria']
 	}
 });

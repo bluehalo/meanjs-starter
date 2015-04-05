@@ -94,6 +94,13 @@ angular.module('asymmetrik.reports').factory('reportService',
 			enabled: { label: 'Enabled', sort: 'enabled', dir: 'DESC' },
 			relevance: { label: 'Relevance', sort: 'score', dir: 'DESC' }
 		},
+		periods: [
+			{ label: 'every hour', value: 60*60 },
+			{ label: 'every 6 hours', value: 6*60*60 },
+			{ label: 'every 12 hours', value: 12*60*60 },
+			{ label: 'every day', value: 24*60*60 },
+			{ label: 'every week', value: 7*24*60*60 }
+		],
 		create: create,
 		get: get,
 		search: search,

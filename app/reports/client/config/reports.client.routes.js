@@ -29,10 +29,11 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 		/* Manage reports. Both Create and edit. */
 		.state('report.create', {
 			url: '/report/create',
-			templateUrl: 'app/report/views/manage-report.client.view.html',
+			templateUrl: 'app/reports/views/manage-report.client.view.html',
 			controller: 'ManageReportController',
 			data: {
-				roles : [ 'user' ]
+				roles : [ 'user' ],
+				mode: 'create'
 			}
 		})
 		.state('report.edit', {
@@ -40,7 +41,8 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 			templateUrl: 'app/reports/views/manage-report.client.view.html',
 			controller: 'ManageReportController',
 			data: {
-				roles : [ 'user' ]
+				roles : [ 'user' ],
+				mode: 'edit'
 			}
 		})
 
