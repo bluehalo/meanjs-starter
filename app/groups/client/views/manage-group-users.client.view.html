@@ -10,7 +10,7 @@
 	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 	<div class="row">
-		<div class="col-md-10">
+		<div class="col-md-12">
 
 			<script type="text/ng-template" id="userTemplate.html">
 				<a><span data-ng-bind-html="match.model | userTypeaheadFilter | typeaheadHighlight:query"></span></a>

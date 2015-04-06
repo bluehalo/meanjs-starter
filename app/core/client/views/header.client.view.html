@@ -57,6 +57,9 @@
 							<!-- Manage User Account -->
 							<li><a data-ng-href="/#!/user">My Account</a></li>
 
+							<!-- Manage Groups -->
+							<li data-ng-show="auth.canManageGroups()"><a data-ng-href="/#!/groups">Manage Groups</a></li>
+
 							<!-- Admin Page (only admins should see this) -->
 							<li data-ng-show="auth.isAdmin()"><a data-ui-sref="admin.user.list">ADMIN</a></li>
 
