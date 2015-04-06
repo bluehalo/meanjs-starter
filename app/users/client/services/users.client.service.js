@@ -5,6 +5,16 @@ angular.module('asymmetrik.users').factory('userService',
 		['$http', '$q', '$log', 'Authentication', 
 		 function($http, $q, $log, Authentication ) {
 
+	var sort = {};
+	sort.map = {
+		name: { label: 'Name', sort: 'name', dir: 'ASC' },
+		username: { label: 'Username', sort: 'username', dir: 'ASC' },
+		created: { label: 'Created', sort: 'created', dir: 'DESC' },
+		relevance: { label: 'Relevance', sort: 'score', dir: 'DESC' }
+	};
+	sort.array = [ sort.map.name, sort.map.username, sort.map.created, sort.map.relevance ];
+
+
 	/**
 	 * Public methods to be exposed through the service
 	 */
@@ -78,15 +88,10 @@ angular.module('asymmetrik.users').factory('userService',
 	}
 
 
-
 	// Return the public API
 	return ({
-		sort: {
-			name: { label: 'Name', sort: 'name', dir: 'ASC' },
-			username: { label: 'Username', sort: 'username', dir: 'ASC' },
-			created: { label: 'Created', sort: 'created', dir: 'DESC' },
-			relevance: { label: 'Relevance', sort: 'score', dir: 'DESC' }
-		},
+		sort: sort,
+
 		get: get,
 		update: update,
 		search: search,

@@ -5,6 +5,16 @@ angular.module('asymmetrik.users').factory('euaService',
 		['$http', '$q', '$log', 
 		 function($http, $q, $log) {
 
+	var sort = {};
+	sort.map = {
+		title: { label: 'Name', sort: 'name', dir: 'ASC' },
+		created: { label: 'Created', sort: 'created', dir: 'DESC' },
+		published: { label: 'Published', sort: 'published', dir: 'DESC' },
+		relevance: { label: 'Relevance', sort: 'score', dir: 'DESC' }
+	};
+	sort.array = [ sort.map.title, sort.map.created, sort.map.published, sort.map.relevance ];
+
+
 	/**
 	 * Public methods to be exposed through the service
 	 */
@@ -85,12 +95,8 @@ angular.module('asymmetrik.users').factory('euaService',
 
 	// Return the public API
 	return ({
-		sort: {
-			title: { label: 'Name', sort: 'name', dir: 'ASC' },
-			created: { label: 'Created', sort: 'created', dir: 'DESC' },
-			published: { label: 'Published', sort: 'published', dir: 'DESC' },
-			relevance: { label: 'Relevance', sort: 'score', dir: 'DESC' }
-		},
+		sort: sort,
+
 		create: create,
 		get: get,
 		search: search,

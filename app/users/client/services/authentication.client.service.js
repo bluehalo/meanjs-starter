@@ -20,7 +20,7 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 			admin: { label: 'Admin', description: 'Has full, unrestricted access to the system', role: 'admin' }
 		}
 	};
-	data.roles.list = [ data.roles.map.user, data.roles.map.editor, data.roles.map.admin ];
+	data.roles.array = [ data.roles.map.user, data.roles.map.editor, data.roles.map.admin ];
 
 
 	// General auth methods

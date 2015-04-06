@@ -2,7 +2,7 @@
 
 angular.module('asymmetrik.reports').controller('ManageReportController',
 		[ '$scope', '$location', '$log', '$stateParams', '$state', 
-		  'reportService', 'Authentication', 'Alerts',
+		  'reportService', 'groupService', 'Authentication', 'Alerts',
 
 	function( $scope, $location, $log, $stateParams, $state, 
 			  reportService, Authentication, Alerts ) {

@@ -9,21 +9,24 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 
 		// Store our global objects in the scope
 		$scope.auth = Authentication;
-		$scope.roles = $scope.auth.roles.list;
+		$scope.roles = $scope.auth.roles;
 		$scope.config = UserConfig;
 		$scope.mode = $state.current.data.mode;
 
 		/**
-		 * Provides validation on the input form, throwing exceptions if
+		 * Provides validation on the input form, returning false if
 		 * any validation errors occur and setting the scoped 'error' field
 		 */
 		function validateInput() {
 			// Check the password
-			if($scope.password !== $scope.verifyPassword){
+			if($scope.user.password !== $scope.user.verifyPassword){
 				$scope.error = 'Passwords do not match';
-				throw 'Invalid Password';
+				return false;
 			}
+
+			return true;
 		}
+
 
 		/**
 		 * Create a user based on the current state of the controller
@@ -31,19 +34,9 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 		function createUserAdmin() {
 			$log.info('Create user: ' + $scope.user.username );
 
-			try {
-				validateInput(); // throws exception if invalid
-			} catch(ex) {
-				return;
-			}
+			if(!validateInput()) return;
 
-			adminService.create({
-				username: $scope.user.username, 
-				name: $scope.user.name, 
-				email: $scope.user.email, 
-				roles: $scope.user.roles, 
-				password: $scope.password
-			}).then(
+			adminService.create($scope.user).then(
 				function(result) {
 					$state.go('admin.user.list');
 				},
@@ -52,6 +45,7 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 				}
 			);
 		}
+
 
 		/**
 		 * Admin-mode update user
@@ -59,21 +53,9 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 		function updateUserAdmin() {
 			$log.info('Edit user: ' + $scope.user.username );
 
-			try {
-				validateInput(); // throws exception if invalid
-			} catch(ex) {
-				return;
-			}
+			if(!validateInput()) return;
 
-			adminService.update({
-				_id: $scope.user._id,
-				username: $scope.user.username, 
-				name: $scope.user.name, 
-				email: $scope.user.email, 
-				phone: $scope.user.phone,
-				roles: $scope.user.roles, 
-				password: $scope.password
-			}).then(
+			adminService.update($scope.user).then(
 				function(result) {
 					$state.go('admin.user.list');
 				},
@@ -83,26 +65,16 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 			);
 		}
 
+
 		/**
 		 * Request the creation of a new account
 		 */
 		function createUser() {
 			$log.info('Signup user: ' + $scope.user.username );
 
-			try {
-				validateInput(); // throws exception if invalid
-			} catch(ex) {
-				return;
-			}
+			if(!validateInput()) return;
 
-			authService.signup({
-				username: $scope.user.username, 
-				name: $scope.user.name, 
-				email: $scope.user.email, 
-				phone: $scope.user.phone,
-				roles: $scope.user.roles, 
-				password: $scope.password
-			}).then(
+			authService.signup($scope.user).then(
 				function(result) {
 					// redirect to the base (the auth-based routing will take care of the rest)
 					$location.path('/');
@@ -119,20 +91,9 @@ angular.module('asymmetrik.users').controller('ManageUserController',
 		function updateUser() {
 			$log.info('Update user: ' + $scope.user.username );
 
-			try {
-				validateInput(); // throws exception if invalid
-			} catch(ex) {
-				return;
-			}
+			if(!validateInput()) return;
 
-			userService.update({
-				username : $scope.user.username,
-				name : $scope.user.name, 
-				email : $scope.user.email,
-				phone : $scope.user.phone,
-				password: $scope.password,
-				currentPassword: $scope.currentPassword 
-			})
+			userService.update($scope.user)
 			.then(
 				function(result) {
 					$location.path('/');

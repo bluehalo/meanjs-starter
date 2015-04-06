@@ -40,7 +40,7 @@ angular.module('asymmetrik.groups').controller('ListGroupsController',
 		$scope.options = {
 			pageNumber: 0,
 			pageSize: 12,
-			sort: $scope.sort.title
+			sort: $scope.sort.map.title
 		};
 
 		/**

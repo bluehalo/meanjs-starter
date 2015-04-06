@@ -35,7 +35,7 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 		$scope.options = {
 			pageNumber: 0,
 			pageSize: 20,
-			sort: $scope.sort.name
+			sort: $scope.sort.map.name
 		};
 
 

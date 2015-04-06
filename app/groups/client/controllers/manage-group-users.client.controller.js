@@ -35,7 +35,7 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 			options: {
 				pageNumber: 0,
 				pageSize: 25,
-				sort: userService.sort.name
+				sort: userService.sort.map.name
 			}
 		};
 
@@ -72,8 +72,8 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 			return userService.match({ 'groups._id': { '$ne': groupId } }, search, {
 				page: 0,
 				size: 20,
-				sort: userService.sort.name.sort,
-				dir: userService.sort.name.dir
+				sort: userService.sort.map.name.sort,
+				dir: userService.sort.map.name.dir
 			}).then(function(result){
 				if(null != result){
 					return result.elements;

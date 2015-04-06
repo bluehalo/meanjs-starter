@@ -6,54 +6,28 @@
 	<form novalidate name="userForm" autocomplete="off" class="form-horizontal" role="form">
 
 		<div class="page-header">
-			<h2>
+			<h3>
 				{{title}}
 				<small>{{subtitle}}</small>
-			</h2>
-		</div>
-
-		<div class="page-header">
-			<h3>
-				Basic Information
-				<small>All fields are required.</small>
 			</h3>
 		</div>
 
 
 		<!-- Basic Information -->
-		<div class="form-group">
+		<div class="form-group row">
 			<label class="col-md-2 control-label" for="name">Name<span class="text-danger"><strong> *</strong></span></label>
 			<div class="col-md-10"><input type="text" class="form-control" id="name" data-ng-model="user.name" required /></div>
 		</div>
-		<div class="form-group">
+		<div class="form-group row">
 			<label class="col-md-2 control-label" for="email">Email<span class="text-danger"><strong> *</strong></span></label>
 			<div class="col-md-10"><input type="email" class="form-control" id="email" data-ng-model="user.email" required /></div>
 		</div>
-		<div class="form-group" data-ng-show="smsEnabled">
-			<label class="col-md-2 control-label" for="phone">Phone<span class="text-danger"></span></label>
-			<div class="col-md-5">
-				<input
-					type="number"
-					class="form-control no-spinner"
-					id="phone"
-					data-ng-model="phoneNumber"
-					placeholder="Number, Ex: 5551112222" />
-				</div>
-			<div class="col-md-5">
-				<select
-					class="form-control"
-					id="phone-provider"
-					data-ng-model="phoneProvider"
-					data-ng-options="opt as opt.label for opt in phoneProviders | orderBy:orderByLabel"
-					data-ng-disabled="!phoneNumber">
-				</select>
-			</div>
-		</div>
-		
+
+
 		<!-- Local Login Information -->
 		<div data-ng-show="config.auth === 'local'">
 
-			<div class="form-group">
+			<div class="form-group row">
 				<label class="col-md-2 control-label" for="username">Username<span class="text-danger"><strong> *</strong></span></label>
 				<div class="col-md-10"><input type="text" id="username" class="form-control" data-ng-model="user.username" required /></div>
 			</div>
@@ -66,18 +40,18 @@
 			</div>
 
 			<!-- Current password is needed if you aren't an admin and you're editing -->
-			<div class="form-group" data-ng-show="mode === 'edit'">
+			<div class="form-group row" data-ng-show="mode === 'edit'">
 				<label class="col-md-2 control-label" for="currentPassword">Current Password</label>
-				<div class="col-md-10"><input type="password" class="form-control" id="currentPassword" data-ng-model="currentPassword"></div>
+				<div class="col-md-10"><input type="password" class="form-control" id="currentPassword" data-ng-model="user.currentPassword"></div>
 			</div>
 
-			<div class="form-group">
+			<div class="form-group row">
 				<label class="col-md-2 control-label" for="password">New Password</label>
-				<div class="col-md-10"><input type="password" class="form-control" id="password" data-ng-model="password"></div>
+				<div class="col-md-10"><input type="password" class="form-control" id="password" data-ng-model="user.password"></div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<label class="col-md-2 control-label" for="password2">Re-enter</label>
-				<div class="col-md-10"><input type="password" id="password2" class="form-control" id="verifyPassword" data-ng-model="verifyPassword"></div>
+				<div class="col-md-10"><input type="password" id="password2" class="form-control" id="verifyPassword" data-ng-model="user.verifyPassword"></div>
 			</div>
 
 		</div>
@@ -103,7 +77,7 @@
 				<label class="col-md-2 control-label">Roles</label>
 
 				<div class="col-md-10 btn-group">
-					<button data-ng-repeat="role in roles" 
+					<button data-ng-repeat="role in roles.array" 
 							type="button" class="btn" 
 							data-ng-class="{ 'btn-selected': user.roles[role.role], 'btn-unselected': !user.roles[role.role] }" data-ng-attr-title="{{role.description}}" 
 							data-btn-checkbox data-ng-model="user.roles[role.role]">
@@ -116,7 +90,8 @@
 
 		</div>
 
-		<div class="form-group" data-ng-show="error">
+
+		<div class="form-group row" data-ng-show="error">
 			<div class="col-md-offset-2 col-md-10">
 				<div class="text-danger">
 					<strong>{{error}}</strong>
@@ -125,11 +100,13 @@
 		</div>
 
 
-		<div class="form-group">
-			<div class="col-md-offset-2 col-md-10">
-				<button type="submit" class="btn btn-default" data-ng-click="okAction()">{{okButtonText}}</button>
-				<a type="button" class="btn btn-link" data-ng-show="mode === 'signup'" data-ui-sref="auth.signin">or Sign In</a>
-				<a type="button" class="btn btn-link" data-ng-show="mode === 'admin-create' || mode === 'admin-edit'" data-ui-sref="admin.user.list">Cancel</a>
+		<div class="form-group row">
+			<div class="col-md-12">
+				<div class="pull-right">
+					<button type="submit" class="btn btn-default" data-ng-click="okAction()">{{okButtonText}}</button>
+					<a type="button" class="btn btn-link" data-ng-show="mode === 'signup'" data-ui-sref="auth.signin">or Sign In</a>
+					<a type="button" class="btn btn-link" data-ng-show="mode === 'admin-create' || mode === 'admin-edit'" data-ui-sref="admin.user.list">Cancel</a>
+				</div>
 			</div>
 		</div>
 

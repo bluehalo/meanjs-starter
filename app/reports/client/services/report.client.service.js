@@ -108,14 +108,17 @@ angular.module('asymmetrik.reports').factory('reportService',
 
 	// Return the public API
 	return ({
+
 		sort: sort,
 		periods: periods,
+
 		create: create,
 		get: get,
 		search: search,
 		update: update,
 		remove: remove,
 		setEnabled: setEnabled
+
 	});
 
 }]);

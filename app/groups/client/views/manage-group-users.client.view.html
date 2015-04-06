@@ -83,7 +83,7 @@
 							<div class="pull-left">
 
 								<div class="btn-group btn-group-sm" role="group">
-									<button data-ng-repeat="role in roles" type="button" class="btn btn-sm" 
+									<button data-ng-repeat="role in roles.array" type="button" class="btn btn-sm" 
 											data-ng-class="{ 'btn-selected': user.groups[0].roles[role.role], 'btn-unselected': !user.groups[0].roles[role.role] }" data-ng-attr-title="{{role.description}}" 
 											data-ng-click="toggleRole(user, role.role)">
 										<i class="fa fa-fw" data-ng-class="{ 'fa-check-square-o': user.groups[0].roles[role.role], 'fa-square-o': !user.groups[0].roles[role.role] }"></i>

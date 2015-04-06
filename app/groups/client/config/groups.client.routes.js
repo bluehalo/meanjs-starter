@@ -9,9 +9,7 @@ angular.module('asymmetrik.groups').config(['$stateProvider', '$urlRouterProvide
 		// Abstract group route
 		.state('group', {
 			abstract: true,
-			template: '<ui-view/>',
-			resolve: {
-			}
+			template: '<ui-view/>'
 		})
 
 		// List/search view for groups. Always user-focused, can see all that you're allowed to see.
