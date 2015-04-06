@@ -75,8 +75,8 @@
 						<td >
 							<div class="pull-right" style="width:120px;">
 								<a title="Edit" data-ui-sref="report.edit({ reportId: report._id })" type="button" class="btn btn-default btn-sm"><span class="fa fa-edit"></span></a>
-								<button title="Run" type="button" class="btn btn-default btn-sm" data-ng-click="runReport(report)"><span class="fa fa-play-o"></span></button>
-								<button title="Toggle" type="button" class="btn btn-danger btn-sm" data-ng-click="toggleReport(report)"><span class="fa fa-power-o"></span></button>
+								<button title="Run" type="button" class="btn btn-default btn-sm" data-ng-click="runReport(report)"><span class="fa fa-play"></span></button>
+								<button title="Toggle" type="button" class="btn btn-sm" data-ng-class="{'btn-danger': !report.active, 'btn-success': report.active}" data-ng-click="toggleReport(report)"><span class="fa fa-power-off"></span></button>
 							</div>
 						</td>
 					</tr>

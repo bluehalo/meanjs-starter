@@ -7,10 +7,10 @@
 		data-ng-submit="updateReport(reportForm.$valid)" >
 
 		<div class="page-header">
-			<h2>
+			<h3>
 				{{title}}
 				<small>{{subtitle}}</small>
-			</h2>
+			</h3>
 		</div>
 
 
@@ -19,7 +19,7 @@
 			<div class="col-md-12">
 				<label for="group">Which group controls this report?<span class="text-danger"><strong> *</strong></span></label>
 				<select class="form-control" 
-					data-ng-model="criteria.group" 
+					data-ng-model="report.group" 
 					data-ng-options="group._id as group.title for group in groups | orderBy:'title'"></select>
 			</div>
 		</div>
@@ -55,7 +55,7 @@
 		<div class="form-group row">
 			<div class="col-md-12">
 				<label class="control-label" for="users">Users of Interest<span class="text-danger"><strong> *</strong></span></label>
-				<textarea type="text" class="form-control" id="users" data-ng-list="," data-ng-model="report.criteria.users" required ></textarea>
+				<textarea type="text" class="form-control" id="users" data-ng-list data-ng-model="report.criteria.users" required ></textarea>
 			</div>
 		</div>
 
@@ -64,7 +64,7 @@
 				<li data-ng-repeat="user in report.criteria.users track by $index">
 					<div class="item">
 						<div class="item-label hideOverflow">{{user}}</div>
-						<div class="item-delete"><a data-ng-click="deleteFn($index)" class="no-link danger btn-xs"><i class="fa fa-trash-o"></i></a></div>
+						<div class="item-delete"><a data-ng-click="deleteUserFn($index)" class="no-link danger btn-xs"><i class="fa fa-trash-o"></i></a></div>
 					</div>
 				</li>
 			</ul>
@@ -74,7 +74,7 @@
 		<div class="form-group row">
 			<div class="col-md-12">
 
-				<label for="group">This report should run every<span class="text-danger"><strong> *</strong></span></label>
+				<label for="group">This report should run <span class="text-danger"><strong> *</strong></span></label>
 					<select class="form-control" 
 						data-ng-model="report.period" 
 						data-ng-options="period.value as period.label for period in periods.array | orderBy:'value'"></select>

@@ -2,15 +2,22 @@
 
 angular.module('asymmetrik.reports').controller('ManageReportController',
 		[ '$scope', '$location', '$log', '$stateParams', '$state', 
-		  'reportService', 'groupService', 'Authentication', 'Alerts',
+		  'reportService', 'Groups', 'Authentication', 'Alerts',
 
 	function( $scope, $location, $log, $stateParams, $state, 
-			  reportService, Authentication, Alerts ) {
+			  reportService, Groups, Authentication, Alerts ) {
 
 		// Store our global objects in the scope
 		$scope.auth = Authentication;
 		$scope.mode = $state.current.data.mode;
 		$scope.periods = reportService.periods;
+		$scope.groups = Groups;
+
+		$scope.deleteUserFn = function(index) {
+			var newArr = $scope.report.criteria.users;
+			newArr.splice(index, 1);
+			$scope.report.criteria.users = newArr.concat();
+		};
 
 		/**
 		 * Create a user based on the current state of the controller
@@ -29,7 +36,7 @@ angular.module('asymmetrik.reports').controller('ManageReportController',
 		}
 
 		/**
-		 * Admin-mode update eua
+		 * Admin-mode update report
 		 */
 		function updateReport() {
 			$log.info('Edit report: ' + $scope.report.title );
@@ -49,7 +56,7 @@ angular.module('asymmetrik.reports').controller('ManageReportController',
 		 * Determine which mode the controller is in and configure accordingly.
 		 */
 		if($scope.mode === 'create') {
-			// Admin create mode
+			// create mode
 			$scope.title = 'Create Report';
 			$scope.subtitle = 'Provide the required information to create a new report';
 			$scope.okButtonText = 'Create';
@@ -61,13 +68,13 @@ angular.module('asymmetrik.reports').controller('ManageReportController',
 			};
 
 		} else if($scope.mode === 'edit') {
-			// Admin edit a user mode
+			// Edit mode
 			$scope.title = 'Edit Report';
 			$scope.subtitle = 'Make changes to the report\'s information';
 			$scope.okButtonText = 'Save';
 			$scope.okAction = updateReport;
 
-			// Editing the user with the specified id
+			// Edit the specified id
 			reportService.get($stateParams.reportId).then(function(result){
 				$scope.report = result;
 			}, function(error){

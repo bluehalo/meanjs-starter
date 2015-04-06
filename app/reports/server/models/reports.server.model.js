@@ -101,6 +101,7 @@ ReportSchema.index({ title: 'text', description: 'text' });
 // Before save
 ReportSchema.pre('save', function(next){
 	this.title_lowercase = this.title;
+
 	next();
 });
 
@@ -123,7 +124,7 @@ ReportSchema.statics.auditCopy = function(src) {
 
 	newReport.title = src.title;
 	newReport.description = src.description;
-	newReport.criteria = src.criteria;
+	//newReport.criteria = src.criteria;
 	newReport._id = src._id;
 
 	return newReport;
@@ -132,4 +133,4 @@ ReportSchema.statics.auditCopy = function(src) {
 /**
  * Register the Schema with Mongoose
  */
-mongoose.model('Report', ReportSchema, 'subscriptions');
+mongoose.model('Report', ReportSchema, 'reports');

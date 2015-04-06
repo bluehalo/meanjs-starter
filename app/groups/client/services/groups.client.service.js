@@ -83,7 +83,11 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 		return request.then(handleSuccess, handleFailure);
 	}
 
-
+	function list() {
+		return search(undefined, undefined, { size: 100 }).then(
+			function(result){ return result.elements; },
+			handleFailure);
+	}
 
 	/**
 	 * Group Membership and Role Management
@@ -185,6 +189,7 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 
 		create: create,
 		get: get,
+		list: list,
 		search: search,
 		update: update,
 		remove: remove,

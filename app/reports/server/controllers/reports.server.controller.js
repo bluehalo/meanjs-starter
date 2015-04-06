@@ -22,9 +22,11 @@ function copyMutableFields(dest, src) {
 	dest.title = src.title;
 	dest.description = src.description;
 	dest.group = src.group;
+	dest.criteria.users = src.criteria.users;
+	dest.period = src.period;
 }
 
-//Given a report save to mongo
+
 function save(report, res, audit) {
 	report.save(function(err) {
 		util.catchError(res, err, function() {
@@ -38,10 +40,10 @@ function save(report, res, audit) {
 // Create
 exports.create = function(req, res) {
 	var report = new Report(req.body);
+
 	report.creator = req.user;
 	report.created = Date.now();
 	report.updated = Date.now();
-	report.creatorName = req.user.name;
 
 	save(report, res, function() {
 		// Audit creation of report
@@ -55,12 +57,8 @@ exports.create = function(req, res) {
 // Read
 exports.read = function(req, res) {
 	res.json(req.report);
-
-	// Audit report view
-	auditLogger.audit('report viewed', 'report', 'view', 
-		User.auditCopy(req.user),
-		{ report: Report.auditCopy(req.report) });
 };
+
 
 // Update
 exports.update = function(req, res) {
