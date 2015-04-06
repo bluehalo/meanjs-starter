@@ -78,13 +78,21 @@ angular.module('asymmetrik.reports').factory('reportService',
 		return request.then(handleSuccess, handleFailure);
 	}
 
-	function setEnabled(id, enabled) {
+	function setActive(id, active) {
 		var request = $http({
 			method: 'post',
-			url: 'report/' + id + '/enabled',
+			url: 'report/' + id + '/active',
 			params: {
-				enabled: enabled
+				active: active
 			}
+		});
+		return request.then(handleSuccess, handleFailure);
+	}
+
+	function runReport(id) {
+		var request = $http({
+			method: 'post',
+			url: 'report/' + id + '/run'
 		});
 		return request.then(handleSuccess, handleFailure);
 	}
@@ -117,7 +125,8 @@ angular.module('asymmetrik.reports').factory('reportService',
 		search: search,
 		update: update,
 		remove: remove,
-		setEnabled: setEnabled
+		setActive: setActive,
+		runReport: runReport
 
 	});
 

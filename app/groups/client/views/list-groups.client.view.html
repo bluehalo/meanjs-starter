@@ -8,6 +8,7 @@
 		</a>
 	</h3>
 
+	<!-- Alert Notifications -->
 	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 	<div class="row">
@@ -67,7 +68,7 @@
 				</thead>
 	
 				<tbody>
-					<tr data-ng-repeat="group in groups">
+					<tr data-ng-repeat="group in groups track by group._id">
 						<td >
 							<div class="hideOverflow" style="max-width:200px;">
 								<strong>{{group.title}}</strong>

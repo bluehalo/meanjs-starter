@@ -1,7 +1,5 @@
 <section>
 
-	<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
-
 	<h3 class="page-header">
 		Users
 		<small>Administer User Accounts</small>
@@ -9,6 +7,9 @@
 			<span class="fa fa-user-plus"></span> Create User
 		</a>
 	</h3>
+
+	<!-- Alert Notifications -->
+	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 	<div class="row">
 		<div class="col-md-12">
@@ -73,7 +74,7 @@
 				</thead>
 
 				<tbody>
-					<tr data-ng-repeat="user in users">
+					<tr data-ng-repeat="user in users track by user._id">
 						<td >{{user.name}}</td>
 						<td ><div class="hideOverflow" style="max-width:400px;">{{user.username}}</div></td>
 						<td >{{user.lastLogin | agoDateFilter}}</td>

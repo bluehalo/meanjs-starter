@@ -1,6 +1,6 @@
 <section class="container">
 
-	<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
+	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 	<h3 class="page-header">
 		Reports
@@ -68,15 +68,45 @@
 				</thead>
 	
 				<tbody>
-					<tr data-ng-repeat="report in reports">
+					<tr data-ng-repeat="report in reports track by report._id">
 						<td ><div class="hideOverflow" style="max-width:400px;">{{report.title}}</div></td>
 						<td >{{report.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
 						<td >{{report.lastRun | agoDateFilter}}</td>
 						<td >
-							<div class="pull-right" style="width:120px;">
-								<a title="Edit" data-ui-sref="report.edit({ reportId: report._id })" type="button" class="btn btn-default btn-sm"><span class="fa fa-edit"></span></a>
-								<button title="Run" type="button" class="btn btn-default btn-sm" data-ng-click="runReport(report)"><span class="fa fa-play"></span></button>
-								<button title="Toggle" type="button" class="btn btn-sm" data-ng-class="{'btn-danger': !report.active, 'btn-success': report.active}" data-ng-click="toggleReport(report)"><span class="fa fa-power-off"></span></button>
+							<div class="pull-right" >
+								<div class="btn-group pull-right" data-ng-show="auth.canManageGroup(group._id)" data-dropdown data-is-open="status.isopen">
+									<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-dropdown-toggle>
+										<i class="fa fa-gear"></i> <span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu" role="menu">
+										<li>
+											<a title="Edit" class="no-link" data-ui-sref="report.edit({ reportId: report._id })">
+												<span class="fa fa-fw fa-edit"></span>
+												Edit Metadata
+											</a>
+										</li>
+										<li>
+											<a title="Run Now" class="no-link" data-ng-click="runReport(report)">
+												<i class="fa fa-fw fa-play"></i>
+												Run Now
+											</a>
+										</li>
+										<li>
+											<a title="Enable/Disable" class="no-link" data-ng-click="toggleReport(report)">
+												<i class="fa fa-fw fa-power-off"></i>
+												<span data-ng-hide="report.active">Enable</span>
+												<span data-ng-hide="!report.active">Disable</span>
+											</a>
+										</li>
+										<li class="divider"></li>
+										<li>
+											<a title="Delete" class="no-link" data-ng-click="remove(report)">
+												<i class="fa fa-fw fa-trash"></i>
+												Delete
+											</a>
+										</li>
+									</ul>
+								</div>
 							</div>
 						</td>
 					</tr>

@@ -53,6 +53,35 @@ dl.dl-horizontal > dd, dl.dl-horizontal > dt {
 	padding-top: 12px;
 }
 
+
+/*
+=====================================
+	Item lists
+=====================================
+*/
+.items {
+}
+.items .item {
+	font-size: 12px;
+	color: #444;
+	padding: 2px 2px 2px 7px;
+	background-color: #fefefe;
+	border: 1px solid #aaa;
+	border-radius: 3px;
+}
+.items .item .item-label {
+	float: left;
+	margin-right: 5px;
+	max-width: 200px;
+	margin-top: 1px;
+}
+.items .item .item-delete {
+	float: left;
+	padding: 0;
+	margin: 0;
+}
+
+
 /*
 =====================================
 	Blocks
@@ -294,28 +323,11 @@ table.asymmetrik, table.asymmetrik thead>tr>th{
 	text-decoration: none;
 }
 
-
 /*
 =====================================
-	Fix for modal backdrop
+	Tabs
 =====================================
 */
-html {
-    height: 100%;
-}
-body {
-    min-height: 100%;
-}
-.modal-backdrop {
-    bottom: 0;
-}
-
-h1.page-header {
-    margin-top: 24px;
-}
-h2.page-header {
-    margin-top: 18px;
-}
-h3.page-header {
-    margin-top: 12px;
+.tab {
+	padding-top: 8px;
 }

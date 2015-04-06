@@ -18,5 +18,10 @@ module.exports = function(app) {
 		.post(  users.requiresLogin, users.requiresEua, users.requiresRoles(['user']), users.hasAdminOr(reports.hasEditAuthorization), reports.update)
 		.delete(users.requiresLogin, users.requiresEua, users.requiresRoles(['user']), users.hasAdminOr(reports.hasEditAuthorization), reports.delete);
 
+	app.route('/report/:reportId/run')
+		.post(  users.requiresLogin, users.requiresEua, users.requiresRoles(['user']), users.hasAdminOr(reports.hasEditAuthorization), reports.run);
+	app.route('/report/:reportId/active')
+		.post(  users.requiresLogin, users.requiresEua, users.requiresRoles(['user']), users.hasAdminOr(reports.hasEditAuthorization), reports.setActive);
+
 	app.param('reportId', reports.reportById);
 };

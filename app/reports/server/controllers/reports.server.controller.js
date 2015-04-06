@@ -27,13 +27,17 @@ function copyMutableFields(dest, src) {
 }
 
 
-function save(report, res, audit) {
+function save(report, res) {
+	var defer = q.defer();
+
 	report.save(function(err) {
 		util.catchError(res, err, function() {
 			res.json(report);
-			audit();
+			defer.resolve();
 		});
 	});
+
+	return defer.promise;
 }
 
 
@@ -45,7 +49,7 @@ exports.create = function(req, res) {
 	report.created = Date.now();
 	report.updated = Date.now();
 
-	save(report, res, function() {
+	save(report, res).then(function() {
 		// Audit creation of report
 		auditLogger.audit('report created', 'report', 'create',
 			User.auditCopy(req.user),
@@ -75,7 +79,7 @@ exports.update = function(req, res) {
 	copyMutableFields(report, req.body);
 
 	// Save
-	save(report, res, function() {
+	save(report, res).then(function() {
 		// Audit the save action
 		auditLogger.audit('report updated', 'report', 'update',
 			User.auditCopy(req.user),
@@ -146,6 +150,24 @@ exports.search = function(req, res) {
 		return util.send400Error(res, error);
 	});
 };
+
+exports.run = function(req, res) {
+	// Run the report
+	res.jsonp('done');
+};
+
+exports.setActive = function(req, res) {
+	// Retrieve the report from persistence
+	var report = req.report;
+
+	// Copy in the fields that can be changed by the user
+	Report.update({ _id: report._id }, { $set: { active: req.query.active} }, function(err) {
+		util.catchError(res, err, function() {
+			res.json(report);
+		});
+	});
+};
+
 
 /**
  * Report middleware

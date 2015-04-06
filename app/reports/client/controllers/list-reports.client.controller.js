@@ -71,6 +71,69 @@ angular.module('asymmetrik.reports').controller('ListReportsController',
 			}
 		};
 
+		// Toggle Report
+		$scope.toggleReport = function(report) {
+			reportService.setActive(report._id, !report.active).then(
+				function(result) {
+					$log.info('Toggled report: ' + report._id);
+					$scope.applySearch();
+				},
+				function(error){
+					$log.error('Failed to toggle report: ' + error);
+					$scope.alertService.add('Error toggling report: ' + error);
+				}
+			);
+		};
+
+		// Run Report
+		$scope.runReport = function(report) {
+			reportService.runReport(report._id).then(
+				function(result) {
+					$log.info('Ran report: ' + report._id);
+					$scope.applySearch();
+				},
+				function(error){
+					$log.error('Failed to run report: ' + error);
+					$scope.alertService.add('Error running report: ' + error);
+				}
+			);
+		};
+
+		// Remove the group
+		$scope.remove = function(report) {
+
+			var params = {
+				message: 'Are you sure you want to delete the report: <strong>"' + report.title + '"</strong>?<br/>This action cannot be undone.',
+				title: 'Delete report?',
+				ok: 'Delete',
+				cancel: 'Cancel'
+			};
+
+			var dialog = $modal.open({
+				templateUrl: 'app/util/views/confirm.client.view.html',
+				controller: 'ConfirmController',
+				$scope: $scope,
+				backdrop: 'static',
+				resolve: {
+					params: function () { return params; }
+				}
+			});
+
+			dialog.result.then(function(){
+				reportService.remove(report._id).then(
+					function(result) {
+						$log.info('deleted report: ' + report._id);
+						$scope.applySearch();
+					},
+					function(error){
+						$log.error('Failed to delete report: ' + error);
+						$scope.alertService.add('Error deleting report: ' + error);
+					}
+				);
+			});
+		};
+
+
 		// Search method that actually executes the search and updates the subscriptions list
 		$scope.applySearch = function() {
 

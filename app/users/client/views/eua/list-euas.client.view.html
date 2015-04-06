@@ -1,7 +1,5 @@
 <section>
 
-	<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
-
 	<h3 class="page-header">
 		EUAs
 		<small>Administer End User Agreements</small>
@@ -9,6 +7,9 @@
 			<span class="glyphicon glyphicon-plus"></span> Create EUA
 		</a>
 	</h3>
+
+	<!-- Alert Notifications -->
+	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 	<div class="row">
 		<div class="col-md-12">
@@ -70,7 +71,7 @@
 				</thead>
 	
 				<tbody>
-					<tr data-ng-repeat="eua in euas">
+					<tr data-ng-repeat="eua in euas track by eua._id">
 						<td ><div class="hideOverflow" style="max-width:400px;">{{eua.title}}</div></td>
 						<td >{{eua.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
 						<td >{{eua.published | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>

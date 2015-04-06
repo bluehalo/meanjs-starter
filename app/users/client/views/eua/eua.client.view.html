@@ -2,13 +2,15 @@
 <section data-ng-class="{container:!preview, 'modal-body':preview}">
 
 	<div class="row">
-		<alert ng-repeat="alert in alertService.alerts" type="{{alert.type}}" close="alertService.clear($index)">{{alert.msg}}</alert>
 
 		<div class="col-md-8 col-md-offset-2">
 
 			<div class="page-header">
 				<h2>End User Agreement (EUA)<br/><small>Please review and acknowledge the end user agreement</small></h2>
 			</div>
+
+			<!-- Alert Notifications -->
+			<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 			<form name="userForm" autocomplete="off" class="form-horizontal" role="form">
 

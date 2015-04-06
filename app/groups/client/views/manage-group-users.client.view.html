@@ -7,6 +7,7 @@
 		<small data-ng-show="group.title"> {{group.title}}</small>
 	</h3>
 
+	<!-- Alert Notifications -->
 	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 	<div class="row">
