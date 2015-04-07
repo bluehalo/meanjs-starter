@@ -6,8 +6,7 @@
 
 		<div class="page-header">
 			<h3>
-				{{title}}
-				<small>{{subtitle}}</small>
+				Report Metadata
 			</h3>
 		</div>
 
@@ -43,18 +42,16 @@
 		</div>
 
 
+		<!-- List of Users -->
 		<div class="page-header">
 			<h3>
-				Report Criteria
-				<small>These parameters affect the behavior and content of the report</small>
+				Users of Interest<span class="text-danger"><strong> *</strong></span>
+				<small>List the user accounts of interest for this report</small>
 			</h3>
 		</div>
 
-
-		<!-- List of Users -->
 		<div class="form-group row">
 			<div class="col-md-12">
-				<label class="control-label" for="users">Users of Interest<span class="text-danger"><strong> *</strong></span></label>
 				<textarea type="text" class="form-control" id="users" data-ng-list data-ng-model="report.criteria.users" required ></textarea>
 			</div>
 		</div>
@@ -74,11 +71,18 @@
 			</div>
 		</div>
 
+
 		<!-- Period Select -->
+		<div class="page-header">
+			<h3>
+				Schedule<span class="text-danger"><strong> *</strong></span>
+				<small>How often should this report be generated?</small>
+			</h3>
+		</div>
 		<div class="form-group row">
 			<div class="col-md-12">
 
-				<label for="group">This report should run <span class="text-danger"><strong> *</strong></span></label>
+				<label for="group">This report should run</label>
 					<select class="form-control" 
 						data-ng-model="report.period" 
 						data-ng-options="period.value as period.label for period in periods.array | orderBy:'value'"></select>

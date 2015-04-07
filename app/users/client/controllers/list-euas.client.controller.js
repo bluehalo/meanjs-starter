@@ -33,7 +33,7 @@ angular.module('asymmetrik.users').controller('ListEuasController',
 		$scope.options = {
 			pageNumber: 0,
 			pageSize: 20,
-			sort: $scope.sort.published
+			sort: $scope.sort.map.published
 		};
 
 

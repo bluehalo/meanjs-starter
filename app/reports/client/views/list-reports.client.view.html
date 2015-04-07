@@ -63,6 +63,7 @@
 						<th>Title</th>
 						<th>Created</th>
 						<th>Last Run</th>
+						<th>Enabled?</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
@@ -72,6 +73,7 @@
 						<td ><div class="hideOverflow" style="max-width:400px;">{{report.title}}</div></td>
 						<td >{{report.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
 						<td >{{report.lastRun | agoDateFilter}}</td>
+						<td ><i class="fa fa-fw" data-ng-class="{'fa-check-square-o': report.active, 'fa-square-o': !report.active }"></i></td>
 						<td >
 							<div class="pull-right" >
 								<div class="btn-group pull-right" data-ng-show="auth.canManageGroup(group._id)" data-dropdown data-is-open="status.isopen">
