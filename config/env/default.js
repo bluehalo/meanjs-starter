@@ -52,6 +52,11 @@ module.exports = {
 
 	},
 
+	scheduler: {
+		services: [],
+		interval: 10000
+	},
+
 	port: process.env.PORT || 3000,
 	templateEngine: 'swig'
 

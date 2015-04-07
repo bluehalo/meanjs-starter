@@ -24,6 +24,10 @@ mongoose.connect(function (db) {
 		// Logging initialization
 		logger.info('Node app listening on port ' + config.port);
 
+		// Init task scheduler
+		var scheduler = require('./config/scheduler');
+		scheduler.start();
+
 	} catch(err) {
 		logger.fatal({err: err}, 'Express initialization failed.');
 	}
