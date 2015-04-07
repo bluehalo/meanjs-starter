@@ -31,6 +31,34 @@ function toLowerCase(v){
 	return (null != v)? v.toLowerCase(): undefined;
 }
 
+function processCriteria(criteria) {
+
+	// Check the users list
+	if(null != criteria && null != criteria.users) {
+
+		var userMap = {};
+		criteria.users.forEach(function(element) {
+			// Trim whitespace
+			element = element.trim();
+
+			// Strip @ sign
+			if(element.length > 0 && element.charAt(0) === '@') {
+				element = element.substring(1);
+			}
+
+			// If it's not empty, add it
+			if(element.length > 0) {
+				userMap[element] = true;
+			}
+		});
+
+		var users = [];
+		for(var user in userMap) {
+			users.push(user);
+		}
+		criteria.users = users;
+	}
+}
 
 /**
  * Schema Declaration
@@ -105,6 +133,7 @@ ReportSchema.index({ title: 'text', description: 'text' });
 // Before save
 ReportSchema.pre('save', function(next){
 	this.title_lowercase = this.title;
+	processCriteria(this.criteria);
 
 	next();
 });
