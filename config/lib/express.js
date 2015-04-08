@@ -67,13 +67,13 @@ function initMiddleware(app) {
 	app.use(favicon('./app/core/client/img/brand/favicon.ico'));
 
 	// Environment dependent middleware
-	if (process.env.NODE_ENV === 'development') {
+	if (config.assets === 'development') {
 		// Enable logger (morgan)
 		app.use(morgan('dev'));
 
 		// Disable views cache
 		app.set('view cache', false);
-	} else if (process.env.NODE_ENV === 'production') {
+	} else if (config.assets === 'production') {
 		app.locals.cache = 'memory';
 	}
 
@@ -209,13 +209,13 @@ function initErrorRoutes(app) {
 /**
  * Configure Socket.io
  */
-//function configureSocketIO(app, db) {
-//	// Load the Socket.io configuration
-//	var server = require('./socket.io')(app, db);
-//
-//	// Return server object
-//	return server;
-//}
+function configureSocketIO(app, db) {
+	// Load the Socket.io configuration
+	var server = require('./socket.io')(app, db);
+
+	// Return server object
+	return server;
+}
 
 /**
  * Initialize the Express application

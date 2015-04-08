@@ -13,7 +13,7 @@ angular.module('asymmetrik.help').config(['$stateProvider', '$urlRouterProvider'
 			topic.id = topic.id || topic.title.toLowerCase();
 			topic.state = 'help.' + topic.id;
 			topic.url = '/help/' + topic.id;
-			topic.templateUrl = 'app/help/views/' + topic.id + '.client.view.html';
+			topic.templateUrl = 'app/help/views/' + topic.id + '/' +  topic.id + '.client.view.html';
 		});
 
 
