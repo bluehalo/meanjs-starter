@@ -79,27 +79,6 @@ var ReportSchema = new Schema({
 		trim: true,
 		default: ''
 	},
-	created: {
-		type: Date,
-		default: Date.now
-	},
-	updated: {
-		type: Date,
-		default: Date.now
-	},
-	active: {
-		type: Boolean,
-		default: true
-	},
-	lastExecuted: {
-		type: Date,
-		default: null
-	},
-	period: {
-		type: Number,
-		default: 24*60*60  // 24 hours
-	},
-
 	group: {
 		type: Schema.ObjectId,
 		ref: 'Group'
@@ -111,11 +90,46 @@ var ReportSchema = new Schema({
 	creatorName: {
 		type: String
 	},
+	created: {
+		type: Date,
+		default: Date.now
+	},
+	updated: {
+		type: Date,
+		default: Date.now
+	},
+
+	active: {
+		type: Boolean,
+		default: true
+	},
+	period: {
+		type: Number,
+		default: 24*60*60  // 24 hours
+	},
 
 	criteria: {
-		users: [ String ],
+		type: {
+			users: [String]
+		},
 		validate: [validateCriteria, 'Please provide a valid criteria']
+	},
+
+	state: {
+		running: {
+			type: Boolean,
+			default: false
+		},
+		lastComplete: {
+			type: Date,
+			default: 0
+		},
+		nextRun: {
+			type: Date,
+			default: Date.now()
+		}
 	}
+
 });
 
 

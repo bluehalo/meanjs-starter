@@ -53,7 +53,13 @@ module.exports = {
 	},
 
 	scheduler: {
-		services: [],
+		services: [
+			{
+				file: 'app/reports/server/services/report.server.service.js',
+				interval: 30000,
+				config: {}
+			}
+		],
 		interval: 10000
 	},
 
