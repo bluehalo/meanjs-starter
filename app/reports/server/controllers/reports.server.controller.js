@@ -152,8 +152,16 @@ exports.search = function(req, res) {
 };
 
 exports.run = function(req, res) {
-	// Run the report
-	res.jsonp('done');
+	// Update the nextRun property to now
+	var report = req.report;
+	report.state.nextRun = Date.now();
+
+	// Save the report
+	report.save(function(err, result) {
+		util.catchError(res, err, function(){
+			res.jsonp(report);
+		});
+	});
 };
 
 exports.setActive = function(req, res) {

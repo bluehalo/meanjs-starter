@@ -16,11 +16,11 @@ angular.module('asymmetrik.reports').factory('reportService',
 
 	var periods = {};
 	periods.map = {
-		hour: { label: 'every hour', value: 60*60 },
-		sixHours: { label: 'every 6 hours', value: 6*60*60 },
-		twelveHours: { label: 'every 12 hours', value: 12*60*60 },
-		day: { label: 'every day', value: 24*60*60 },
-		week: { label: 'every week', value: 7*24*60*60 }
+		hour: { label: 'every hour', value: 60*60*1000 },
+		sixHours: { label: 'every 6 hours', value: 6*60*60*1000 },
+		twelveHours: { label: 'every 12 hours', value: 12*60*60*1000 },
+		day: { label: 'every day', value: 24*60*60*1000 },
+		week: { label: 'every week', value: 7*24*60*60*1000 }
 	};
 	periods.array = [ periods.map.hour, periods.map.sixHours, periods.map.twelveHours, periods.map.day, periods.map.week ];
 

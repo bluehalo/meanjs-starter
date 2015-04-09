@@ -57,7 +57,12 @@ module.exports = {
 			{
 				file: 'app/reports/server/services/report.server.service.js',
 				interval: 30000,
-				config: {}
+				config: {
+					apiKey: '',
+					apiSecret: '',
+					tokenKey: '',
+					tokenSecret: ''
+				}
 			}
 		],
 		interval: 10000

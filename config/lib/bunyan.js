@@ -80,7 +80,9 @@ function auditStreams() {
 
 function reqSerializer(req) {
 	var output = bunyan.stdSerializers.req(req);
-	output.user = req.session.passport.user;
+	if(null != req && null != req.session && null != req.session.passport) {
+		output.user = req.session.passport.user;
+	}
 
 	return output;
 }

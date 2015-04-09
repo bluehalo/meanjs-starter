@@ -63,6 +63,7 @@
 						<th>Title</th>
 						<th>Created</th>
 						<th>Last Complete</th>
+						<th>Next Run</th>
 						<th>Enabled?</th>
 						<th>&nbsp;</th>
 					</tr>
@@ -73,6 +74,7 @@
 						<td ><div class="hideOverflow" style="max-width:400px;">{{report.title}}</div></td>
 						<td >{{report.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
 						<td >{{report.state.lastComplete | agoDateFilter}}</td>
+						<td >{{report.state.nextRun | agoDateFilter}}</td>
 						<td ><i class="fa fa-fw" data-ng-class="{'fa-check-square-o': report.active, 'fa-square-o': !report.active }"></i></td>
 						<td >
 							<div class="pull-right" >

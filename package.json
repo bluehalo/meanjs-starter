@@ -43,7 +43,8 @@
     "passport-local": "~1.0",
     "q": "^1.1",
     "serve-favicon": "^2.2.0",
-    "swig": "~1.4"
+    "swig": "~1.4",
+    "twitter": "^1.2.5"
   },
   "devDependencies": {
     "gulp": "~3.8",

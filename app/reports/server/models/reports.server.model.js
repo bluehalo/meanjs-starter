@@ -122,7 +122,7 @@ var ReportSchema = new Schema({
 		},
 		lastComplete: {
 			type: Date,
-			default: 0
+			default: null
 		},
 		nextRun: {
 			type: Date,
@@ -132,13 +132,14 @@ var ReportSchema = new Schema({
 
 });
 
-
 /**
  * Index declarations
  */
 
 // Text-search index
 ReportSchema.index({ title: 'text', description: 'text' });
+ReportSchema.index({ active: 1, 'state.running': 1, 'state.nextRun': -1 });
+
 
 /**
  * Lifecycle hooks
@@ -180,4 +181,4 @@ ReportSchema.statics.auditCopy = function(src) {
 /**
  * Register the Schema with Mongoose
  */
-mongoose.model('Report', ReportSchema, 'reports');
+mongoose.model('Report', ReportSchema, 'report.reports');

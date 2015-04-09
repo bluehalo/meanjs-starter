@@ -35,7 +35,7 @@ function timeoutHandler() {
 				service.running = true;
 
 				// Run and update the last run time
-				service.service.run().then(function() {
+				service.service.run(service.config).then(function() {
 					service.lastRun = Date.now();
 					service.running = false;
 				}, function(err) {
@@ -47,7 +47,7 @@ function timeoutHandler() {
 			}
 		} catch(err) {
 			// the main loop won't die if a service is failing
-			logger.error('Error in scheduler loop, continuing execution.', err);
+			logger.error(err, 'Error in scheduler loop, continuing execution.');
 		}
 	});
 
