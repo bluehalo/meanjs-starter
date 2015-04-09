@@ -14,7 +14,8 @@ var async = require('async'),
 	util = deps.utilService,
 
 	Report = mongoose.model('Report'),
-	ReportInstance = mongoose.model('ReportInstance');
+	ReportInstance = mongoose.model('ReportInstance'),
+	ProfileMetadata = mongoose.model('ProfileMetadata');
 
 
 /*
@@ -53,25 +54,81 @@ function runReport(report, svcConfig) {
 			});
 
 			// Build a comma separated list of screennames as a parameter
-			var screennames = [];
+			var screennames;
 			if(null != report.criteria && null != report.criteria.users) {
 				screennames = report.criteria.users.join(',');
+			} else {
+				logger.warn('Report: ' + report._id + ' has no users criteria...');
+				callback('No screennames to query');
 			}
+
+			logger.debug(report._id + ':   Querying Twitter for ' + report.criteria.users.length + ' screen names');
 
 			// Issue the actual query
 			client.post('users/lookup', { screen_name: screennames }, function(error, results, raw) {
 				if(error) callback(error, instance);
+
+				logger.debug(report._id + ':   Twitter returned ' + results.length + ' user profiles');
 				callback(null, results, instance);
 			});
 
 		},
 
-		// Persist the results to MongoDB
-		function(profiles, instance) {
-			
+		// Process and Persist the raw results to MongoDB
+		function(profiles, instance, callback) {
+			if(null == profiles) {
+				profiles = [];
+			}
+
+			// Create a map of screenname to profile
+			var profilesMap = {};
+			profiles.forEach(function(element) {
+				profilesMap[element.screen_name.toLowerCase()] = element;
+			});
+
+			// Add the missing screennames to the result
+			report.criteria.users.forEach(function(element) {
+				var screen_name = element.toLowerCase();
+				if(null == profilesMap[screen_name]) {
+					// Empty profiles except for the screen name
+					profiles.push({
+						screen_name: screen_name
+					});
+				}
+			});
+
+			// Now iterate over all the profiles and create the profile metadata for insertion
+			var promises = [];
+			profiles.forEach(function(element) {
+				var defer = q.defer();
+
+				var pmd = new ProfileMetadata({
+					ts: Date.now(),
+					screenName: element.screen_name,
+					payload: element
+				});
+
+				pmd.save(function(err, result) {
+					if(null != err) {
+						logger.error(err);
+					}
+					defer.resolve();
+				});
+				promises.push(defer.promise);
+			});
+
+			q.all(promises).then(function() {
+				callback(null, instance);
+			});
+
 		}
 
 	], function(err, instance) {
+		if(null == instance) {
+			defer.reject('Report instance is undefined!');
+			return;
+		}
+
 		// Complete the Report Instance
 		instance.completed = Date.now();
 		instance.success = (null == err);
@@ -137,6 +194,7 @@ exports.run = function(svcConfig) {
 		if(err) {
 			logger.error(err, 'Failed to retrieve reports.');
 			defer.reject(err);
+			return;
 		}
 
 		if(null != results && results.length > 0) {
