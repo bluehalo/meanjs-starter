@@ -108,6 +108,60 @@ angular.module('asymmetrik.reports').factory('reportService',
 		return request.then(handleSuccess, handleFailure);
 	}
 
+
+	// Process the recentActivity response into the user activity summary model
+	function processUserActivitySummary(recentActivity) {
+		var users = [];
+		var current;
+		var previous;
+
+		// Figure out which is the current and which is the previous
+		var reportInstances = recentActivity.reportInstances;
+		if(null != reportInstances) {
+			if(reportInstances.length > 0) {
+				current = reportInstances[0];
+			}
+			if(reportInstances.length > 1) {
+				previous = reportInstances[1];
+			}
+		}
+
+		// Build a map of screen names to profile data
+		var usersMap = {};
+		if(null != recentActivity.profileMetadata) {
+			recentActivity.profileMetadata.forEach(function(element) {
+				if(null == element) return;
+
+				var sn = element.screenName;
+				if(null == usersMap[sn]) {
+					usersMap[sn] = {};
+				}
+
+				if(null != current && current._id === element.reportInstance) {
+					usersMap[sn].current = element;
+				} else if(null != previous && previous._id === element.reportInstance){
+					usersMap[sn].previous = element;
+				}
+
+			});
+		}
+
+		// convert the map to an array
+		for(var key in usersMap) {
+			var element = usersMap[key];
+			element.screenName = key;
+
+			users.push(element);
+		}
+
+		return {
+			users: users,
+			current: current,
+			previous: previous
+		};
+	}
+
+
 	/**
 	 * Private methods
 	 */
@@ -138,7 +192,8 @@ angular.module('asymmetrik.reports').factory('reportService',
 		remove: remove,
 		setActive: setActive,
 		runReport: runReport,
-		recentActivity: recentActivity
+		recentActivity: recentActivity,
+		processUserActivitySummary: processUserActivitySummary
 
 	});
 

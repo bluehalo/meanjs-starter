@@ -176,7 +176,7 @@ function resetReport(report, failed) {
  * then run them. Will also update the report metadata.
  */
 exports.run = function(svcConfig) {
-	logger.debug('Running the report service');
+	//logger.debug('Running the report service');
 
 	// Create a defer for the response
 	var defer = q.defer();
