@@ -95,7 +95,7 @@ exports.create = function(req, res) {
 
 			userAddFunc(req.user, groupPermission, function(err) {
 				util.catchError(res, err, function() {
-					res.json(group);
+					res.jsonp(group);
 
 					// Audit creation of groups
 					auditLogger.audit('group created', 'group', 'create',
@@ -116,7 +116,7 @@ exports.read = function(req, res) {
 	User.find({ 'groups._id': group._id }).exec(function(err, results){
 		util.catchError(res, err, function() {
 			group.users = User.filteredCopy(results);
-			res.json(group);
+			res.jsonp(group);
 		});
 	});
 };
@@ -139,7 +139,7 @@ exports.update = function(req, res) {
 	// Save
 	group.save(function(err) {
 		util.catchError(res, err, function() {
-			res.json(group);
+			res.jsonp(group);
 		});
 	});
 
@@ -181,7 +181,7 @@ exports.delete = function(req, res) {
 		// Run the two commands concurrently
 		q.all([deleteGroupDefer.promise, deleteUserGroupsDefer.promise]).then(function(results){
 			group.usersRemoved = results[1];
-			res.json(group);
+			res.jsonp(group);
 		}, function(err){
 			// failure
 			return util.send400Error(res, err);
@@ -356,7 +356,7 @@ exports.userAdd = function(req, res) {
 
 	userAddFunc(user, groupPermission, function(err) {
 		util.catchError(res, err, function() {
-			res.json(groupPermission);
+			res.jsonp(groupPermission);
 		});
 	});
 
@@ -375,7 +375,7 @@ exports.userRemove = function(req, res) {
 	verifyNotLastAdmin(user, group).then(function(){
 		User.update({ _id: user._id}, { $pull: { groups: { _id: group._id } } }, function(err) {
 			util.catchError(res, err, function() {
-				res.json( { success: true } );
+				res.jsonp( { success: true } );
 			});
 		});
 
@@ -406,7 +406,7 @@ exports.userRoleAdd = function(req, res) {
 	// Save
 	User.update({ _id: user._id, 'groups._id': group._id }, { $set: setValue }, function(err) {
 		util.catchError(res, err, function() {
-			res.json( { success: true } );
+			res.jsonp( { success: true } );
 		});
 	});
 
@@ -431,7 +431,7 @@ exports.userRoleRemove = function(req, res) {
 		// Save
 		User.update({ _id: user._id, 'groups._id': group._id }, { $set: setValue }, function(err) {
 			util.catchError(res, err, function() {
-				res.json( { success: true } );
+				res.jsonp( { success: true } );
 			});
 		});
 

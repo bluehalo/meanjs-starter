@@ -105,6 +105,7 @@ function runReport(report, svcConfig) {
 				var pmd = new ProfileMetadata({
 					ts: Date.now(),
 					screenName: element.screen_name,
+					reportInstance: instance._id,
 					payload: element
 				});
 
@@ -117,6 +118,7 @@ function runReport(report, svcConfig) {
 				promises.push(defer.promise);
 			});
 
+			// Join on all the promises and then call the callback.
 			q.all(promises).then(function() {
 				callback(null, instance);
 			});

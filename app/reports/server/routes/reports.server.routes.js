@@ -23,5 +23,9 @@ module.exports = function(app) {
 	app.route('/report/:reportId/active')
 		.post(  users.requiresLogin, users.requiresEua, users.requiresRoles(['user']), users.hasAdminOr(reports.hasEditAuthorization), reports.setActive);
 
+	// This route is unprotected
+	app.route('/report/:reportId/activity')
+		.post(  reports.userActivity );
+
 	app.param('reportId', reports.reportById);
 };

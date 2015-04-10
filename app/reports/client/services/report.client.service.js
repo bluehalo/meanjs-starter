@@ -78,6 +78,7 @@ angular.module('asymmetrik.reports').factory('reportService',
 		return request.then(handleSuccess, handleFailure);
 	}
 
+	// Set the active field on the report
 	function setActive(id, active) {
 		var request = $http({
 			method: 'post',
@@ -89,10 +90,20 @@ angular.module('asymmetrik.reports').factory('reportService',
 		return request.then(handleSuccess, handleFailure);
 	}
 
+	// Schedule the report to run immediately
 	function runReport(id) {
 		var request = $http({
 			method: 'post',
 			url: 'report/' + id + '/run'
+		});
+		return request.then(handleSuccess, handleFailure);
+	}
+
+	// Get the most recent two report instances
+	function recentActivity(id) {
+		var request = $http({
+			method: 'post',
+			url: 'report/' + id + '/activity'
 		});
 		return request.then(handleSuccess, handleFailure);
 	}
@@ -126,7 +137,8 @@ angular.module('asymmetrik.reports').factory('reportService',
 		update: update,
 		remove: remove,
 		setActive: setActive,
-		runReport: runReport
+		runReport: runReport,
+		recentActivity: recentActivity
 
 	});
 

@@ -71,7 +71,9 @@
 	
 				<tbody>
 					<tr data-ng-repeat="report in reports track by report._id">
-						<td ><div class="hideOverflow" style="max-width:400px;">{{report.title}}</div></td>
+						<td ><div class="hideOverflow" style="max-width:400px;">
+							<a data-ui-sref="report.view({ reportId: report._id })">{{report.title}}</a>
+						</div></td>
 						<td >{{report.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
 						<td >{{report.state.lastComplete | agoDateFilter}}</td>
 						<td >{{report.state.nextRun | agoDateFilter}}</td>

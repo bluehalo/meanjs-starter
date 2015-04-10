@@ -32,6 +32,10 @@ var ProfileMetadataSchema = new Schema({
 		type: String,
 		validate: [validateNonEmpty, 'Must provide a screenName']
 	},
+	reportInstance: {
+		type: Schema.ObjectId,
+		ref: 'ReportInstance'
+	},
 	payload: {}
 });
 

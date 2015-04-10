@@ -15,6 +15,9 @@ var mongoose = require('mongoose'),
 	groups = require(path.resolve('./app/groups/server/controllers/groups.server.controller.js')),
 
 	Report = mongoose.model('Report'),
+	ReportInstance = mongoose.model('ReportInstance'),
+	ProfileMetadata = mongoose.model('ProfileMetadata'),
+
 	User = mongoose.model('User');
 
 
@@ -176,6 +179,33 @@ exports.setActive = function(req, res) {
 	});
 };
 
+
+exports.userActivity = function(req, res) {
+	var report = req.report;
+
+	// for the report, query the last two report instances for the user
+	var findQuery = ReportInstance.find({ report: report._id, success: true }).sort({ completed: -1 }).limit(2);
+	findQuery.exec(function(err, results){
+		var reportInstances = results;
+
+		util.catchError(res, err, function() {
+			// Build an array of the reportInstance id's
+			var ids = results.map(function(reportInstance) { return reportInstance._id; });
+
+			// Now query for all of the profile metadata
+			ProfileMetadata.find({ reportInstance: { $in: ids }}, function(err, results) {
+				// Wrap the results up into a response
+				var response = {
+					report: report,
+					reportInstances: reportInstances,
+					profileMetadata: results
+				};
+				res.jsonp(response);
+			});
+
+		});
+	});
+};
 
 /**
  * Report middleware

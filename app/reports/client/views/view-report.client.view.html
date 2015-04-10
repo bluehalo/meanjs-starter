@@ -1,0 +1,121 @@
+<section class="container">
+
+	<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
+
+	<h3 class="page-header">
+		Report
+		<small>{{report.title}}</small>
+	</h3>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<!-- Search Input -->
+			<div class="input-group">
+				<input placeholder="Enter a search..." type="text" class="form-control input-sm" data-ng-model="search" data-ng-keypress="applySearchKeypress($event)">
+				<span class="input-group-btn">
+					<button class="btn btn-default btn-sm" type="button" data-ng-click="applySearch()">
+						<i class="fa fa-search"></i>
+					</button>
+				</span>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<!-- Sorting/Paging Controls -->
+			<div data-ng-show="results.totalSize > 1">
+				<div class="controls">
+					<div class="paging-sort" style="float:left;">
+						<span>Sort By:</span>
+						<a type="button" data-ng-class="{selected: options.sort===sort.map.relevance}" class="no-link btn-link" data-ng-click="setSort(sort.map.relevance)">Relevance</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.map.created}" class="no-link btn-link" data-ng-click="setSort(sort.map.created)">Created</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.map.title}" class="no-link btn-link" data-ng-click="setSort(sort.map.title)">Title</a> /
+					</div>
+					<div class="paging-controls pull-right">
+						<span data-ng-show="results.totalSize > 0">{{(results.pageSize*results.pageNumber)+1}} - {{(results.pageSize*results.pageNumber) + reports.length}} of {{results.totalSize}}</span>
+						<span data-ng-show="results.totalPages > 1">
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(0)"><i class="fa fa-angle-double-left"></i></a>
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.pageNumber-1)"><i class="fa fa-angle-left"></i></a>
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.pageNumber+1)"><i class="fa fa-angle-right"></i></a>
+							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.totalPages-1)"><i class="fa fa-angle-double-right"></i></a>
+						</span>
+					</div>
+				</div>
+				<br style="clear:both;"/>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<!-- Actual results -->
+			<table class="asymmetrik table table-condensed table-hover table-striped" data-ng-show="users.length > 0">
+				<thead>
+					<tr>
+						<th colspan="2">Account Info</th>
+						<th colspan="4">Friends</th>
+						<th colspan="4">Followers</th>
+						<th colspan="4">Tweets</th>
+					</tr>
+					<tr>
+						<th>Screen Name</th>
+						<th>Created</th>
+						<th>{{previous.completed | date:"M/d":"UTC"}}</th>
+						<th>{{current.completed | date:"M/d":"UTC"}}</th>
+						<th>New</th>
+						<th>% Change</th>
+						<th>{{previous.completed | date:"M/d":"UTC"}}</th>
+						<th>{{current.completed | date:"M/d":"UTC"}}</th>
+						<th>New</th>
+						<th>% Change</th>
+						<th>{{previous.completed | date:"M/d":"UTC"}}</th>
+						<th>{{current.completed | date:"M/d":"UTC"}}</th>
+						<th>New</th>
+						<th>% Change</th>
+					</tr>
+				</thead>
+	
+				<tbody>
+					<tr data-ng-repeat="user in users track by user.screenName">
+
+						<td>{{user.screenName}}</td>
+						<td >{{user.current.payload.created_at | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
+
+						<!-- Friends -->
+						<td>{{user.previous.payload.friends_count}}</td>
+						<td>{{user.current.payload.friends_count}}</td>
+						<td>{{user.current.payload.friends_count - user.previous.payload.friends_count}}</td>
+						<td>{{100*(user.current.payload.friends_count - user.previous.payload.friends_count)/user.current.payload.friends_count | number:2}}</td>
+
+						<!-- Followers -->
+						<td>{{user.previous.payload.followers_count}}</td>
+						<td>{{user.current.payload.followers_count}}</td>
+						<td>{{user.current.payload.followers_count - user.previous.payload.followers_count}}</td>
+						<td>{{100*(user.current.payload.followers_count - user.previous.payload.followers_count)/user.current.payload.followers_count | number:2}}</td>
+
+						<!-- Tweets -->
+						<td>{{user.previous.payload.statuses_count}}</td>
+						<td>{{user.current.payload.statuses_count}}</td>
+						<td>{{user.current.payload.statuses_count - user.previous.payload.statuses_count}}</td>
+						<td>{{100*(user.current.payload.statuses_count - user.previous.payload.statuses_count)/user.current.payload.statuses_count | number:2}}</td>
+
+					</tr>
+				</tbody>
+			</table>
+	
+			<div class="col-md-6 col-md-offset-3 text-center" data-ng-hide="users.length > 0">
+				<h3>
+					<small>No results? There were likely no users in this report. You should edit the report to add users.</small>
+				</h3>
+			</div>
+		</div>
+
+	</div>
+
+</section>

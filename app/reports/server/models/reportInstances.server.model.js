@@ -38,7 +38,6 @@ var ReportInstanceSchema = new Schema({
 	success: {
 		type: Boolean
 	},
-
 	criteria: {
 		type: {
 			users: [String]
@@ -51,6 +50,7 @@ var ReportInstanceSchema = new Schema({
  * Index declarations
  */
 ReportInstanceSchema.index({ report: 1 });
+ReportInstanceSchema.index({ completed: -1, success: 1 });
 
 
 /**
