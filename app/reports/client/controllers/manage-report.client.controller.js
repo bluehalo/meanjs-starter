@@ -14,9 +14,9 @@ angular.module('asymmetrik.reports').controller('ManageReportController',
 		$scope.groups = Groups;
 
 		$scope.deleteUserFn = function(index) {
-			var newArr = $scope.report.criteria.users;
+			var newArr = $scope.report.criteriaUsers;
 			newArr.splice(index, 1);
-			$scope.report.criteria.users = newArr.concat();
+			$scope.report.criteriaUsers = newArr.concat();
 		};
 
 		/**

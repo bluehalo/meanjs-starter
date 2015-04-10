@@ -108,6 +108,36 @@ angular.module('asymmetrik.reports').factory('reportService',
 		return request.then(handleSuccess, handleFailure);
 	}
 
+	function processProfileMetadata(profileMetadata) {
+		var toReturn = {
+			_id: profileMetadata._id,
+			md: {
+				ts: profileMetadata.ts,
+				reportInstance: profileMetadata.reportInstance,
+				screeName: profileMetadata.screenName
+			},
+			p: {}
+		};
+
+		// Copy over the stuff we want from the payload
+		if(null != profileMetadata.payload) {
+
+			toReturn.p.createdDate = new Date(profileMetadata.payload.created_at);
+
+			toReturn.p.favoritesCount = profileMetadata.payload.favourites_count;
+			toReturn.p.followersCount = profileMetadata.payload.followers_count;
+			toReturn.p.friendsCount = profileMetadata.payload.friends_count;
+			toReturn.p.listedCount = profileMetadata.payload.listed_count;
+			toReturn.p.statusesCount = profileMetadata.payload.statuses_count;
+
+			toReturn.p.geoEnabled = profileMetadata.payload.geo_enabled;
+			toReturn.p.lang = profileMetadata.payload.lang;
+			toReturn.p.timezone = profileMetadata.payload.time_zone;
+
+		}
+
+		return toReturn;
+	}
 
 	// Process the recentActivity response into the user activity summary model
 	function processUserActivitySummary(recentActivity) {
@@ -126,32 +156,45 @@ angular.module('asymmetrik.reports').factory('reportService',
 			}
 		}
 
-		// Build a map of screen names to profile data
+		// Build a map of screen names to profile data, seeded with the criteria user list
 		var usersMap = {};
+		if(null != recentActivity.report && null != recentActivity.report.criteriaUsers) {
+			recentActivity.report.criteriaUsers.forEach(function(element) {
+				usersMap[element.toLowerCase()] = {
+					screenName: element
+				};
+			});
+		}
+
+		// Populate with the actual profiles from the results
 		if(null != recentActivity.profileMetadata) {
 			recentActivity.profileMetadata.forEach(function(element) {
 				if(null == element) return;
 
-				var sn = element.screenName;
+				var sn = element.screenName.toLowerCase();
 				if(null == usersMap[sn]) {
-					usersMap[sn] = {};
+					usersMap[sn] = {
+						screenName: element.screenName
+					};
 				}
 
-				if(null != current && current._id === element.reportInstance) {
-					usersMap[sn].current = element;
-				} else if(null != previous && previous._id === element.reportInstance){
-					usersMap[sn].previous = element;
-				}
+				usersMap[sn].screenName = element.screenName;
+				var isCurrent = (null != current && current._id === element.reportInstance);
+				var isPrevious = (null != previous && previous._id === element.reportInstance);
 
+				var processedElement = processProfileMetadata(element);
+
+				if(isCurrent) {
+					usersMap[sn].current = processedElement;
+				} else if(isPrevious) {
+					usersMap[sn].previous = processedElement;
+				}
 			});
 		}
 
 		// convert the map to an array
 		for(var key in usersMap) {
-			var element = usersMap[key];
-			element.screenName = key;
-
-			users.push(element);
+			users.push(usersMap[key]);
 		}
 
 		return {

@@ -20,8 +20,8 @@ angular.module('asymmetrik.reports').controller('ViewReportController',
 
 			$scope.report = result.report;
 			$scope.users = processedActivity.users;
-			$scope.current = processedActivity.currentInstance;
-			$scope.previous = processedActivity.previousInstance;
+			$scope.current = processedActivity.current;
+			$scope.previous = processedActivity.previous;
 
 		}, function(error){
 			$log.error('Report with id: ' + $stateParams.reportId + ' does not exist.');

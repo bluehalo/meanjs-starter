@@ -25,7 +25,7 @@ function copyMutableFields(dest, src) {
 	dest.title = src.title;
 	dest.description = src.description;
 	dest.group = src.group;
-	dest.criteria.users = src.criteria.users;
+	dest.criteriaUsers = src.criteriaUsers;
 	dest.period = src.period;
 }
 

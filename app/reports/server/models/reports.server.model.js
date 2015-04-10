@@ -19,25 +19,21 @@ function validateNonEmpty(property) {
 	return (null != property && property.length > 0);
 }
 
-function validateUsers(users) {
+function validateCriteriaUsers(users) {
 	return (null != users && users.length > 0);
-}
-
-function validateCriteria(criteria) {
-	return null != criteria && (validateUsers(criteria.users));
 }
 
 function toLowerCase(v){
 	return (null != v)? v.toLowerCase(): undefined;
 }
 
-function processCriteria(criteria) {
+function processCriteriaUsers(criteriaUsers) {
 
 	// Check the users list
-	if(null != criteria && null != criteria.users) {
+	if(null != criteriaUsers) {
 
 		var userMap = {};
-		criteria.users.forEach(function(element) {
+		criteriaUsers.forEach(function(element) {
 			// Trim whitespace
 			element = element.trim();
 
@@ -56,7 +52,7 @@ function processCriteria(criteria) {
 		for(var user in userMap) {
 			users.push(user);
 		}
-		criteria.users = users;
+		criteriaUsers = users;
 	}
 }
 
@@ -108,11 +104,9 @@ var ReportSchema = new Schema({
 		default: 24*60*60  // 24 hours
 	},
 
-	criteria: {
-		type: {
-			users: [String]
-		},
-		validate: [validateCriteria, 'Please provide a valid criteria']
+	criteriaUsers: {
+		type: [String],
+		validate: [validateCriteriaUsers, 'Please provide a valid list of user accounts']
 	},
 
 	state: {
@@ -127,6 +121,10 @@ var ReportSchema = new Schema({
 		nextRun: {
 			type: Date,
 			default: Date.now()
+		},
+		success: {
+			type: Boolean,
+			default: false
 		}
 	}
 
@@ -148,7 +146,7 @@ ReportSchema.index({ active: 1, 'state.running': 1, 'state.nextRun': -1 });
 // Before save
 ReportSchema.pre('save', function(next){
 	this.title_lowercase = this.title;
-	processCriteria(this.criteria);
+	processCriteriaUsers(this.criteriaUsers);
 
 	next();
 });

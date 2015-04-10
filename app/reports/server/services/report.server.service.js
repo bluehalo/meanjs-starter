@@ -55,14 +55,14 @@ function runReport(report, svcConfig) {
 
 			// Build a comma separated list of screennames as a parameter
 			var screennames;
-			if(null != report.criteria && null != report.criteria.users) {
-				screennames = report.criteria.users.join(',');
+			if(null != report.criteriaUsers) {
+				screennames = report.criteriaUsers.join(',');
 			} else {
 				logger.warn('Report: ' + report._id + ' has no users criteria...');
 				callback('No screennames to query');
 			}
 
-			logger.debug(report._id + ':   Querying Twitter for ' + report.criteria.users.length + ' screen names');
+			logger.debug(report._id + ':   Querying Twitter for ' + report.criteriaUsers.length + ' screen names');
 
 			// Issue the actual query
 			client.post('users/lookup', { screen_name: screennames }, function(error, results, raw) {
@@ -87,7 +87,7 @@ function runReport(report, svcConfig) {
 			});
 
 			// Add the missing screennames to the result
-			report.criteria.users.forEach(function(element) {
+			report.criteriaUsers.forEach(function(element) {
 				var screen_name = element.toLowerCase();
 				if(null == profilesMap[screen_name]) {
 					// Empty profiles except for the screen name
@@ -149,15 +149,15 @@ function runReport(report, svcConfig) {
 /*
  * Reset the state of the report given the completion of a report
  */
-function resetReport(report, failed) {
+function resetReport(report, success) {
 	// default to false
-	failed = (failed == null) ? false : failed;
+	success = (success == null) ? false : success;
 
 	report.state.running = false;
 	report.state.nextRun = Date.now() + report.period;
-	report.state.failed = failed;
+	report.state.success = success;
 
-	if(!failed) {
+	if(success) {
 		report.state.lastComplete = Date.now();
 	}
 
