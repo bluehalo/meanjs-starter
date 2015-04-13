@@ -8,8 +8,12 @@ angular.module('asymmetrik.util').filter('durationFilter', function () {
 
 	return function (duration) {
 
-		if (null != duration && isNumeric(duration)) {
-			// If it's not null and its a number
+		if (null != duration && (isNumeric(duration) || null != duration.getTime)) {
+			// If it's not null and its a number or it's a date
+
+			if(null != duration.getTime) {
+				duration = duration.getTime();
+			}
 
 			if(duration < 1000) {
 				return duration + ' ms';

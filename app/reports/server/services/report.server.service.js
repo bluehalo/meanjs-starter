@@ -91,11 +91,12 @@ function runReport(report, svcConfig) {
 			});
 
 			// Add the missing screennames to the result
+			var missingProfiles = [];
 			report.criteriaUsers.forEach(function(element) {
 				var screen_name = element.toLowerCase();
 				if(null == profilesMap[screen_name]) {
 					// Empty profiles except for the screen name
-					profiles.push({
+					missingProfiles.push({
 						screen_name: screen_name
 					});
 				}
@@ -109,6 +110,26 @@ function runReport(report, svcConfig) {
 				var pmd = new ProfileMetadata({
 					ts: Date.now(),
 					screenName: element.screen_name,
+					found: true,
+					reportInstance: instance._id,
+					payload: element
+				});
+
+				pmd.save(function(err, result) {
+					if(null != err) {
+						logger.error(err);
+					}
+					defer.resolve();
+				});
+				promises.push(defer.promise);
+			});
+			missingProfiles.forEach(function(element) {
+				var defer = q.defer();
+
+				var pmd = new ProfileMetadata({
+					ts: Date.now(),
+					screenName: element.screen_name,
+					found: false,
 					reportInstance: instance._id,
 					payload: element
 				});

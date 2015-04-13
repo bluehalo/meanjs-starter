@@ -101,7 +101,7 @@ var ReportSchema = new Schema({
 	},
 	period: {
 		type: Number,
-		default: 24*60*60  // 24 hours
+		default: 24*60*60*1000  // 24 hours
 	},
 
 	criteriaUsers: {

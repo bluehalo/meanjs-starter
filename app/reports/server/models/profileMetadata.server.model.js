@@ -36,6 +36,10 @@ var ProfileMetadataSchema = new Schema({
 		type: Schema.ObjectId,
 		ref: 'ReportInstance'
 	},
+	found: {
+		type: Boolean,
+		default: true
+	},
 	payload: {}
 });
 

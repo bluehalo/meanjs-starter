@@ -4,53 +4,84 @@
 
 	<h3 class="page-header">
 		{{report.title}}<br/>
-		<small>Comparing {{previous.completed | date:"M/d/yyyy HH:mm:ss 'Z'":"UTC"}} to {{current.completed | date:"M/d/yyyy HH:mm:ss 'Z'":"UTC"}}</small>
+		<small>{{previous.completed | date:"MM/dd/yyyy HH:mm:ss 'Z'":"UTC"}} - {{current.completed | date:"MM/dd/yyyy HH:mm:ss 'Z'":"UTC"}}</small>
 	</h3>
 
 	<div class="row">
 		<div class="col-md-12">
 
 			<!-- Actual results -->
-			<table class="asymmetrik table table-condensed table-hover table-striped" data-ng-show="users.length > 0">
+			<table class="asymmetrik table table-condensed" data-ng-show="users.length > 0">
 				<thead>
-					<tr>
-						<th colspan="2">Account Info</th>
-						<th colspan="3">Friends</th>
-						<th colspan="3">Followers</th>
-						<th colspan="3">Tweets</th>
+					<tr class="section">
+						<th class="text-left"></th>
+						<th class="text-left" colspan="2">Account Info</th>
+						<th class="text-center" colspan="3">Friends</th>
+						<th class="text-center" colspan="3">Followers</th>
+						<th class="text-center" colspan="3">Tweets</th>
 					</tr>
 					<tr>
-						<th class="text-right">Screen Name</th>
-						<th>Created</th>
+						<th class="text-left"></th>
+						<th class="text-left">Screen Name</th>
+						<th class="text-left">Created</th>
+
 						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
-						<th class="text-center" colspan="2">Change</th>
+						<th class="text-right">Change</th>
+						<th></th>
+
 						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
-						<th class="text-center" colspan="2">Change</th>
+						<th class="text-right">Change</th>
+						<th></th>
+
 						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
-						<th class="text-center" colspan="2">Change</th>
+						<th class="text-right">Change</th>
+						<th></th>
 					</tr>
 				</thead>
 	
 				<tbody>
-					<tr data-ng-repeat="user in users track by user.screenName">
+					<tr data-ng-class="{'danger': user.current.md.found === false}" data-ng-repeat="user in users track by user.screenName">
 
-						<td class="text-right">{{user.screenName}}</td>
-						<td >{{user.current.p.createdDate | date:"M/d/yyyy HH:mm:ss 'Z'":"UTC"}}</td>
+						<td class="text-right">
+							<i class="fa" data-ng-class="{'fa-user-times': user.current.md.found === false}"></i>
+						</td>
+						<td class="text-left" data-ng-class="{'danger': user.current.md.found === false}">@{{user.screenName}}</td>
+						<td class="text-left">
+							{{(user.current.p.createdDate | date:"MM/dd/yyyy HH:mm:ss 'Z'":"UTC") || "unknown"}}
+						</td>
 
 						<!-- Friends -->
-						<td class="text-right">{{user.current.p.friendsCount | number}}</td>
-						<td class="text-right">{{user.current.p.friendsCount - user.previous.p.friendsCount | number}}</td>
-						<td class="text-right">{{100*(user.current.p.friendsCount - user.previous.p.friendsCount)/user.previous.p.friendsCount | number:2}} %</td>
+						<td class="text-right">
+							{{(user.current.p.friendsCount | number) || 0}}
+						</td>
+						<td class="text-right" data-ng-class="{'success': user.delta.friendsPercent > 0, 'danger': user.delta.friendsPercent < 0}">
+							{{(user.delta.friendsCount | number) || 0}}
+						</td>
+						<td class="text-right" data-ng-class="{'success': user.delta.friendsPercent > 0, 'danger': user.delta.friendsPercent < 0}">
+							{{(100*user.delta.friendsPercent | number:2) || 0}}%
+						</td>
 
 						<!-- Followers -->
-						<td class="text-right">{{user.current.p.followersCount | number}}</td>
-						<td class="text-right">{{user.current.p.followersCount - user.previous.p.followersCount | number}}</td>
-						<td class="text-right">{{100*(user.current.p.followersCount - user.previous.p.followersCount)/user.previous.p.followersCount | number:2}} %</td>
+						<td class="text-right">
+							{{(user.current.p.followersCount | number) || 0}}
+						</td>
+						<td class="text-right" data-ng-class="{'success': user.delta.followersPercent > 0, 'danger': user.delta.followersPercent < 0}">
+							{{(user.delta.followersCount | number) || 0}}
+						</td>
+						<td class="text-right" data-ng-class="{'success': user.delta.followersPercent > 0, 'danger': user.delta.followersPercent < 0}">
+							{{(100*user.delta.followersPercent | number:2) || 0}}%
+						</td>
 
 						<!-- Tweets -->
-						<td class="text-right">{{user.current.p.statusesCount | number}}</td>
-						<td class="text-right">{{user.current.p.statusesCount - user.previous.p.statusesCount | number}}</td>
-						<td class="text-right">{{100*(user.current.p.statusesCount - user.previous.p.statusesCount)/user.previous.p.statusesCount | number:2}} %</td>
+						<td class="text-right">
+							{{(user.current.p.statusesCount | number) || 0}}
+						</td>
+						<td class="text-right" data-ng-class="{'success': user.delta.statusesPercent > 0, 'danger': user.delta.statusesPercent < 0}">
+							{{(user.delta.statusesCount | number) || 0}}
+						</td>
+						<td class="text-right" data-ng-class="{'success': user.delta.statusesPercent > 0, 'danger': user.delta.statusesPercent < 0}">
+							{{(100*user.delta.statusesPercent | number:2) || 0}}%
+						</td>
 
 					</tr>
 				</tbody>

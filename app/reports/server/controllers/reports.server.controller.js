@@ -183,21 +183,48 @@ exports.setActive = function(req, res) {
 exports.userActivity = function(req, res) {
 	var report = req.report;
 
-	// for the report, query the last two report instances for the user
-	var findQuery = ReportInstance.find({ report: report._id, success: true }).sort({ completed: -1 }).limit(2);
-	findQuery.exec(function(err, results){
+	// for the report, query the last two report instances for the user for the period
+	var findQuery = ReportInstance.find({ report: report._id, success: true, completed: { $gt: Date.now() - 3*report.period } })
+		.sort({ completed: -1 }).limit(100);
+
+	findQuery.exec(function(err, results) {
 		var reportInstances = results;
 
 		util.catchError(res, err, function() {
-			// Build an array of the reportInstance id's
-			var ids = results.map(function(reportInstance) { return reportInstance._id; });
+			var current, previous;
+
+			if(null != results && results.length > 0) {
+				current = results[0];
+				var currentTs = current.completed;
+				var currentError = Number.POSITIVE_INFINITY;
+
+				// Search for the optimal match based on the period
+				results.some(function(element) {
+					// Search for the optimal match based on the period
+					var error = Math.abs((currentTs - report.period) - element.completed);
+					if(error < currentError) {
+						// We can improve the error, so update state and continue
+						previous = element;
+						currentError = error;
+						return false;
+					} else {
+						// once error worsens, we're done
+						return true;
+					}
+				});
+			}
+
+			// Build an array of the report instance id's we're going to query
+			var ids = [];
+			if(null != current) { ids.push(current._id); }
+			if(null != previous) { ids.push(previous._id); }
 
 			// Now query for all of the profile metadata
 			ProfileMetadata.find({ reportInstance: { $in: ids }}, function(err, results) {
 				// Wrap the results up into a response
 				var response = {
 					report: report,
-					reportInstances: reportInstances,
+					reportInstances: [current, previous],
 					profileMetadata: results
 				};
 				res.jsonp(response);

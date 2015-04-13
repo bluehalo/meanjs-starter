@@ -24,7 +24,6 @@ angular.module('asymmetrik.reports').factory('reportService',
 	};
 	periods.array = [ periods.map.hour, periods.map.sixHours, periods.map.twelveHours, periods.map.day, periods.map.week ];
 
-
 	/**
 	 * Public methods to be exposed through the service
 	 */
@@ -114,7 +113,8 @@ angular.module('asymmetrik.reports').factory('reportService',
 			md: {
 				ts: profileMetadata.ts,
 				reportInstance: profileMetadata.reportInstance,
-				screeName: profileMetadata.screenName
+				screeName: profileMetadata.screenName,
+				found: profileMetadata.found
 			},
 			p: {}
 		};
@@ -122,7 +122,7 @@ angular.module('asymmetrik.reports').factory('reportService',
 		// Copy over the stuff we want from the payload
 		if(null != profileMetadata.payload) {
 
-			toReturn.p.createdDate = new Date(profileMetadata.payload.created_at);
+			toReturn.p.createdDate = (null != profileMetadata.payload.created_at) ? new Date(profileMetadata.payload.created_at) : null;
 
 			toReturn.p.favoritesCount = profileMetadata.payload.favourites_count;
 			toReturn.p.followersCount = profileMetadata.payload.followers_count;
@@ -196,6 +196,43 @@ angular.module('asymmetrik.reports').factory('reportService',
 		for(var key in usersMap) {
 			users.push(usersMap[key]);
 		}
+
+		users.forEach(function(element) {
+			var current = {
+				friendsCount: 0,
+				followersCount: 0,
+				statusesCount: 0
+			};
+			var previous = {
+				friendsCount: 0,
+				followersCount: 0,
+				statusesCount: 0
+			};
+			var delta = {};
+
+			// Set the current values
+			if(null != element.current && null != element.current.p) {
+				current.friendsCount = element.current.p.friendsCount;
+				current.followersCount = element.current.p.followersCount;
+				current.statusesCount = element.current.p.statusesCount;
+			}
+			if(null != element.previous && null != element.previous.p) {
+				previous.friendsCount = element.previous.p.friendsCount;
+				previous.followersCount = element.previous.p.followersCount;
+				previous.statusesCount = element.previous.p.statusesCount;
+			}
+
+			delta.friendsCount = current.friendsCount - previous.friendsCount;
+			delta.friendsPercent = (previous.friendsCount !== 0)? delta.friendsCount/previous.friendsCount : 0;
+
+			delta.followersCount = current.followersCount - previous.followersCount;
+			delta.followersPercent = (previous.followersCount !== 0)? delta.followersCount/previous.followersCount : 0;
+
+			delta.statusesCount = current.statusesCount - previous.statusesCount;
+			delta.statusesPercent = (previous.statusesCount !== 0)? delta.statusesCount/previous.statusesCount : 0;
+
+			element.delta = delta;
+		});
 
 		return {
 			users: users,
