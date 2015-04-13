@@ -20,37 +20,37 @@
 						<th colspan="3">Tweets</th>
 					</tr>
 					<tr>
-						<th>Screen Name</th>
+						<th class="text-right">Screen Name</th>
 						<th>Created</th>
-						<th>{{current.completed | date:"M/d":"UTC"}}</th>
-						<th colspan="2">Change</th>
-						<th>{{current.completed | date:"M/d":"UTC"}}</th>
-						<th colspan="2">Change</th>
-						<th>{{current.completed | date:"M/d":"UTC"}}</th>
-						<th colspan="2">Change</th>
+						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
+						<th class="text-center" colspan="2">Change</th>
+						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
+						<th class="text-center" colspan="2">Change</th>
+						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
+						<th class="text-center" colspan="2">Change</th>
 					</tr>
 				</thead>
 	
 				<tbody>
 					<tr data-ng-repeat="user in users track by user.screenName">
 
-						<td>{{user.screenName}}</td>
+						<td class="text-right">{{user.screenName}}</td>
 						<td >{{user.current.p.createdDate | date:"M/d/yyyy HH:mm:ss 'Z'":"UTC"}}</td>
 
 						<!-- Friends -->
-						<td>{{user.current.p.friendsCount | number}}</td>
-						<td>{{user.current.p.friendsCount - user.previous.p.friendsCount | number}}</td>
-						<td>{{100*(user.current.p.friendsCount - user.previous.p.friendsCount)/user.previous.p.friendsCount | number:2}} %</td>
+						<td class="text-right">{{user.current.p.friendsCount | number}}</td>
+						<td class="text-right">{{user.current.p.friendsCount - user.previous.p.friendsCount | number}}</td>
+						<td class="text-right">{{100*(user.current.p.friendsCount - user.previous.p.friendsCount)/user.previous.p.friendsCount | number:2}} %</td>
 
 						<!-- Followers -->
-						<td>{{user.current.p.followersCount | number}}</td>
-						<td>{{user.current.p.followersCount - user.previous.p.followersCount | number}}</td>
-						<td>{{100*(user.current.p.followersCount - user.previous.p.followersCount)/user.previous.p.followersCount | number:2}} %</td>
+						<td class="text-right">{{user.current.p.followersCount | number}}</td>
+						<td class="text-right">{{user.current.p.followersCount - user.previous.p.followersCount | number}}</td>
+						<td class="text-right">{{100*(user.current.p.followersCount - user.previous.p.followersCount)/user.previous.p.followersCount | number:2}} %</td>
 
 						<!-- Tweets -->
-						<td>{{user.current.p.statusesCount | number}}</td>
-						<td>{{user.current.p.statusesCount - user.previous.p.statusesCount | number}}</td>
-						<td>{{100*(user.current.p.statusesCount - user.previous.p.statusesCount)/user.previous.p.statusesCount | number:2}} %</td>
+						<td class="text-right">{{user.current.p.statusesCount | number}}</td>
+						<td class="text-right">{{user.current.p.statusesCount - user.previous.p.statusesCount | number}}</td>
+						<td class="text-right">{{100*(user.current.p.statusesCount - user.previous.p.statusesCount)/user.previous.p.statusesCount | number:2}} %</td>
 
 					</tr>
 				</tbody>

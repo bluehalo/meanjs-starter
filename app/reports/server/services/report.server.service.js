@@ -34,7 +34,7 @@ function runReport(report, svcConfig) {
 				report: report
 			});
 			instance.save(function(err, result) {
-				if(err) {
+				if(err || result == null) {
 					logger.error(err, report._id + ': Error creating report instance');
 					callback(err);
 				} else {
@@ -59,7 +59,7 @@ function runReport(report, svcConfig) {
 				screennames = report.criteriaUsers.join(',');
 			} else {
 				logger.warn('Report: ' + report._id + ' has no users criteria...');
-				callback('No screennames to query');
+				callback(null, [], instance);
 			}
 
 			logger.debug(report._id + ':   Querying Twitter for ' + report.criteriaUsers.length + ' screen names');
@@ -67,6 +67,10 @@ function runReport(report, svcConfig) {
 			// Issue the actual query
 			client.post('users/lookup', { screen_name: screennames }, function(error, results, raw) {
 				if(error) callback(error, instance);
+
+				if(null == results) {
+					results = [];
+				}
 
 				logger.debug(report._id + ':   Twitter returned ' + results.length + ' user profiles');
 				callback(null, results, instance);
