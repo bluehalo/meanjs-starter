@@ -9,12 +9,7 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 		// Abstract parent state
 		.state('report', {
 			abstract: true,
-			template: '<ui-view/>',
-			resolve: {
-				Groups: function(groupService) {
-					return groupService.list();
-				}
-			}
+			template: '<ui-view/>'
 		})
 
 		/*
@@ -48,6 +43,11 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 			data: {
 				roles : [ 'user' ],
 				mode: 'edit'
+			},
+			resolve: {
+				Groups: function(groupService) {
+					return groupService.list();
+				}
 			}
 		})
 
