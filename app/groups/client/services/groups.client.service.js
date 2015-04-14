@@ -6,7 +6,7 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 	var roles = {};
 	roles.map = {
 		admin: { label: 'Group Admin', description: 'This user can manage the membership and metadata of the group', role: 'admin' },
-		editor: { label: 'Subscription Editor', description: 'This user can create/edit/delete subscriptions within this group', role: 'editor' }
+		editor: { label: 'Report Editor', description: 'This user can create/edit/delete reports within this group', role: 'editor' }
 	};
 	roles.array = [ roles.map.admin, roles.map.editor ];
 

@@ -64,7 +64,7 @@
 						<th>Created</th>
 						<th>Last Complete</th>
 						<th>Next Run</th>
-						<th>Enabled?</th>
+						<th class="text-center">Enabled?</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
@@ -77,10 +77,14 @@
 						<td >{{report.created | date:"M/d/yy HH:mm:ss 'Z'":"UTC"}}</td>
 						<td >{{report.state.lastComplete | agoDateFilter}}</td>
 						<td >{{report.state.nextRun | agoDateFilter}}</td>
-						<td ><i class="fa fa-fw" data-ng-class="{'fa-check-square-o': report.active, 'fa-square-o': !report.active }"></i></td>
+						<td class="text-center">
+							<a class="no-link" data-ng-click="toggleReport(report)">
+								<i class="fa fa-fw" data-ng-class="{'fa-check-square-o': report.active, 'fa-square-o': !report.active }"></i>
+							</a>
+						</td>
 						<td >
 							<div class="pull-right" >
-								<div class="btn-group pull-right" data-ng-show="auth.canManageGroup(group._id)" data-dropdown data-is-open="status.isopen">
+								<div class="btn-group pull-right" data-ng-show="auth.canEditReports(report.group)" data-dropdown data-is-open="status.isopen">
 									<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-dropdown-toggle>
 										<i class="fa fa-gear"></i> <span class="caret"></span>
 									</button>
@@ -95,13 +99,6 @@
 											<a title="Run Now" class="no-link" data-ng-click="runReport(report)">
 												<i class="fa fa-fw fa-play"></i>
 												Run Now
-											</a>
-										</li>
-										<li>
-											<a title="Enable/Disable" class="no-link" data-ng-click="toggleReport(report)">
-												<i class="fa fa-fw fa-power-off"></i>
-												<span data-ng-hide="report.active">Enable</span>
-												<span data-ng-hide="!report.active">Disable</span>
 											</a>
 										</li>
 										<li class="divider"></li>
