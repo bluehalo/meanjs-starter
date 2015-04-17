@@ -59,14 +59,14 @@ function runReport(report, svcConfig) {
 				screennames = report.criteriaUsers.join(',');
 			} else {
 				logger.warn('Report: ' + report._id + ' has no users criteria...');
-				callback(null, [], instance);
+				return callback(null, [], instance);
 			}
 
 			logger.debug(report._id + ':   Querying Twitter for ' + report.criteriaUsers.length + ' screen names');
 
 			// Issue the actual query
 			client.post('users/lookup', { screen_name: screennames }, function(error, results, raw) {
-				if(error) callback(error, instance);
+				if(error) return callback(error, instance);
 
 				if(null == results) {
 					results = [];
@@ -145,7 +145,7 @@ function runReport(report, svcConfig) {
 
 			// Join on all the promises and then call the callback.
 			q.all(promises).then(function() {
-				callback(null, instance);
+				return callback(null, instance);
 			});
 
 		}
