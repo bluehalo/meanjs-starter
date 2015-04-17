@@ -22,25 +22,69 @@
 					</tr>
 					<tr>
 						<th class="text-left"></th>
-						<th class="text-left">Screen Name</th>
-						<th class="text-left">Created</th>
+						<th class="text-left">
+							<a class="no-link" data-ng-click="setSort('screenName')">Screen Name
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'screenName' && sort.dir, 'fa-caret-up': sort.id === 'screenName' && !sort.dir}"></i>
+							</a>
+						</th>
+						<th class="text-left">
+							<a class="no-link" data-ng-click="setSort('created')">Created
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'created' && sort.dir, 'fa-caret-up': sort.id === 'created' && !sort.dir}"></i>
+							</a>
+						</th>
 
-						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
-						<th class="text-right">Change</th>
-						<th></th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('friends')">{{current.completed | date:"M/d":"UTC"}}
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'friends' && sort.dir, 'fa-caret-up': sort.id === 'friends' && !sort.dir}"></i>
+							</a>
+						</th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('friendsDelta')">Change
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'friendsDelta' && sort.dir, 'fa-caret-up': sort.id === 'friendsDelta' && !sort.dir}"></i>
+							</a>
+						</th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('friendsDeltaPercent')">%
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'friendsDeltaPercent' && sort.dir, 'fa-caret-up': sort.id === 'friendsDeltaPercent' && !sort.dir}"></i>
+							</a>
+						</th>
 
-						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
-						<th class="text-right">Change</th>
-						<th></th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('followers')">{{current.completed | date:"M/d":"UTC"}}
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'followers' && sort.dir, 'fa-caret-up': sort.id === 'followers' && !sort.dir}"></i>
+							</a>
+						</th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('followersDelta')">Change
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'followersDelta' && sort.dir, 'fa-caret-up': sort.id === 'followersDelta' && !sort.dir}"></i>
+							</a>
+						</th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('followersDeltaPercent')">%
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'followersDeltaPercent' && sort.dir, 'fa-caret-up': sort.id === 'followersDeltaPercent' && !sort.dir}"></i>
+							</a>
+						</th>
 
-						<th class="text-right">{{current.completed | date:"M/d":"UTC"}}</th>
-						<th class="text-right">Change</th>
-						<th></th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('statuses')">{{current.completed | date:"M/d":"UTC"}}
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'statuese' && sort.dir, 'fa-caret-up': sort.id === 'statuses' && !sort.dir}"></i>
+							</a>
+						</th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('statusesDelta')">Change
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'statusesDelta' && sort.dir, 'fa-caret-up': sort.id === 'statusesDelta' && !sort.dir}"></i>
+							</a>
+						</th>
+						<th class="text-right">
+							<a class="no-link" data-ng-click="setSort('statusesDeltaPercent')">%
+								<i class="fa fa-fw" data-ng-class="{'fa-caret-down': sort.id === 'statusesDeltaPercent' && sort.dir, 'fa-caret-up': sort.id === 'statusesDeltaPercent' && !sort.dir}"></i>
+							</a>
+						</th>
 					</tr>
 				</thead>
 	
 				<tbody>
-					<tr data-ng-class="{'danger': user.current.md.found === false}" data-ng-repeat="user in users track by user.screenName">
+					<tr data-ng-class="{'danger': user.current.md.found === false}" data-ng-repeat="user in users | orderBy:sort.value:sort.dir track by user.screenName">
 
 						<td class="text-right">
 							<i class="fa" data-ng-class="{'fa-user-times': user.current.md.found === false}"></i>

@@ -142,13 +142,16 @@ dl.dl-horizontal > dd, dl.dl-horizontal > dt {
 }
 
 a.no-link {
-	color: #888;
+	color: #333;
 	text-decoration: none;
 	cursor: pointer;
 }
 a.no-link:hover {
-	color: #444;
+	color: #933;
 	text-decoration: none;
+}
+a.no-link.muted {
+	color: #888;
 }
 a.no-link.danger:hover {
 	color: #d55;
