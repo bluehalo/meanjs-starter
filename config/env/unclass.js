@@ -22,14 +22,14 @@ module.exports = {
 		application: {
 			file: '/var/log/ember/ember.log',
 			logstash: {
-				host: 'server',
+				host: 'e01sv06',
 				port: 4561
 			}
 		},
 		audit: {
 			file: '/var/log/ember/ember.audit.log',
 			logstash: {
-				host: 'server',
+				host: 'e01sv06',
 				port: 4562
 			}
 		}
