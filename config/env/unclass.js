@@ -35,6 +35,22 @@ module.exports = {
 		}
 	},
 
+	scheduler: {
+		services: [
+			{
+				file: 'app/reports/server/services/report.server.service.js',
+				interval: 30000,
+				config: {
+					apiKey: 'oR33Tx6zZwvBGHqJgcuv5hUoI',
+					apiSecret: 'qpvF4ffaLG6P6N3BiTwXaTh6Pn1B7Geg5mjsf5retiRPusvAZz',
+					tokenKey: '3152922241-X6HVQ77I4kKVcBfmeU36WVAur8xCNOqNGUqYh5i',
+					tokenSecret: 'Am5T9om0aN7sMqUfPkwW1MGKbMkYcrUOJwYkohUjnPpPA'
+				}
+			}
+		],
+		interval: 10000
+	},
+
 	mailer: {
 		from: process.env.MAILER_FROM || 'noreply@asymmetrik.com',
 		options: {
