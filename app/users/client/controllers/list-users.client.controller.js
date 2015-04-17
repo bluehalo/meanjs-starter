@@ -14,7 +14,7 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 		$scope.alertService.clearAll();
 
 		$scope.users = [];
-		$scope.roles = $scope.auth.roles.list;
+		$scope.roles = $scope.auth.roles.array;
 
 		// Search phrase
 		$scope.search = '';
