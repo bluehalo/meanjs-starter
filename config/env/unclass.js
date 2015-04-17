@@ -44,7 +44,7 @@ module.exports = {
 					apiKey: 'oR33Tx6zZwvBGHqJgcuv5hUoI',
 					apiSecret: 'qpvF4ffaLG6P6N3BiTwXaTh6Pn1B7Geg5mjsf5retiRPusvAZz',
 					tokenKey: '3152922241-X6HVQ77I4kKVcBfmeU36WVAur8xCNOqNGUqYh5i',
-					tokenSecret: 'Am5T9om0aN7sMqUfPkwW1MGKbMkYcrUOJwYkohUjnPpPA'
+					tokenSecret: 'Am5T9om0aN7sMqUfPkwWlMGKbMkYcrUOJwYkohUjnPpPA'
 				}
 			}
 		],

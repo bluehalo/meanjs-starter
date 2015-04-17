@@ -151,6 +151,9 @@ function runReport(report, svcConfig) {
 		}
 
 	], function(err, instance) {
+		if(null != err) {
+			logger.error(err, report.id + ': Error running report');
+		}
 		if(null == instance) {
 			defer.reject('Report instance is undefined!');
 			return;
