@@ -34,6 +34,11 @@ angular.module('asymmetrik.reports').config(['$stateProvider',
 			data: {
 				roles : [ 'user' ],
 				mode: 'create'
+			},
+			resolve: {
+				Groups: function(groupService) {
+					return groupService.list();
+				}
 			}
 		})
 		.state('report.edit', {
