@@ -10,11 +10,11 @@
 			</div>
 
 			<!-- Alert Notifications -->
-			<div data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
+			<div class="word-wrap" data-alert data-ng-repeat="alert in alertService.alerts" data-type="{{alert.type}}" data-close="alertService.clear($index)">{{alert.msg}}</div>
 
 			<form name="userForm" autocomplete="off" class="form-horizontal" role="form">
 
-				<div class="panel panel-default">
+				<div class="panel panel-default word-wrap">
 					<div class="panel-heading">
 						<h3 class="panel-title">{{eua.title}}</h3>
 					</div>

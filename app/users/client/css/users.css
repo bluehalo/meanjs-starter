@@ -21,3 +21,7 @@ input.no-spinner[type=number]::-webkit-outer-spin-button {
 	-moz-appearance: none;
 	margin: 0;
 }
+
+.word-wrap {
+	word-wrap: break-word;
+}
