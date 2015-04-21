@@ -54,6 +54,8 @@ function processCriteriaUsers(criteriaUsers) {
 		}
 		criteriaUsers = users;
 	}
+
+	return criteriaUsers;
 }
 
 /**
@@ -146,7 +148,7 @@ ReportSchema.index({ active: 1, 'state.running': 1, 'state.nextRun': -1 });
 // Before save
 ReportSchema.pre('save', function(next){
 	this.title_lowercase = this.title;
-	processCriteriaUsers(this.criteriaUsers);
+	this.criteriaUsers = processCriteriaUsers(this.criteriaUsers);
 
 	next();
 });
