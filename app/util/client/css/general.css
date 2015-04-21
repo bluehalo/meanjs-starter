@@ -242,8 +242,8 @@ a.no-href {
 ul.items {
 	padding: 0;
 	list-style-type: none;
-	list-style-position: initial;
-	list-style-image: initial;
+	list-style-position: outside;
+	list-style-image: none;
 }
 ul.items li {
 	padding-bottom: 2px;
