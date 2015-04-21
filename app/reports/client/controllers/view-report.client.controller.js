@@ -29,7 +29,7 @@ angular.module('asymmetrik.reports').controller('ViewReportController',
 
 		var sort = {
 			screenName: { id: 'screenName', value: 'screenName', reverse: false },
-			created: { id: 'created', value: 'current.p.createdDate', reverse: true },
+			created: { id: 'created', value: '(null != current.p.createdDate)? current.p.createdDate : 0', reverse: true },
 			friends: { id: 'friends', value: 'current.p.friendsCount', reverse: true },
 			friendsDelta: { id: 'friendsDelta', value: 'delta.friendsCount', reverse: true },
 			friendsDeltaPercent: { id: 'friendsDeltaPercent', value: 'delta.friendsPercent', reverse: true },
