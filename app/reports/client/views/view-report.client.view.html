@@ -88,7 +88,7 @@
 						data-ng-repeat="user in users | orderBy:sort.value:sort.reverse track by user.screenName">
 
 						<td class="text-right">
-							<i class="fa" data-ng-class="{'fa-user-times': user.current.md.found === false}"></i>
+							<i class="fa fw" data-ng-class="{'fa-user-times': user.current.md.found === false}"></i>
 						</td>
 						<td class="text-left" data-ng-class="{'danger': user.current.md.found === false}">@{{user.screenName}}</td>
 						<td class="text-left">

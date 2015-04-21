@@ -134,6 +134,19 @@ angular.module('asymmetrik.reports').factory('reportService',
 			toReturn.p.lang = profileMetadata.payload.lang;
 			toReturn.p.timezone = profileMetadata.payload.time_zone;
 
+		} else {
+			toReturn.p.createdDate = null;
+
+			toReturn.p.favoritesCount = 0;
+			toReturn.p.followersCount = 0;
+			toReturn.p.friendsCount = 0;
+			toReturn.p.listedCount = 0;
+			toReturn.p.statusesCount = 0;
+
+			toReturn.p.geoEnabled = null;
+			toReturn.p.lang = null;
+			toReturn.p.timezone = null;
+
 		}
 
 		return toReturn;

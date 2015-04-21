@@ -184,7 +184,7 @@ exports.userActivity = function(req, res) {
 	var report = req.report;
 
 	// for the report, query the most recent report instances and find the best pair to compare
-	var findQuery = ReportInstance.find({ report: report._id, success: true, completed: { $gt: Date.now() - 3*report.period } })
+	var findQuery = ReportInstance.find({ report: report._id, success: true, completed: { $gt: Date.now() - 100*report.period } })
 		.sort({ completed: -1 }).limit(100);
 
 	findQuery.exec(function(err, results) {
