@@ -130,8 +130,7 @@ function runReport(report, svcConfig) {
 					ts: Date.now(),
 					screenName: element.screen_name,
 					found: false,
-					reportInstance: instance._id,
-					payload: element
+					reportInstance: instance._id
 				});
 
 				pmd.save(function(err, result) {
