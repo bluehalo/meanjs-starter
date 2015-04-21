@@ -183,7 +183,7 @@ exports.setActive = function(req, res) {
 exports.userActivity = function(req, res) {
 	var report = req.report;
 
-	// for the report, query the last two report instances for the user for the period
+	// for the report, query the most recent report instances and find the best pair to compare
 	var findQuery = ReportInstance.find({ report: report._id, success: true, completed: { $gt: Date.now() - 3*report.period } })
 		.sort({ completed: -1 }).limit(100);
 
@@ -199,7 +199,9 @@ exports.userActivity = function(req, res) {
 				var currentError = Number.POSITIVE_INFINITY;
 
 				// Search for the optimal match based on the period
-				results.some(function(element) {
+				results.some(function(element, index) {
+					if(index < 1) { return false; }
+
 					// Search for the optimal match based on the period
 					var error = Math.abs((currentTs - report.period) - element.completed);
 					if(error < currentError) {

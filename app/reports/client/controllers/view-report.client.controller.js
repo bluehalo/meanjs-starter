@@ -28,27 +28,27 @@ angular.module('asymmetrik.reports').controller('ViewReportController',
 		});
 
 		var sort = {
-			screenName: { id: 'screenName', value: 'screenName', dir: false },
-			created: { id: 'created', value: 'current.p.createdDate', dir: true },
-			friends: { id: 'friends', value: 'current.p.friendsCount', dir: true },
-			friendsDelta: { id: 'friendsDelta', value: 'delta.friendsCount', dir: true },
-			friendsDeltaPercent: { id: 'friendsDeltaPercent', value: 'delta.friendsPercent', dir: true },
-			followers: { id: 'followers', value: 'current.p.followersCount', dir: true },
-			followersDelta: { id: 'followersDelta', value: 'delta.followersCount', dir: true },
-			followersDeltaPercent: { id: 'followersDeltaPercent', value: 'delta.followersPercent', dir: true },
-			statuses: { id: 'statuses', value: 'current.p.statusesCount', dir: true },
-			statusesDelta: { id: 'statusesDelta', value: 'delta.statusesCount', dir: true },
-			statusesDeltaPercent: { id: 'statusesDeltaPercent', value: 'delta.statusesPercent', dir: true }
+			screenName: { id: 'screenName', value: 'screenName', reverse: false },
+			created: { id: 'created', value: 'current.p.createdDate', reverse: true },
+			friends: { id: 'friends', value: 'current.p.friendsCount', reverse: true },
+			friendsDelta: { id: 'friendsDelta', value: 'delta.friendsCount', reverse: true },
+			friendsDeltaPercent: { id: 'friendsDeltaPercent', value: 'delta.friendsPercent', reverse: true },
+			followers: { id: 'followers', value: 'current.p.followersCount', reverse: true },
+			followersDelta: { id: 'followersDelta', value: 'delta.followersCount', reverse: true },
+			followersDeltaPercent: { id: 'followersDeltaPercent', value: 'delta.followersPercent', reverse: true },
+			statuses: { id: 'statuses', value: 'current.p.statusesCount', reverse: true },
+			statusesDelta: { id: 'statusesDelta', value: 'delta.statusesCount', reverse: true },
+			statusesDeltaPercent: { id: 'statusesDeltaPercent', value: 'delta.statusesPercent', reverse: true }
 		};
 		$scope.setSort = function(id) {
 			if(null != $scope.sort && $scope.sort.id === id) {
-				// Same sort again, so change dir
-				$scope.sort.dir = !($scope.sort.dir);
+				// Same sort again, so change reverse
+				$scope.sort.reverse = !($scope.sort.reverse);
 			} else {
 				$scope.sort = {};
 				$scope.sort.id = sort[id].id;
 				$scope.sort.value = sort[id].value;
-				$scope.sort.dir = sort[id].dir;
+				$scope.sort.reverse = sort[id].reverse;
 			}
 		};
 		$scope.setSort(sort.screenName.id);
