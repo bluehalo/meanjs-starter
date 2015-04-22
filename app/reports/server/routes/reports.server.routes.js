@@ -25,6 +25,9 @@ module.exports = function(app) {
 
 	// This route is unprotected
 	app.route('/report/:reportId/activity')
+		.post(  reports.reportActivity );
+
+	app.route('/user/activity')
 		.post(  reports.userActivity );
 
 	app.param('reportId', reports.reportById);

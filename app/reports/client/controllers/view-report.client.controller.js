@@ -15,8 +15,8 @@ angular.module('asymmetrik.reports').controller('ViewReportController',
 		$scope.alertService.clearAll();
 
 		// Get the recent activity for the report of interest
-		reportService.recentActivity($stateParams.reportId).then(function(result) {
-			var processedActivity = reportService.processUserActivitySummary(result);
+		reportService.reportActivity($stateParams.reportId).then(function(result) {
+			var processedActivity = reportService.processReportActivitySummary(result);
 
 			$scope.report = result.report;
 			$scope.users = processedActivity.users;

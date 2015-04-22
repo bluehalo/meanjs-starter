@@ -99,10 +99,22 @@ angular.module('asymmetrik.reports').factory('reportService',
 	}
 
 	// Get the most recent two report instances
-	function recentActivity(id) {
+	function reportActivity(id) {
 		var request = $http({
 			method: 'post',
 			url: 'report/' + id + '/activity'
+		});
+		return request.then(handleSuccess, handleFailure);
+	}
+
+	// Get the most recent user profile data
+	function userActivity(screenName) {
+		var request = $http({
+			method: 'post',
+			url: 'user/activity',
+			params: {
+				screenName: screenName
+			}
 		});
 		return request.then(handleSuccess, handleFailure);
 	}
@@ -113,7 +125,7 @@ angular.module('asymmetrik.reports').factory('reportService',
 			md: {
 				ts: profileMetadata.ts,
 				reportInstance: profileMetadata.reportInstance,
-				screeName: profileMetadata.screenName,
+				screenName: profileMetadata.screenName,
 				found: profileMetadata.found
 			},
 			p: {}
@@ -130,8 +142,11 @@ angular.module('asymmetrik.reports').factory('reportService',
 			toReturn.p.listedCount = profileMetadata.payload.listed_count;
 			toReturn.p.statusesCount = profileMetadata.payload.statuses_count;
 
+			toReturn.p.location = profileMetadata.payload.location;
+			toReturn.p.name = profileMetadata.payload.name;
+			toReturn.p.verified = profileMetadata.payload.verified;
 			toReturn.p.geoEnabled = profileMetadata.payload.geo_enabled;
-			toReturn.p.lang = profileMetadata.payload.lang;
+			toReturn.p.language = profileMetadata.payload.lang;
 			toReturn.p.timezone = profileMetadata.payload.time_zone;
 
 		} else {
@@ -143,8 +158,11 @@ angular.module('asymmetrik.reports').factory('reportService',
 			toReturn.p.listedCount = 0;
 			toReturn.p.statusesCount = 0;
 
+			toReturn.p.location = null;
+			toReturn.p.name = null;
+			toReturn.p.verified = null;
 			toReturn.p.geoEnabled = null;
-			toReturn.p.lang = null;
+			toReturn.p.language = null;
 			toReturn.p.timezone = null;
 
 		}
@@ -153,7 +171,7 @@ angular.module('asymmetrik.reports').factory('reportService',
 	}
 
 	// Process the recentActivity response into the user activity summary model
-	function processUserActivitySummary(recentActivity) {
+	function processReportActivitySummary(recentActivity) {
 		var users = [];
 		var current;
 		var previous;
@@ -254,6 +272,38 @@ angular.module('asymmetrik.reports').factory('reportService',
 		};
 	}
 
+	// Process the recentActivity response into the user activity summary model
+	function processUserActivitySummary(profileMetadatas) {
+		var profiles = [];
+		var user = {
+			screenName: null,
+			created: null,
+			inactive: null
+		};
+
+		profileMetadatas.forEach(function(element) {
+			var profile = processProfileMetadata(element);
+
+			if(null != profile.p.createdDate) {
+				user.created = profile.p.createdDate;
+			}
+			if(null != profile.md.screenName) {
+				user.screenName = profile.md.screenName;
+			}
+			if(!profile.md.found) {
+				if(null == user.inactive || user.inactive > profile.md.ts) {
+					user.inactive = profile.md.ts;
+				}
+			}
+
+			profiles.push(profile);
+		});
+
+		return {
+			profiles: profiles,
+			user: user
+		};
+	}
 
 	/**
 	 * Private methods
@@ -285,8 +335,10 @@ angular.module('asymmetrik.reports').factory('reportService',
 		remove: remove,
 		setActive: setActive,
 		runReport: runReport,
-		recentActivity: recentActivity,
-		processUserActivitySummary: processUserActivitySummary
+		reportActivity: reportActivity,
+		userActivity: userActivity,
+		processUserActivitySummary: processUserActivitySummary,
+		processReportActivitySummary: processReportActivitySummary
 
 	});
 

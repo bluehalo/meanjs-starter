@@ -6,9 +6,8 @@ var ApplicationConfiguration = (function() {
 	var applicationModuleName = 'wildfire_ember';
 	var applicationModuleVendorDependencies = [
 		'ngResource', 'ngAnimate',
-		'textAngular',
-		'ui.router', 'ui.bootstrap', 'ui.utils',
-		'sentio.realtime', 'sentio'
+		'textAngular', 'nvd3', 
+		'ui.router', 'ui.bootstrap', 'ui.utils'
 	];
 
 	// Add a new vertical module

@@ -180,7 +180,7 @@ exports.setActive = function(req, res) {
 };
 
 
-exports.userActivity = function(req, res) {
+exports.reportActivity = function(req, res) {
 	var report = req.report;
 
 	// for the report, query the most recent report instances and find the best pair to compare
@@ -232,6 +232,19 @@ exports.userActivity = function(req, res) {
 				res.jsonp(response);
 			});
 
+		});
+	});
+};
+
+exports.userActivity = function(req, res) {
+	var screenName = req.query.screenName;
+
+	// for the report, query the most recent report instances and find the best pair to compare
+	var findQuery = ProfileMetadata.find({ screenName: screenName }).sort({ completed: -1 }).limit(200);
+
+	findQuery.exec(function(err, results) {
+		util.catchError(res, err, function() {
+			res.jsonp(results);
 		});
 	});
 };

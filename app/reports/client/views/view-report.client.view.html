@@ -90,7 +90,9 @@
 						<td class="text-right">
 							<i class="fa fw" data-ng-class="{'fa-user-times': user.current.md.found === false}"></i>
 						</td>
-						<td class="text-left" data-ng-class="{'danger': user.current.md.found === false}">@{{user.screenName}}</td>
+						<td class="text-left" data-ng-class="{'danger': user.current.md.found === false}">
+							<a data-ui-sref="report.view-user({ screenName: user.screenName })">@{{user.screenName}}</a>
+						</td>
 						<td class="text-left">
 							<div data-ng-attr-title="{{user.current.p.createdDate | date:'MM/dd/yyyy HH:mm:ss \'Z\'':'UTC'}}">{{(user.current.p.createdDate | agoDateFilter) || "unknown"}}</div>
 						</td>
