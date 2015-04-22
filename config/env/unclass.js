@@ -6,7 +6,7 @@ module.exports = {
 		instanceName: 'Wildfire_Ember'
 	},
 
-	assets: 'production',
+	assets: 'development',
 
 	mongoose: {
 		debug: false
