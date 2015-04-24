@@ -2,8 +2,8 @@
 
 module.exports = {
 	app: {
-		title: 'Wildfire Ember (Default Settings)',
-		instanceName: 'Wildfire_Ember'
+		title: 'MeanJS Starter App',
+		instanceName: 'meanjsstarter'
 	},
 
 	assets: 'development',
@@ -22,13 +22,13 @@ module.exports = {
 
 	classification: {
 		// show/hide the classification header/footer
-		showBanner: true,
+		showBanner: false
 
 		// The classification string to display in this environment
-		string: 'DEFAULT SETTINGS',
+		//string: 'DEFAULT SETTINGS',
 
 		// Code that determines applied header/footer style ('U' - unclass, 'S' - secret, 'K' - ts)
-		code: 'K'
+		//code: 'K'
 	},
 
 	copyright: {
@@ -52,20 +52,34 @@ module.exports = {
 
 	},
 
-	scheduler: {
-		services: [
-			{
-				file: 'app/reports/server/services/report.server.service.js',
-				interval: 30000,
-				config: {
-					apiKey: '',
-					apiSecret: '',
-					tokenKey: '',
-					tokenSecret: ''
-				}
+//	scheduler: {
+//		services: [
+//			{
+//				file: 'app/.../server/services/service.js',
+//				interval: 30000,
+//				config: {
+//				}
+//			}
+//		],
+//		interval: 10000
+//	},
+
+	mq: {
+		server: 'localhost',
+		port: 61613,
+		username: undefined,
+		password: undefined
+	},
+
+	mailer: {
+		from: process.env.MAILER_FROM || 'USERNAME@GMAIL.COM',
+		options: {
+			service: process.env.MAILER_SERVICE_PROVIDER || 'gmail',
+			auth: {
+				user: process.env.MAILER_EMAIL_ID || 'USERNAME@GMAIL.COM',
+				pass: process.env.MAILER_PASSWORD || 'PASSWORD'
 			}
-		],
-		interval: 10000
+		}
 	},
 
 	port: process.env.PORT || 3000,

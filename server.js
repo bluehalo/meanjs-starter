@@ -6,7 +6,8 @@
 var config = require('./config/config'),
 	logger = require('./config/lib/bunyan').logger,
 	mongoose = require('./config/lib/mongoose'),
-	express = require('./config/lib/express');
+	express = require('./config/lib/express'),
+	stomp = require('./config/lib/stomp');
 
 logger.info('Starting initialization of Node.js server');
 
@@ -34,3 +35,5 @@ mongoose.connect(function (db) {
 
 });
 
+// Initialize STOMP
+stomp.init();

@@ -1,11 +1,11 @@
 {
-  "name": "WildfireEmber",
-  "description": "Wildfire Ember",
+  "name": "Application",
+  "description": "Application Description",
   "version": "0.1.0-SNAPSHOT",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://bitbucket.com/asymmetrik/wildfire-ember.git"
+    "url": "https://github.com:Asymmetrik/meanjs-starter.git"
   },
   "engines": {
     "node": "0.12.x",
@@ -35,7 +35,7 @@
     "helmet": "^0.5.4",
     "lodash": "^2.4.1",
     "method-override": "~2.3",
-    "mongoose": "3.8.25",
+    "mongoose": "~3.8.8",
     "morgan": "^1.5.2",
     "multer": "^0.1.8",
     "nodemailer": "~1.3",
@@ -43,8 +43,9 @@
     "passport-local": "~1.0",
     "q": "^1.1",
     "serve-favicon": "^2.2.0",
-    "swig": "~1.4",
-    "twitter": "^1.2.5"
+    "socket.io": "~1.1.0",
+    "stompjs": "^2.3.3",
+    "swig": "~1.4"
   },
   "devDependencies": {
     "gulp": "~3.8",

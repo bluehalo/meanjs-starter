@@ -45,7 +45,7 @@
 	{% for jsFile in jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>
 	{% endfor %} 
 
-		{% if liveReload %}
+	{% if liveReload %}
 	<!--Livereload script rendered -->
 	<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':' + {{liveReloadPort}} + '/livereload.js"></' + 'script>')</script>
 

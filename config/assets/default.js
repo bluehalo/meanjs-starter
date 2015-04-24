@@ -7,14 +7,10 @@ module.exports = {
 				'public/lib/bootstrap/dist/css/bootstrap.css',
 				'public/lib/bootstrap/dist/css/bootstrap-theme.css',
 				'public/lib/fontawesome/css/font-awesome.css',
-				'public/lib/textAngular/src/textAngular.css',
-				'public/lib/nvd3/build/nv.d3.css'
+				'public/lib/textAngular/src/textAngular.css'
 			],
 			js: [
 				'public/lib/moment/moment.js',
-
-				'public/lib/d3/d3.js',
-				'public/lib/nvd3/build/nv.d3.js',
 
 				'public/lib/angular/angular.js',
 				'public/lib/angular-resource/angular-resource.js',
@@ -22,8 +18,7 @@ module.exports = {
 				'public/lib/angular-ui-router/release/angular-ui-router.js',
 				'public/lib/angular-ui-utils/ui-utils.js',
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.js',
-
-				'public/lib/angular-nvd3/dist/angular-nvd3.js',
+				'public/lib/angular-socket-io/socket.js',
 
 				'public/lib/rangy/rangy-core.js',
 				'public/lib/rangy/rangy-selectionsaverestore.js',

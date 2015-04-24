@@ -3,11 +3,12 @@
 // Init the application configuration module for AngularJS application
 var ApplicationConfiguration = (function() {
 	// Init module configuration options
-	var applicationModuleName = 'wildfire_ember';
+	var applicationModuleName = 'app';
 	var applicationModuleVendorDependencies = [
 		'ngResource', 'ngAnimate',
-		'textAngular', 'nvd3', 
-		'ui.router', 'ui.bootstrap', 'ui.utils'
+		'textAngular',
+		'ui.router', 'ui.bootstrap', 'ui.utils',
+		'btford.socket-io'
 	];
 
 	// Add a new vertical module

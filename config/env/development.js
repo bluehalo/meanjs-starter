@@ -1,10 +1,6 @@
 'use strict';
 
 module.exports = {
-	app: {
-		title: 'Wildfire Ember (Development)',
-		instanceName: 'Wildfire_Ember'
-	},
 
 	liveReload: {
 		enabled: true,
@@ -18,38 +14,21 @@ module.exports = {
 		karma: 9876
 	},
 
-	db: 'mongodb://localhost/ember-dev',
-
-	classification: {
-		showBanner: true,
-		string: 'DEVELOPMENT ENVIRONMENT',
-		code: 'S'
-	},
+	db: 'mongodb://localhost/meanjs-dev',
 
 	log: {
 		application: {
-			file: '/usr/local/var/log/ember.log',
+			file: '/usr/local/var/log/meanjs.log',
 			logstash: {
 				host: 'localhost',
 				port: 4561
 			}
 		},
 		audit: {
-			file: '/usr/local/var/log/ember.audit.log',
+			file: '/usr/local/var/log/meanjs.audit.log',
 			logstash: {
 				host: 'localhost',
 				port: 4562
-			}
-		}
-	},
-
-	mailer: {
-		from: process.env.MAILER_FROM || 'USERNAME@GMAIL.COM',
-		options: {
-			service: process.env.MAILER_SERVICE_PROVIDER || 'gmail',
-			auth: {
-				user: process.env.MAILER_EMAIL_ID || 'USERNAME@GMAIL.COM',
-				pass: process.env.MAILER_PASSWORD || 'PASSWORD'
 			}
 		}
 	}

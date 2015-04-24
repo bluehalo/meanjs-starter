@@ -160,7 +160,7 @@ gulp.task('config', function(done) {
 
 // Run the project tests
 gulp.task('test', function(done) {
-	runSequence('env:test', 'lint', 'mocha', done);
+	runSequence('env:test', 'lint', 'mocha', 'karma', done);
 });
 
 // Run the project in development mode
