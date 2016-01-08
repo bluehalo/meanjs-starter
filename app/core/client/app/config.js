@@ -6,9 +6,11 @@ var ApplicationConfiguration = (function() {
 	var applicationModuleName = 'app';
 	var applicationModuleVendorDependencies = [
 		'ngResource', 'ngAnimate',
-		'textAngular',
 		'ui.router', 'ui.bootstrap', 'ui.utils',
-		'btford.socket-io'
+		'textAngular', 'angular-loading-bar',
+		'leaflet-directive', 'leaflet-directive.ext.d3.hexbin',
+		'sentio.realtime', 'sentio', 
+		'btford.socket-io', 'angularMoment', 'ngDraggable'
 	];
 
 	// Add a new vertical module

@@ -1,4 +1,3 @@
-/* global moment */
 'use strict';
 
 angular.module('asymmetrik.users').filter('userTypeaheadFilter', function() {

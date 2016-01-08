@@ -19,14 +19,14 @@ angular.module('asymmetrik.groups').config(['$stateProvider', '$urlRouterProvide
 			templateUrl: 'app/groups/views/list-groups.client.view.html'
 		})
 
-		// Create a group
+		// Create a group, only allowed if you have system editor role
 		.state('group.create', {
 			url: '/group/create',
 			controller: 'ManageGroupController',
 			templateUrl: 'app/groups/views/manage-group.client.view.html',
 			resolve: {
-				UserConfig: function(userService) {
-					return userService.getAuthConfig();
+				UserConfig: function(configService) {
+					return configService.getConfig();
 				}
 			},
 			data: {
@@ -38,7 +38,12 @@ angular.module('asymmetrik.groups').config(['$stateProvider', '$urlRouterProvide
 		.state('group.edit', {
 			url: '/group:groupId/edit',
 			controller: 'ManageGroupController',
-			templateUrl: 'app/groups/views/manage-group.client.view.html'
+			templateUrl: 'app/groups/views/manage-group.client.view.html',
+			resolve: {
+				UserConfig: function(configService) {
+					return configService.getConfig();
+				}
+			}
 		})
 
 		// Manage the membership of a group

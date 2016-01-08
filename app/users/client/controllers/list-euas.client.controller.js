@@ -18,7 +18,7 @@ angular.module('asymmetrik.users').controller('ListEuasController',
 		$scope.search = '';
 
 		// Sort options for the page
-		$scope.sort = euaService.sort;
+		$scope.sort = euaService.sort.map;
 
 		// Metadata about the currently displayed set of data
 		$scope.results = {
@@ -32,8 +32,8 @@ angular.module('asymmetrik.users').controller('ListEuasController',
 		// The current configuration of the paging/sorting options
 		$scope.options = {
 			pageNumber: 0,
-			pageSize: 20,
-			sort: $scope.sort.map.published
+			pageSize: 50,
+			sort: $scope.sort.published
 		};
 
 
@@ -42,14 +42,8 @@ angular.module('asymmetrik.users').controller('ListEuasController',
 		 */
 
 		// Go to specific page number
-		$scope.goToPage = function(pageNumber){
-			$scope.options.pageNumber = Math.min($scope.results.totalPages-1, Math.max(pageNumber, 0));
-			$scope.applySearch();
-		};
-
-		// Set the page size
-		$scope.setPageSize = function(pageSize){
-			$scope.options.pageSize = pageSize;
+		$scope.goToPage = function(pageNumber) {
+			$scope.options.pageNumber = pageNumber;
 			$scope.applySearch();
 		};
 
@@ -61,17 +55,18 @@ angular.module('asymmetrik.users').controller('ListEuasController',
 
 
 		/**
-		 * Searching the subscriptions
+		 * Searching the euas
 		 */
 
 		// Method handler for return keypress in the search box
 		$scope.applySearchKeypress = function(keyEvent) {
-			if(keyEvent.which === 13){
+			if(keyEvent.which === 13) {
+				$scope.options.pageNumber = 0;
 				$scope.applySearch();
 			}
 		};
 
-		// Search method that actually executes the search and updates the subscriptions list
+		// Search method that actually executes the search and updates the euas list
 		$scope.applySearch = function() {
 
 			$scope.results.resolved = false;
@@ -132,7 +127,7 @@ angular.module('asymmetrik.users').controller('ListEuasController',
 						$scope.alertService.add(error.message);
 					}
 				);
-				$log.info('delete eua: ' + eua.title);
+				$log.debug('delete eua: %s', eua.title);
 			});
 		};
 

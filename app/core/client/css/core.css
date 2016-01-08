@@ -40,6 +40,11 @@ img.logo {
 	margin: 4px 0 0 0;
 }
 
+ul.navbar-nav > li a.btn-icon {
+	padding-top:12px;
+	padding-bottom:10px;
+}
+
 /*------------------------*/
 /*	Back Links			  */
 /*------------------------*/
@@ -49,6 +54,7 @@ a.back-link {
 }
 a.back-link:hover {
 	color: #111;
+	cursor: pointer;
 }
 
 
@@ -56,7 +62,8 @@ a.back-link:hover {
 /* Content Area		   */
 /*------------------------*/
 .content {
-	padding: 80px 40px 40px 40px; 
+	padding: 80px 40px 40px 40px;
+	width: 100%;
 }
 
 
@@ -97,6 +104,10 @@ a.back-link:hover {
 	padding: 2px;
 }
 
+.copyright a {
+	color: #337ab7;
+}
+
 /* ---------------------- */
 /* Bootstrap			  */
 /* ---------------------- */
@@ -108,4 +119,46 @@ a.back-link:hover {
 }
 .ng-invalid.ng-touched{
 	border-color:#FA787E;
+}
+
+.center {
+	text-align: center;
+}
+
+.tooltip .tooltip-inner {
+	background-color: #ddd;
+	color: #111;
+}
+
+.tooltip .tooltip-arrow {
+	visibility: hidden;
+}
+
+/*csslint ids:false */
+#loading-bar-spinner {
+	bottom: 45px;
+	right: 5px;
+	top: auto;
+	left: auto;
+}
+
+/*csslint ids:false */
+#loading-bar-spinner .spinner-icon {
+	width: 24px;
+	height: 24px;
+
+	border-top-color: #ab2f2f;
+	border-left-color: #ab2f2f;
+	border-width: 3px;
+}
+
+/*csslint ids:false */
+#loading-bar-spinner.ng-enter.ng-enter-active,
+#loading-bar-spinner.ng-leave {
+	opacity: 0.5;
+}
+
+/*csslint ids:false */
+#loading-bar {
+	display: none;
 }

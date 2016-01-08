@@ -2,21 +2,38 @@
 
 angular.module('asymmetrik.groups').controller('ManageGroupController',
 		[ '$scope', '$state', '$stateParams', '$log',
-		  'Authentication', 'authService', 'groupService', 'Alerts',
+		  'Authentication', 'UserConfig', 'authService', 'groupService', 'Alerts',
 
 	function( $scope, $state, $stateParams, $log,
-			  Authentication, authService, groupService, Alerts) {
+			  Authentication, UserConfig, authService, groupService, Alerts) {
 
 		// Store our global objects in the scope
 		$scope.auth = Authentication;
+
 		$scope.alertService = Alerts;
 		$scope.alertService.clearAll();
+
+		$scope.config = UserConfig;
+		$scope.proxyPki = $scope.config.auth === 'proxy-pki';
 
 		// Figure out what mode we're running in (create | edit)
 		$scope.mode = {
 			create: (null == $stateParams.groupId),
 			edit: (null != $stateParams.groupId)
 		};
+
+		// Check to see if we need to enable externalGroups
+		$scope.showExternalGroups = false;
+
+		// We show the external groups when we're in proxy pki mode only
+		if($scope.proxyPki) {
+			$scope.$watch('group', function() {
+				// Only shown when the user is admin or the user has group admin
+				if(null != $scope.group && null != $scope.auth) {
+					$scope.showExternalGroups = $scope.auth.canManageGroup($scope.group._id);
+				}
+			});
+		}
 
 		$scope.createFn = function(){
 			$scope.error = '';

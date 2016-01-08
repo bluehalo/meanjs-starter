@@ -1,0 +1,13 @@
+<section>
+
+	<div class="btn-group btn-group-sm">
+		<button data-ng-repeat="option in notificationOptions" type="button" class="btn btn-sm"
+		        data-ng-class="{ 'btn-selected': preferences[option.type], 'btn-unselected': !preferences[option.type] }" data-ng-attr-title="Receive {{option.display}} Notifications"
+		        data-ng-click="toggleNotificationPreference(option.type)"
+		        data-ng-disabled="!enabled">
+			<i class="fa fa-fw" data-ng-class="{ 'fa-check-square-o': preferences[option.type], 'fa-square-o': !preferences[option.type] }"></i>
+			{{option.display}}
+		</button>
+	</div>
+
+</section>

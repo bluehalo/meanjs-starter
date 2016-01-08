@@ -1,13 +1,120 @@
+# Eclipse
 .project
-.DS_Store
-.nodemonignore
-.sass-cache/
-npm-debug.log
-node_modules/
-app/tests/coverage/
-.bower-*/
+.settings
+.classpath
+*.pydevproject
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+
+# IntelliJ
 .idea/
 *.iml
-config/env/reblace.js
-config/env/mgaulin.js
-config/env/rstjohn.js
+*.iws
+
+# Net Beans
+nbactions.xml
+nb-configuration.xml
+
+#vscode
+.vscode
+
+# Node Modules
+node_modules/
+
+# MacOS
+.DS_Store
+
+# Gradle/Maven
+target/
+.gradle/
+
+# General
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+/env/
+/build/
+develop-eggs/
+/dist/
+/downloads/
+eggs/
+.eggs/
+/lib/
+/lib64/
+parts/
+sdist/
+/var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Custom configurations
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+cobertura-coverage.xml
+/karma-out
+/.nodemonignore
+/.sass-cache/
+/npm-debug.log
+/node_modules/
+/app/tests/coverage/
+/.bower-*/
+/.coverrun
+/.coverdata/
+/debug/
+/mocha-tests.xml
+/karma-out/
+/reports/
+/PhantomJS*
+
+
+# Translations
+*.mo
+*.pot
+
+# Config Files
+/config/env/development.js
+
+/public/lib/twemoji/36x36/
+/public/lib/twemoji/72x72/
+/public/lib/twemoji/assets/
+/public/lib/twemoji/svg/
+
+/public/lib/jquery-emoji-picker/css/jquery.emojipicker.a.css
+/public/lib/jquery-emoji-picker/css/jquery.emojipicker.g.css
+/public/lib/jquery-emoji-picker/js/jquery.emojipicker.a.js
+/public/lib/jquery-emoji-picker/js/jquery.emojipicker.g.js
+
+# 4.2 version is pulled in by angular-leaflet-directive-ext.  We are using 4.4 version instead
+/public/lib/fontawesome

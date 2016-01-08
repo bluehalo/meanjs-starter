@@ -1,14 +1,13 @@
 'use strict';
 
-angular.module('asymmetrik.help').service('Help', ['$modal', '$log',
-	function ($modal, $log) {
+angular.module('asymmetrik.help').service('Help', ['$log', '$modal', '$state', '$window', 'helpWindowName',
+	function ($log, $modal, $state, $window, helpWindowName) {
 
 		/**
 		 * Public methods to be exposed through the service
 		 */
 
 		function modal(id) {
-
 			// Open a modal with the help page inside
 			$modal.open({
 				templateUrl: 'app/help/views/templates/modal.client.view.html',
@@ -29,7 +28,22 @@ angular.module('asymmetrik.help').service('Help', ['$modal', '$log',
 			});
 
 		}
+	
+		function open(id) {
+			if(null == id || '' === id) {
+				return;
+			}
 
+			// See if there is already a state for this ID
+			var url = $state.href('help.' + id);
+
+			// Otherwise, get the generic topic state and append the ID
+			if (null == url) {
+				url = $state.href('help.topic') + '' + id;
+			}
+			// Open a the help page in a new window
+			$window.open(url, helpWindowName);
+		}
 
 		/**
 		 * Private methods
@@ -38,7 +52,8 @@ angular.module('asymmetrik.help').service('Help', ['$modal', '$log',
 
 		// Return the public API
 		return ({
-			modal : modal
+			open : open,
+			modal: modal
 		});
 	}
 ]);

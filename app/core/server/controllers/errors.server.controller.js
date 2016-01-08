@@ -1,5 +1,8 @@
 'use strict';
 
+var path = require('path'),
+	deps = require(path.resolve('./config/dependencies.js'));
+
 /**
  * Get unique error field name
  */
@@ -20,7 +23,7 @@ var getUniqueErrorMessage = function(err) {
 /**
  * Get the error message from error object
  */
-exports.getErrorMessage = function(err) {
+module.exports.getErrorMessage = function(err) {
 	var message = '';
 
 	if (null == err || typeof err === 'string') {
@@ -35,8 +38,16 @@ exports.getErrorMessage = function(err) {
 				message = 'Something went wrong';
 		}
 	} else if(err.errors) {
+		var linebreak = '\n';
+
 		for (var errName in err.errors) {
-			if (err.errors[errName].message) message = err.errors[errName].message;
+			if (err.errors[errName].message) {
+				message += err.errors[errName].message + linebreak;
+			}
+		}
+
+		if (message.indexOf(linebreak, message.length - linebreak.length) !== -1) {
+			message = message.substr(0, message.length - linebreak.length);
 		}
 	} else {
 		message = 'Unknown error';

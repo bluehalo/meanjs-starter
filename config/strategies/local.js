@@ -16,31 +16,23 @@ module.exports = function() {
 		},
 		function(username, password, done) {
 
-			User.findOne({
-				username: username
-			}, function(err, user) {
-				// Error from the system
-				if (err) {
-					return done(err);
-				}
+			if(null == username) {
+				return done(null, false, {status: 400, type: 'missing-credentials', message: 'No username provided' });
+			}
 
-				// The user wasn't found
-				if (!user) {
-					return done(null, false, {
-						message: 'Unknown user'
-					});
-				}
+			User.findOne({ username: username }).exec().then(function(user) {
 
-				// The password is wrong
-				if (!user.authenticate(password)) {
-					return done(null, false, {
-						message: 'Invalid password'
-					});
+				// The user wasn't found or the password was wrong
+				if (!user || !user.authenticate(password)) {
+					return done(null, false, {status: 401, type: 'invalid-credentials', message: 'Incorrect username or password' });
 				}
 
 				// Return the user
 				return done(null, user);
-			});
+
+			}, function(err) {
+				return done(err);
+			}).done();
 
 		}
 

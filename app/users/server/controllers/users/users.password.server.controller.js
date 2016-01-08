@@ -15,7 +15,7 @@ var _ = require('lodash'),
 	errorHandler = deps.errorHandler,
 	logger = deps.logger,
 
-	User = mongoose.model('User');
+	User = dbs.admin.model('User');
 
 
 // Initialize the mailer if it has been configured
@@ -34,15 +34,15 @@ exports.forgot = function(req, res, next) {
 	if(null == smtpTransport) {
 		var error = { message: 'Email not configured on server.'};
 		logger.warn({req: req, error: error}, error.message);
-		return res.status(500).send(error);
+		return res.status(500).json(error);
 	}
 
 	// Make sure there is a username
 	if(null == req.body.username) {
-		return res.status(400).send({ message: 'Username is missing.' });
+		return res.status(400).json({ message: 'Username is missing.' });
 	}
 
-	logger.info('Password reset request for username: ' + req.body.username);
+	logger.info('Password reset request for username: %s', req.body.username);
 
 	async.waterfall([
 		// Generate random token
@@ -64,7 +64,7 @@ exports.forgot = function(req, res, next) {
 
 				// If we failed to find the user by username
 				if (null != error || null == user) {
-					return res.status(400).send({
+					return res.status(400).json({
 						message: 'No account with that username has been found.'
 					});
 				}
@@ -107,11 +107,11 @@ exports.forgot = function(req, res, next) {
 
 			smtpTransport.sendMail(mailOptions, function(error) {
 				if (null == error) {
-					logger.debug('Sent email to: ' + user.email);
-					res.send('An email has been sent to ' + user.email + ' with further instructions.');
+					logger.debug('Sent email to: %s', user.email);
+					res.json('An email has been sent to ' + user.email + ' with further instructions.');
 				} else {
 					logger.error({err: error, req: req}, 'Failure sending email.');
-					return res.status(400).send({ message: 'Failure sending email.' });
+					return res.status(400).json({ message: 'Failure sending email.' });
 				}
 
 				done(error);
@@ -134,10 +134,10 @@ exports.validateResetToken = function(req, res) {
 		}
 	}, function(error, user) {
 		if (!user) {
-			return res.status('400').send({ message: 'invalid-token' });
+			return res.status('400').json({ message: 'invalid-token' });
 		}
 
-		return res.send({ message: 'valid-token' });
+		return res.json({ message: 'valid-token' });
 	});
 };
 
@@ -155,12 +155,12 @@ exports.reset = function(req, res, next) {
 	if(null == smtpTransport) {
 		var error = { message: 'Email not configured on server.'};
 		logger.warn({req: req, error: error}, error.message);
-		return res.status(500).send(error);
+		return res.status(500).json(error);
 	}
 
 	// Make sure there is a username
 	if(null == password) {
-		return res.status(400).send({ message: 'Password is missing.' });
+		return res.status(400).json({ message: 'Password is missing.' });
 	}
 
 
@@ -175,7 +175,7 @@ exports.reset = function(req, res, next) {
 			}, function(error, user) {
 
 				if(null != error || null == user) {
-					return res.status(400).send({
+					return res.status(400).json({
 						message: 'Password reset token is invalid or has expired.'
 					});
 				}
@@ -185,13 +185,13 @@ exports.reset = function(req, res, next) {
 
 				user.save(function(error) {
 					if (error) {
-						return res.status(400).send({
+						return res.status(400).json({
 							message: errorHandler.getErrorMessage(error)
 						});
 					} else {
 						req.login(user, function(error) {
 							if (error) {
-								return res.status(400).send({
+								return res.status(400).json({
 									message: errorHandler.getErrorMessage(error)
 								});
 							} else {

@@ -3,7 +3,6 @@
 // Load the module dependencies
 var config = require('../config'),
 	logger = require('./bunyan').logger,
-	stomp = require('./stomp'),
 	path = require('path'),
 	cookieParser = require('cookie-parser'),
 	passport = require('passport'),
@@ -12,112 +11,24 @@ var config = require('../config'),
 	MongoStore = require('connect-mongo')(session),
 	http = require('http');
 
+/**
+ * Controllers created outside of this class will register
+ * themselves as socket listeners, with function definitions
+ * stored here.
+ */
+var registeredSocketListeners = [];
 
+// Give each socket connection its own variable scope
 function onConnect(socket) {
-	logger.info('SocketIO: New client connection');
-
-	var state;
+	logger.debug('SocketIO: New client connection');
 
 	/**
-	 * Basic Functionality
+	 * Setup Socket Event Handlers
 	 */
-
-	// Unsubscribe to topic
-	var unsubscribe = function(){
-		// Unsubscribe from the state's topic
-		logger.info('SocketIO: Unsubscribing from topic: ' + state.topic);
-		state.unsubscribe();
-		state = undefined;
-	};
-
-	// Subscribe to topic
-	var subscribe = function(topic){
-		if(null != topic){
-			// subscribe to the subscription topic
-			stomp.getClient().then(function(client){
-				logger.info('SocketIO: Subscribing to topic: ' + topic);
-				var s = client.subscribe(topic, stompPayloadHandler);
-				state = { topic: topic, unsubscribe: s.unsubscribe };
-			});
-		}
-
-		return topic;
-	};
-
-	/**
-	 * Server Handlers
-	 */
-	function stompPayloadHandler(payload) {
-		//logger.info('SocketIO: Received Stomp Payload');
-		if(null != payload && null != payload.body) {
-			try {
-				socket.emit('payload', JSON.parse(payload.body));
-			} catch(e) {
-				logger.error({err: e, msg: payload.body }, 'Error parsing JSON payload body.');
-			}
-		}
-	}
-	function stompDisconnectHandler() {
-		logger.info('SocketIO: Received Stomp disconnect notification.');
-		if(null != state) {
-			// Resubscribe to the topic
-			subscribe(state.topic);
-		}
-	}
-	function stompFailureHandler(error) {
-		logger.info('SocketIO: Received Stomp connection failure notification.');
-	}
-
-	/**
-	 * Client Handlers
-	 */
-	function clientUnsubscribeHandler() {
-		logger.info('SocketIO: Received client unsubscribe request');
-
-		if(null != state){
-			unsubscribe();
-		}
-		state = undefined;
-	}
-
-	function clientSubscribeHandler(payload) {
-		logger.info('SocketIO: Received client subscribe request');
-
-		// If a subscription exists, than unsubscribe
-		if(null != state){
-			unsubscribe();
-		}
-		state = undefined;
-
-		// Subscribe to the new subscription
-		subscribe('/topic/topicname');
-	}
-
-	function clientDisconnectHandler() {
-		logger.info('SocketIO: Lost connection to client.');
-
-		// If a subscription exists, unsubscribe
-		if(null != state) {
-			unsubscribe();
-		}
-		state = undefined;
-
-		// Remove the reconnect listener
-		stomp.events.removeListener('disconnect', stompDisconnectHandler);
-	}
-
-
-	/**
-	 * Listener setup
-	 */
-	socket.on('subscription:subscribe', clientSubscribeHandler);
-	socket.on('subscription:unsubscribe', clientUnsubscribeHandler);
-	socket.on('disconnect', clientDisconnectHandler);
-
-	// Register for stomp reconnect events
-	stomp.events.on('disconnect', stompDisconnectHandler);
+	registeredSocketListeners.forEach(function(S) {
+		new S({ socket: socket });
+	});
 }
-
 
 // Define the Socket.io configuration method
 module.exports = function(app, db) {
@@ -152,8 +63,10 @@ module.exports = function(app, db) {
 				passport.initialize()(socket.request, {}, function() {
 					passport.session()(socket.request, {}, function() {
 						if (socket.request.user) {
+							logger.debug('SocketIO: New authenticated user: %s', socket.request.user.username);
 							next(null, true);
 						} else {
+							logger.info('SocketIO: Unauthenticated user attempting to connect.');
 							next(new Error('User is not authenticated'), false);
 						}
 					});
@@ -166,4 +79,18 @@ module.exports = function(app, db) {
 	io.on('connection', onConnect);
 
 	return server;
+};
+
+/*
+ * App-specific function to register controllers that will be
+ * sent the socket 
+ */
+module.exports.registerSocketListener = function(s) {
+	var name = s;
+	if (null != s.prototype.name) {
+		name = s.prototype.name;
+	}
+
+	logger.debug('Registering Socket Listener: %s', name);
+	registeredSocketListeners.push(s);
 };

@@ -6,7 +6,7 @@ angular.module('app.core').config(['$stateProvider', '$urlRouterProvider',
 
 		$urlRouterProvider.otherwise(function($injector) {
 			var $state = $injector.get('$state');
-			$state.go('report.list');
+			$state.go('dashboard');
 		});
 
 	}

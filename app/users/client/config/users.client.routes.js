@@ -15,8 +15,8 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			abstract: true,
 			template: '<ui-view/>',
 			resolve: {
-				UserConfig: function(userService) {
-					return userService.getAuthConfig();
+				UserConfig: function(configService) {
+					return configService.getConfig();
 				}
 			},
 			data: {
@@ -41,6 +41,12 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			templateUrl: 'app/users/views/authentication/signin.client.view.html'
 		})
 
+		// Invalid credentials landing page
+		.state('auth.invalid-certificate', {
+			url: '/auth/invalid',
+			templateUrl: 'app/users/views/authentication/invalid-certificate.client.view.html'
+		})
+
 
 		/*
 		 * States for managing users and user information
@@ -51,8 +57,8 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			abstract: true,
 			template: '<ui-view/>',
 			resolve: {
-				UserConfig: function(userService) {
-					return userService.getAuthConfig();
+				UserConfig: function(configService) {
+					return configService.getConfig();
 				}
 			},
 			data: {
@@ -72,16 +78,32 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			}
 		})
 
-		// Show unauthorized error
+		// User is unauthorized
 		.state('user.unauthorized', {
 			url: '/auth/unauthorized',
+			controller: 'AuthorizationController',
 			templateUrl: 'app/users/views/authentication/unauthorized.client.view.html'
 		})
 
-		// Show pending notice
-		.state('user.pending', {
-			url: '/auth/pending',
-			templateUrl: 'app/users/views/authentication/pending.client.view.html'
+		// Users account is inactive
+		.state('user.inactive', {
+			url: '/auth/inactive',
+			controller: 'AuthorizationController',
+			templateUrl: 'app/users/views/authentication/inactive.client.view.html'
+		})
+
+		// Users account does not have access to the system
+		.state('user.noaccess', {
+			url: '/auth/noaccess',
+			controller: 'AuthorizationController',
+			templateUrl: 'app/users/views/authentication/noaccess.client.view.html'
+		})
+
+		// Show user not in access control error
+		.state('user.unknownuser', {
+			url: '/auth/unknownuser',
+			controller: 'AuthorizationController',
+			templateUrl: 'app/users/views/authentication/unknownuser.client.view.html'
 		})
 
 		// Edit user information
@@ -93,6 +115,7 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 				mode: 'edit'
 			}
 		})
+		
 
 		/*
 		 * States for admin users
@@ -103,8 +126,8 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			abstract: true,
 			templateUrl: 'app/users/views/admin.client.view.html',
 			resolve: {
-				UserConfig: function(userService) {
-					return userService.getAuthConfig();
+				UserConfig: function(configService) {
+					return configService.getConfig();
 				}
 			},
 			data: {
@@ -192,8 +215,8 @@ angular.module('asymmetrik.users').config(['$stateProvider',
 			abstract: true,
 			template: '<ui-view/>',
 			resolve: {
-				UserConfig: function(userService) {
-					return userService.getAuthConfig();
+				UserConfig: function(configService) {
+					return configService.getConfig();
 				}
 			},
 			data: {

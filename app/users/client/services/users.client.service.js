@@ -2,8 +2,8 @@
 
 // Users service used for communicating with the users REST endpoint
 angular.module('asymmetrik.users').factory('userService', 
-		['$http', '$q', '$log', 'Authentication', 
-		 function($http, $q, $log, Authentication ) {
+		['$rootScope', '$state', '$location', '$http', '$q', '$log', 'Authentication', 
+		 function($rootScope, $state, $location, $http, $q, $log, Authentication ) {
 
 	var sort = {};
 	sort.map = {
@@ -18,15 +18,6 @@ angular.module('asymmetrik.users').factory('userService',
 	/**
 	 * Public methods to be exposed through the service
 	 */
-
-	// Get the auth system configuration
-	function getAuthConfig() {
-		var request = $http ({
-			method: 'get',
-			url: 'user/config'
-		});
-		return request.then(handleSuccess, handleFailure);
-	}
 
 	// Retrieve
 	function get(id) {
@@ -72,6 +63,18 @@ angular.module('asymmetrik.users').factory('userService',
 		return request.then(handleSuccess, handleFailure);
 	}
 
+	function goToLastRoute() {
+		var targetState = $rootScope.asyTargetState;
+
+		if(null != targetState && targetState.params) {
+			$log.debug('Routing to state: [%s]', targetState.name);
+			$state.go(targetState.state, targetState.params);
+		} else {
+			$log.debug('Routing to default location');
+			$location.path('/');
+		}
+	}
+
 	/**
 	 * Private methods
 	 */
@@ -96,7 +99,7 @@ angular.module('asymmetrik.users').factory('userService',
 		update: update,
 		search: search,
 		match: match,
-		getAuthConfig: getAuthConfig
+		goToLastRoute: goToLastRoute
 	});
 
 }]);

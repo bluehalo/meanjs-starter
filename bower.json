@@ -1,21 +1,39 @@
 {
-  "name": "MeanJSStarter",
-  "dependencies": {
-    "bootstrap": "~3",
-    "angular": "~1.3.0",
-    "angular-resource": "~1.3",
-    "angular-animate": "~1.3",
-    "angular-mocks": "~1.3",
-    "angular-bootstrap": "~0.12",
-    "angular-ui-utils": "~0.1",
-    "angular-ui-router": "~0.2",
-    "fontawesome": "~4.3",
-    "moment": "~2.9",
-    "socket.io-client": "~1.1",
-    "angular-socket-io": "~0.7"
-  },
-  "resolutions": {
-    "angular": "~1.3.13",
-    "fontawesome": "~4.3"
-  }
+	"name": "MeanJSStarter",
+	"dependencies": {
+		"angular": "1.3",
+		"angular-animate": "1.3",
+		"angular-bootstrap": "0.13",
+		"angular-leaflet-directive": "0.7.8",
+		"angular-leaflet-directive-ext": "0.4",
+		"angular-loading-bar": "0.8",
+		"angular-mocks": "1.3",
+		"angular-moment": "0.10",
+		"angular-resource": "1.3",
+		"angular-socket-io": "0.7",
+		"angular-ui-router": "0.2",
+		"angular-ui-utils": "0.1",
+		"bootstrap": "3",
+		"d3": "3.5",
+		"font-awesome": "4.4",
+		"jquery": "1.11",
+		"jquery-emoji-picker": "master",
+		"leaflet": "0.7.3",
+		"Leaflet.awesome-markers": "2.0",
+		"leaflet-d3": "0.3",
+		"leaflet.draw": "0.2",
+		"leaflet-filter": "0.2",
+		"lodash": "3.10",
+		"moment": "2.9",
+		"ngDraggable": "0.1",
+		"sentio-js": "0.5",
+		"socket.io-client": "1.1",
+		"string-format": "1.0",
+		"twemoji": "1.4"
+	},
+	"resolutions": {
+		"angular": "~1.3.13",
+		"d3": "~3.5.6",
+		"font-awesome": "~4.4"
+	}
 }

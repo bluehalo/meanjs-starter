@@ -1,0 +1,24 @@
+<section class="modal-header">
+	<h3>
+		<span style="text-transform: capitalize">{{auditEntry.audit.auditType}} {{ auditEntry.audit.action + 'd'}}</span><span> by {{auditEntry.audit.actor.username}} on {{auditEntry.created | date:"yyyy-MM-dd HH:mm:ss 'Z'":'UTC' }}</span>
+		<span class="pull-right">
+			<a class="btn-icon no-href"
+			   data-ng-click="done()"
+			   data-tooltip="Close"
+			   data-tooltip-placement="bottom">
+				<i class="fa fa-times"></i>
+			</a>
+		</span>
+	</h3>
+</section>
+<section class="modal-body">
+	<div class="row">
+		<div class="col-md-6">
+			<h4 data-ng-show="auditEntry.audit.object.title">{{ auditEntry.audit.object.title}}</h4>
+			<pre>{{auditEntry.audit.object | json}}</pre>
+		</div>
+	</div>
+</section>
+<section class="modal-footer">
+	<button class="btn btn-link" data-ng-click="done()">Close</button>
+</section>

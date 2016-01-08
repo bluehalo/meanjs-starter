@@ -26,6 +26,18 @@ angular.module('asymmetrik.users').factory('adminService', ['$http', '$q', '$log
 		return request.then(handleSuccess, handleFailure);
 	}
 
+	/**
+	 * Retrieves an array of a field's value for all users in the system
+	 */
+	function getAll(query, field) {
+		var request = $http({
+			method: 'post',
+			url: 'admin/users/getAll',
+			data: {query: query, field: field}
+		});
+		return request.then(handleSuccess, handleFailure);
+	}
+
 	// Update
 	function update(user) {
 		var request = $http({
@@ -77,6 +89,7 @@ angular.module('asymmetrik.users').factory('adminService', ['$http', '$q', '$log
 	return ({
 		create: create,
 		get: get,
+		getAll: getAll,
 		update: update,
 		remove: remove,
 		search: search

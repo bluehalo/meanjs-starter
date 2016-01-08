@@ -17,26 +17,23 @@ module.exports = function(app) {
 	 * User Routes (don't require admin)
 	 */
 
-	// Get the auth system configuration
-	app.route('/user/config')
-		.get(users.getAuthConfig);
-
 	// Self-service user routes
 	app.route('/user/me')
-		.get( users.requiresLogin, users.getCurrentUser)
-		.post(users.requiresLogin, users.updateCurrentUser);
+		.get( users.has(users.requiresLogin), users.getCurrentUser)
+		.post(users.has(users.requiresLogin), users.updateCurrentUser);
 
 	// User getting another user's info
 	app.route('/user/:userId')
-		.get(users.requiresLogin, users.requiresRoles(['user']), users.getUserById);
+		.get(users.hasAccess, users.getUserById);
 
 	// User searching for other users
 	app.route('/users')
-		.post(users.requiresLogin, users.requiresRoles(['user']), users.searchUsers);
+		.post(users.hasAccess, users.searchUsers);
 
 	// User match-based search for other users (this searches based on a fragment)
 	app.route('/users/match')
-		.post(users.requiresLogin, users.requiresRoles(['user']), users.matchUsers);
+		.post(users.hasAccess, users.matchUsers);
+
 
 	/**
 	 * Admin User Routes (requires admin)
@@ -44,47 +41,56 @@ module.exports = function(app) {
 
 	// Admin retrieve/update/delete
 	app.route('/admin/user/:userId')
-		.get(   users.requiresLogin, users.requiresRoles(['admin']), users.adminGetUser)
-		.post(  users.requiresLogin, users.requiresRoles(['admin']), users.adminUpdateUser)
-		.delete(users.requiresLogin, users.requiresRoles(['admin']), users.adminDeleteUser);
+		.get(   users.hasAdminAccess, users.adminGetUser)
+		.post(  users.hasAdminAccess, users.adminUpdateUser)
+		.delete(users.hasAdminAccess, users.adminDeleteUser);
 
 	// Admin search users
 	app.route('/admin/users')
-		.post(users.requiresLogin, users.requiresRoles(['admin']), users.adminSearchUsers);
+		.post(users.hasAdminAccess, users.adminSearchUsers);
 
+	// Admin retrieving a User field for all users in the system
+	app.route('/admin/users/getAll')
+		.post(users.hasAdminAccess, users.adminGetAll);
 
 	/**
 	 * Auth-specific routes
 	 */
+	app.route('/auth/signin').post(users.signin);
 	app.route('/auth/signout')
-		.get(users.requiresLogin, users.signout);
+		.get(users.has(users.requiresLogin), users.signout);
 
+	/**
+	 * Routes that only apply to the 'local' passport strategy
+	 */
 	if(config.auth.strategy === 'local') {
 
 		logger.info('Configuring local user authentication routes.');
 
 		// Admin Create User
 		app.route('/admin/user')
-			.post(users.requiresLogin, users.requiresRoles(['admin']), users.adminCreateUser);
+			.post(users.hasAdminAccess, users.adminCreateUser);
 
 		// Default setup is basic local auth
 		app.route('/auth/signup').post(users.signup);
-		app.route('/auth/signin').post(users.signin);
 
 		app.route('/auth/forgot').post(users.forgot);
 		app.route('/auth/reset/:token').get(users.validateResetToken);
 		app.route('/auth/reset/:token').post(users.reset);
 
-	} else if(config.auth.strategy === 'proxy-pki') {
+	}
+	/**
+	 * Routes that only apply to the 'proxy-pki' passport strategy
+	 */
+	else if(config.auth.strategy === 'proxy-pki') {
 
 		logger.info('Configuring proxy-pki user authentication routes.');
 
 		// Admin Create User
 		app.route('/admin/user')
-			.post(users.requiresLogin, users.requiresRoles(['admin']), users.adminCreateUserPki);
+			.post(users.hasAdminAccess, users.adminCreateUserPki);
 
 		// DN passed via header from proxy
-		app.route('/auth/signin').post(users.proxyPkiSignin);
 		app.route('/auth/signup').post(users.proxyPkiSignup);
 
 	}

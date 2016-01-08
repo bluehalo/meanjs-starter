@@ -2,30 +2,26 @@
 
 var _ = require('lodash'),
 	mongoose = require('mongoose'),
-	Schema = mongoose.Schema,
 	path = require('path'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
-	query = deps.queryService;
-
-/**
- * Validation
- */
-
-//Validate that the property is not empty
-var validateNonEmpty = function(property) {
-	return (null != property && property.length > 0);
-};
+	util = deps.utilService,
+	query = deps.queryService,
+	GetterSchema = deps.schemaService.GetterSchema;
 
 /**
  * Group Schema
  */
-var GroupSchema = new Schema({
+var GroupSchema = new GetterSchema({
 	title: {
 		type: String,
 		trim: true,
 		default: '',
-		validate: [validateNonEmpty, 'Please provide a title']
+		validate: [util.validateNonEmpty, 'Please provide a title']
+	},
+	title_lowercase: {
+		type: String,
+		set: util.toLowerCase
 	},
 	description: {
 		type: String,
@@ -33,7 +29,19 @@ var GroupSchema = new Schema({
 	},
 	created: {
 		type: Date,
-		default: Date.now
+		default: Date.now,
+		get: util.dateParse
+	},
+	creator: {
+		type: mongoose.Schema.ObjectId,
+		ref: 'User'
+	},
+	creatorName: {
+		type: String
+	},
+	requiresExternalGroups: {
+		type: [],
+		default: []
 	}
 });
 
@@ -49,6 +57,16 @@ GroupSchema.index({ title: 'text', description: 'text' });
  * Lifecycle Hooks
  */
 
+/**
+ * Before saving:
+ * 1. set the title_lowercase field to the title and let the Mongoose schema definition set it to lowercase
+ */
+GroupSchema.pre('save', function(next){
+	this.title_lowercase = this.title;
+
+	next();
+});
+
 
 /**
  * Instance Methods
@@ -61,8 +79,8 @@ GroupSchema.index({ title: 'text', description: 'text' });
 
 
 //Search groups by text and other criteria
-GroupSchema.statics.search = function(queryTerms, searchTerms, limit, offset, sortArr) {
-	return query.search(this, queryTerms, searchTerms, limit, offset, sortArr);
+GroupSchema.statics.search = function(queryTerms, searchTerms, limit, offset, sortArr, runCount) {
+	return query.search(this, queryTerms, searchTerms, limit, offset, sortArr, runCount);
 };
 
 

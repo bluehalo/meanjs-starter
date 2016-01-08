@@ -4,8 +4,12 @@
  * Module dependencies.
  */
 var should = require('should'),
+	q = require('q'),
 	mongoose = require('mongoose'),
-	User = mongoose.model('User');
+	User = mongoose.model('User'),
+	path = require('path'),
+	deps = require(path.resolve('./config/dependencies.js')),
+	logger = deps.logger;
 
 /**
  * Globals
@@ -16,16 +20,19 @@ var spec = {
 		email: 'user1@mail.com',
 		username: 'user1',
 		password: 'password',
-		provider: 'local'
+		provider: 'local',
+		organization: 'Org 1'
 	}, user2: {
 		name: 'User 2',
 		email: 'user2@mail.com',
 		username: 'user2',
 		password: 'password',
-		provider: 'local'
+		provider: 'local',
+		organization: 'Org 2'
 	}
 };
-var user, user1, user2;
+var user, user1, user2,
+	stormPayloads;
 
 
 /**
@@ -50,7 +57,10 @@ describe('User Model Unit Tests:', function() {
 		});
 
 		it('should be able to save without problems', function(done) {
-			user.save(done);
+			user.save(function(err) {
+				should.not.exist(err);
+				done();
+			});
 		});
 
 		it('should now have 1 user', function(done) {
@@ -91,7 +101,8 @@ describe('User Model Unit Tests:', function() {
 	});
 
 	after(function(done) {
-		User.remove().exec();
-		done();
+		User.remove().exec().then(function(results) {
+			done();
+		}, done /* error */);
 	});
 });

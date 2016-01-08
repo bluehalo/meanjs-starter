@@ -18,7 +18,7 @@
 	<link href="/app/core/img/brand/favicon.ico" rel="shortcut icon" type="image/x-icon">
 
 	<!--Application CSS Files-->
-	{% for cssFile in cssFiles %}<link rel="stylesheet" href="{{cssFile}}">
+	{% for cssFile in cssFiles %}<link rel="stylesheet" href="{{assetFingerprint(cssFile)}}">
 	{% endfor %}
 
 	<!-- HTML5 Shim -->
@@ -30,8 +30,10 @@
 <body class="ng-cloak">
 	<header data-ng-include="'/app/core/views/header.client.view.html'"></header>
 
-	<section class="content">
-		{% block content %}{% endblock %}
+	<section class="content container">
+		<div class="col-md-12">
+			{% block content %}{% endblock %}
+		</div>
 	</section>
 
 	<footer data-ng-include="'/app/core/views/footer.client.view.html'"></footer>
@@ -39,10 +41,11 @@
 	<!--Embedding The User Object-->
 	<script type="text/javascript">
 		var user = {{ user | json | safe }};
+		var config = {{ config | json | safe }};
 	</script>
 
 	<!--Application JavaScript Files-->
-	{% for jsFile in jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>
+	{% for jsFile in jsFiles %}<script type="text/javascript" src="{{assetFingerprint(jsFile)}}"></script>
 	{% endfor %} 
 
 	{% if liveReload %}

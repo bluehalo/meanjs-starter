@@ -22,13 +22,13 @@
 					<!-- Contents of EUA -->
 					<div class="panel-body" data-ng-bind-html="eua.text"></div>
 
-					<div class="panel-footer" ng-hide="preview">
+					<div class="panel-footer" data-ng-hide="preview">
 						<div class="checkbox"><label><input type="checkbox" data-ng-model="agree">I have read and acknowledge the end user agreement (EUA)</label></div>
 					</div>
 				</div>
 
-				<button type="submit" class="btn btn-default" data-ng-disabled="!agree" data-ng-click="accept()" ng-hide="preview">Submit Acknowledgement</button>
-				<div class="modal-footer" ng-show="preview">
+				<button type="submit" class="btn btn-default" data-ng-disabled="!agree" data-ng-click="accept()" data-ng-hide="preview">Submit Acknowledgement</button>
+				<div class="modal-footer" data-ng-show="preview">
 					<button class="btn btn-default" data-ng-click="$close()">Close</button>
 				</div>
 			</form>

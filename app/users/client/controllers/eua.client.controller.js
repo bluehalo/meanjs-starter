@@ -2,10 +2,10 @@
 
 angular.module('asymmetrik.users').controller('EuaController',
 		[ '$scope', '$location', '$log',
-		  'Authentication', 'authService', 'Alerts', 'UserAgreement', 
+		  'Authentication', 'authService', 'Alerts', 'UserAgreement', 'userService', 
 
 	function( $scope, $location, $log, 
-			  Authentication, authService, Alerts, UserAgreement) {
+			  Authentication, authService, Alerts, UserAgreement, userService) {
 
 		$scope.agree = false;
 
@@ -17,10 +17,11 @@ angular.module('asymmetrik.users').controller('EuaController',
 
 		$scope.accept = function() {
 			authService.acceptEua().then(function(result) {
-				$log.info('Accepted EUA for user.');
-				$location.path('/');
+				$log.debug('Accepted EUA for user.');
+				userService.goToLastRoute();
 			}, function(error){
-				$scope.alertService.addAlert(error.message);
+				$scope.alertService.add(error.message);
+				$log.error('Error persisting EUA accept');
 			});
 		};
 

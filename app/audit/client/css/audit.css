@@ -1,0 +1,23 @@
+.audit-filter {
+	width: 100%;
+}
+
+.audit-filter label {
+	width: 115px;
+	text-align: right;
+	float: left;
+	padding-right: 5px;
+	line-height: 2;
+}
+
+.audit-filter label.column-option {
+	width: auto;
+}
+
+.audit-filter .btn-group {
+	display: block;
+}
+
+.audit-filter input[type=date] {
+	width: 200px;
+}

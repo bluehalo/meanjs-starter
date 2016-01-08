@@ -5,14 +5,16 @@ var _ = require('lodash'),
 	mongoose = require('mongoose'),
 	passport = require('passport'),
 	path = require('path'),
+	q = require('q'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
+	config = deps.config,
 	dbs = deps.dbs,
 	util = deps.utilService,
 	logger = deps.logger,
-	auditLogger = deps.auditLogger,
+	auditService = deps.auditService,
 
-	User = mongoose.model('User');
+	User = dbs.admin.model('User');
 
 
 /**
@@ -87,7 +89,7 @@ exports.getCurrentUser = function(req, res) {
 	var user = req.user;
 
 	if(null == user){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'User not logged in'
 		});
 		return;
@@ -102,7 +104,7 @@ exports.updateCurrentUser = function(req, res) {
 
 	// Make sure the user is logged in
 	if(null == req.user){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'User is not signed in'
 		});
 		return;
@@ -117,6 +119,7 @@ exports.updateCurrentUser = function(req, res) {
 
 		// Copy over the new user properties
 		user.name = req.body.name;
+		user.organization = req.body.organization;
 		user.email = req.body.email;
 		user.phone = req.body.phone;
 		user.username = req.body.username;
@@ -129,10 +132,10 @@ exports.updateCurrentUser = function(req, res) {
 			if(!user.authenticate(req.body.currentPassword)) {
 
 				// Audit failed authentication
-				auditLogger.audit('user update authentication failed', 'user', 'update authentication failed',
+				auditService.audit('user update authentication failed', 'user', 'update authentication failed',
 					User.auditCopy(req.user), {});
 
-				res.status(400).send({
+				res.status(400).json({
 					message: 'Current password invalid'
 				});
 				return;
@@ -150,14 +153,14 @@ exports.updateCurrentUser = function(req, res) {
 				delete user.salt;
 
 				// Audit user update
-				auditLogger.audit('user updated', 'user', 'update',
+				auditService.audit('user updated', 'user', 'update',
 					User.auditCopy(req.user),
 					{ before: originalUser, after: User.auditCopy(user) });
 
 				// Log in with the new info
 				req.login(user, function(err) {
 					if (err) {
-						res.status(400).send(err);
+						res.status(400).json(err);
 					} else {
 						res.jsonp(User.fullCopy(user));
 					}
@@ -176,7 +179,7 @@ exports.getUserById = function(req, res) {
 	var user = req.userParam;
 
 	if(null == user){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'User does not exist'
 		});
 		return;
@@ -259,13 +262,42 @@ exports.adminGetUser = function(req, res) {
 	var user = req.userParam;
 
 	if(null == user){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'User is not signed in'
 		});
 		return;
 	}
 
 	res.jsonp(User.fullCopy(user));
+};
+
+//Admin Get All Users
+exports.adminGetAll = function(req, res) {
+
+	// The field that the admin is requesting is a query parameter
+	var field = req.body.field;
+	if( null == field || field.length === 0 ) {
+		res.status(500).json({
+			message: 'Query field must be provided'
+		});
+	}
+
+	var query = req.body.query;
+
+	logger.debug('Querying Users for %s', field);
+	var proj = {};
+	proj[field] = 1;
+	User.find(util.toMongoose(query), proj)
+		.exec(function(error, results) {
+
+			if(null != error) {
+				// failure
+				logger.error(error);
+				return util.send400Error(res, error);
+			}
+
+			res.jsonp(results.map(function(r) { return r[field]; }));
+		});
 };
 
 // Admin Update a User
@@ -278,7 +310,7 @@ exports.adminUpdateUser = function(req, res) {
 	var originalUser = User.auditCopy(user);
 
 	if(null == user){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'Could not find user'
 		});
 		return;
@@ -286,10 +318,12 @@ exports.adminUpdateUser = function(req, res) {
 
 	// Copy over the new user properties
 	user.name = req.body.name;
+	user.organization = req.body.organization;
 	user.email = req.body.email;
 	user.phone = req.body.phone;
 	user.username = req.body.username;
 	user.roles = req.body.roles;
+	user.bypassAccessCheck = req.body.bypassAccessCheck;
 
 	if(null != req.body.password) {
 		user.password = req.body.password;
@@ -303,7 +337,7 @@ exports.adminUpdateUser = function(req, res) {
 	user.save(function(err) {
 		util.catchError(res, err, function() {
 			// Audit user update
-			auditLogger.audit('admin user updated', 'user', 'admin update',
+			auditService.audit('admin user updated', 'user', 'admin update',
 				User.auditCopy(req.user),
 				{ before: originalUser, after: User.auditCopy(user) });
 
@@ -319,7 +353,7 @@ exports.adminDeleteUser = function(req, res) {
 	var user = req.userParam;
 
 	if(null == user){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'Could not find user'
 		});
 		return;
@@ -329,9 +363,9 @@ exports.adminDeleteUser = function(req, res) {
 	user.remove(function(err) {
 		util.catchError(res, err, function() {
 			// Audit user delete
-			auditLogger.audit('admin user deleted', 'user', 'admin delete',
+			auditService.audit('admin user deleted', 'user', 'admin delete',
 				User.auditCopy(req.user),
-				{ user: User.auditCopy(user) });
+				User.auditCopy(user));
 
 			res.json(User.fullCopy(user));
 		});
@@ -342,4 +376,24 @@ exports.adminDeleteUser = function(req, res) {
 // Admin Search for Users
 exports.adminSearchUsers = function(req, res) {
 	searchUsers(req, res, User.fullCopy);
+};
+
+function canEditProfile(authStrategy, user) {
+	return authStrategy !== 'proxy-pki' || user.bypassAccessCheck === true;
+}
+
+exports.canEditProfile = canEditProfile;
+
+// Are allowed to edit user profile info
+exports.hasEdit = function(req) {
+	var defer = q.defer();
+
+	if (canEditProfile(config.auth.strategy, req.user)) {
+		defer.resolve();
+	}
+	else {
+		defer.reject({ status: 403, type: 'not-authorized', message: 'User not authorized to edit their profile' });
+	}
+
+	return defer.promise;
 };

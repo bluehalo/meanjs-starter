@@ -15,13 +15,18 @@
 	position: absolute;
 }
 
-input.no-spinner[type=number]::-webkit-inner-spin-button,
-input.no-spinner[type=number]::-webkit-outer-spin-button {
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	margin: 0;
-}
-
 .word-wrap {
 	word-wrap: break-word;
+}
+
+.column-label {
+	margin-right: 5px;
+}
+
+.column-option {
+	margin-right: 10px;
+}
+
+.column-option input[type=checkbox] {
+	margin-right: 3px;
 }

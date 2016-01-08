@@ -4,7 +4,8 @@
 
 		<div class="classification"
 			data-ng-class="classification.css"
-			data-ng-show="classification.showBanner">{{classification.string}}</div>
+			data-ng-show="classification.showBanner"
+			data-ng-bind-html="classification.string"></div>
 
 		<div class="navbar-container">
 	
@@ -16,22 +17,21 @@
 					<span class="sr-only">Toggle Navbar</span>
 					<i class="fa fa-bars fa-lg"></i>
 				</button>
-
+	
 				<!-- Logo Image -->
 				<a href="/#!/" style="margin-top:-15px;" class="navbar-brand"><img class="logo" src="app/core/img/brand/logo-dark-bg.png"/></a>
 			</div>
-
-
+	
+	
 			<!-- Main navbar -->
 			<div class="navbar-collapse collapse" data-collapse="!collapsed">
-
+	
 				<!-- Left part of navbar -->
 				<ul class="nav navbar-nav">
 					<li>
-						<a data-ui-sref="report.list" data-ng-show="auth.isAuthenticated()">Reports</a>
+						<a data-ui-sref="dashboard" data-ng-show="auth.isAuthenticated()">Dashboard</a>
 					</li>
 				</ul>
-				
 
 				<!-- Right side Signin/Signup area -->
 				<ul class="nav navbar-nav navbar-right" data-ng-hide="auth.isAuthenticated()">
@@ -46,31 +46,32 @@
 						<a data-ui-sref="auth.signup">Request Account</a>
 					</li>
 				</ul>
-	
-	
+
+
 				<!-- Right side user logged in area -->
 				<ul class="nav navbar-nav navbar-right" data-ng-show="auth.isAuthenticated()">
+
 					<li class="dropdown" data-dropdown>
 						<a data-ng-href="/#!/" class="dropdown-toggle" data-dropdown-toggle>{{auth.user.name}} <span class="caret"></span></a>
 						<ul class="dropdown-menu" role="menu">
 
 							<!-- Manage User Account -->
-							<li><a data-ng-href="/#!/user">My Account</a></li>
+							<li><a data-ui-sref="user.edit">My Account</a></li>
 
 							<!-- Manage Groups -->
-							<li data-ng-show="auth.canManageGroups()"><a data-ng-href="/#!/groups">Manage Groups</a></li>
+							<li data-ng-show="auth.canManageGroups()"><a data-ui-sref="group.list">Manage Groups</a></li>
 
 							<!-- Admin Page (only admins should see this) -->
 							<li data-ng-show="auth.isAdmin()"><a data-ui-sref="admin.user.list">ADMIN</a></li>
 
 							<!-- User Signout -->
-							<li class="divider"></li>
-							<li><a href="/auth/signout">Sign out</a></li>
+							<li data-ng-hide="pki" class="divider"></li>
+							<li data-ng-hide="pki"><a href="/auth/signout">Sign out</a></li>
 
 						</ul>
 					</li>
 					<li class="dropdown" data-dropdown>
-						<a data-ng-href="/#!/" class="dropdown-toggle" style="padding-top:12px; padding-bottom:10px;" data-dropdown-toggle>
+						<a data-ng-href="/#!/" class="dropdown-toggle btn-icon" data-dropdown-toggle>
 							<span class="fa-stack fa">
 								<i class="fa fa-circle-o fa-stack-2x"></i>
 								<i class="fa fa-question fa-stack-1x"></i>
@@ -80,7 +81,7 @@
 						<ul class="dropdown-menu" role="menu">
 
 							<!-- Help -->
-							<li><a data-ui-sref="help.overview">Help</a></li>
+							<li><a data-ui-sref='help.overview'>Help</a></li>
 
 							<!-- About -->
 							<li><a data-ui-sref="about">About</a></li>
@@ -88,7 +89,6 @@
 						</ul>
 					</li>
 				</ul>
-
 
 			</div><!--/.navbar-collapse -->
 		</div>

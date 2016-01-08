@@ -2,49 +2,42 @@
 
 var crypto = require('crypto'),
 	mongoose = require('mongoose'),
-	Schema = mongoose.Schema,
 	path = require('path'),
 	q = require('q'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
-	query = deps.queryService;
-
-
-/**
- * Validation
- */
-
-// Validate that the property is not empty
-var validateNonEmpty = function(property) {
-	return (null != property && property.length > 0);
-};
-
+	util = deps.utilService,
+	query = deps.queryService,
+	GetterSchema = deps.schemaService.GetterSchema;
 
 /**
  * User Schema
  */
-var UserAgreementSchema = new Schema({
+var UserAgreementSchema = new GetterSchema({
 	title: {
 		type: String,
 		trim: true,
 		default: '',
-		validate: [validateNonEmpty, 'Please provide a title']
+		validate: [util.validateNonEmpty, 'Please provide a title']
 	},
 	text: {
 		type: String,
 		trim: true,
 		default: '',
-		validate: [validateNonEmpty, 'Please provide text']
+		validate: [util.validateNonEmpty, 'Please provide text']
 	},
 	published: {
-		type: Date
+		type: Date,
+		get: util.dateParse
 	},
 	updated: {
-		type: Date
+		type: Date,
+		get: util.dateParse
 	},
 	created: {
 		type: Date,
-		default: Date.now
+		default: Date.now,
+		get: util.dateParse
 	}
 });
 
@@ -79,16 +72,13 @@ UserAgreementSchema.statics.search = function(queryTerms, searchTerms, limit, of
 var getCurrentEua = function() {
 	var defer = q.defer();
 
-	query.search(this, { 'published': { '$ne': null, '$exists': true } }, undefined, 1, 0, [{ property: 'published', direction: 'desc' }]).then(
-		function(result) {
-			var toReturn = null;
-			if(result.count > 0) {
-				toReturn = result.results[0];
+	this.findOne({ 'published': { '$ne': null, '$exists': true } })
+		.sort({ 'published': -1 })
+		.exec(function(err, eua) {
+			if (err) {
+				defer.reject(err);
 			}
-
-			defer.resolve(toReturn);
-		}, function(error){
-			defer.reject(error);
+			defer.resolve(eua);
 		});
 
 	return defer.promise;

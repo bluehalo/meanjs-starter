@@ -9,8 +9,11 @@ angular.module(ApplicationConfiguration.applicationModuleName).config(['$locatio
 		// Add the custom prefix... crawlers and some such
 		$locationProvider.hashPrefix('!');
 
+		// Grab the config from the window object
+		var config = (null != window.config)? window.config : null;
+
 		// Opportunity to change logging levels
-		$logProvider.debugEnabled(false);
+		$logProvider.debugEnabled((null != config)? config.clientDebugEnabled : false);
 	}
 ]);
 

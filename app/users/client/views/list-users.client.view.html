@@ -3,8 +3,12 @@
 	<h3 class="page-header">
 		Users
 		<small>Administer User Accounts</small>
+		<a data-ng-click="exportUserData()" type="button" class="btn btn-default btn-sm pull-right">
+			<i class="fa fa-download"></i> Export
+		</a>
+		<span class="pull-right">&nbsp;</span>
 		<a data-ui-sref="admin.user.create" type="button" class="btn btn-default btn-sm pull-right">
-			<span class="fa fa-user-plus"></span> Create User
+			<i class="fa fa-user-plus"></i> Create User
 		</a>
 	</h3>
 
@@ -16,7 +20,7 @@
 
 			<!-- Search Input -->
 			<div class="input-group">
-				<input placeholder="Enter a search..." type="text" class="form-control input-sm" data-ng-model="search" data-ng-keypress="applySearchKeypress($event)" data-ng-change="subscriptionSearch.$setPristine()">
+				<input placeholder="Enter a search..." type="text" class="form-control input-sm" data-ng-model="search" data-ng-keypress="applySearchKeypress($event)" data-ng-change="streamSearch.$setPristine()">
 				<span class="input-group-btn">
 					<button class="btn btn-default btn-sm" type="button" data-ng-click="applySearch()">
 						<i class="fa fa-search"></i>
@@ -30,26 +34,66 @@
 	<div class="row">
 		<div class="col-md-12">
 
+			<!-- Quick Filters -->
+			<div class="controls paging-sort">
+				<span class="column-label">Quick Filters:</span>
+				<label class="column-option"><input type="checkbox" data-ng-model="filters.bypassAC" data-ng-click="applySearch()"/>Bypass AC</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="filters.noUserRole" data-ng-click="applySearch()"/>No User Role</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="filters.editorRole" data-ng-click="applySearch()"/>Editor</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="filters.auditorRole" data-ng-click="applySearch()"/>Auditor</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="filters.adminRole" data-ng-click="applySearch()"/>Admin</label>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<!-- Column Selector -->
+			<div class="controls paging-sort" data-ng-show="results.totalSize > 0">
+				<span class="column-label">Show Columns:</span>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.name" />Name</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.username" />Username</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns._id" />ID</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.organization" />Organization</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.email" />Email</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.phone" />Phone</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.acceptedEua" />EUA</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.lastLogin" />Last Login</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.created" />Created</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.updated" />Updated</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.bypassAccessCheck" />Bypass Access Check</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.externalRoles" />External Roles</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.externalGroups" />External Groups</label>
+				<label class="column-option"><input type="checkbox" data-ng-model="columns.roles" />Roles</label>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+
 			<!-- Sorting/Paging Controls -->
-			<div data-ng-show="results.totalSize > 1">
+			<div data-ng-show="results.totalSize > 0">
 				<div class="controls">
 					<div class="paging-sort" style="float:left;">
 						<span>Sort By:</span>
-						<a type="button" data-ng-class="{selected: options.sort===sort.relevance}" class="no-link btn-link" data-ng-click="setSort(sort.relevance)">Relevance</a> /
-						<a type="button" data-ng-class="{selected: options.sort===sort.created}" class="no-link btn-link" data-ng-click="setSort(sort.created)">Created</a> /
-						<a type="button" data-ng-class="{selected: options.sort===sort.name}" class="no-link btn-link" data-ng-click="setSort(sort.name)">Name</a> /
-						<a type="button" data-ng-class="{selected: options.sort===sort.username}" class="no-link btn-link" data-ng-click="setSort(sort.username)">Username</a>
+						<a type="button" data-ng-class="{selected: options.sort===sort.relevance}" class="no-href btn-link" data-ng-click="setSort(sort.relevance)">Relevance</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.created}" class="no-href btn-link" data-ng-click="setSort(sort.created)">Created</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.name}" class="no-href btn-link" data-ng-click="setSort(sort.name)">Name</a> /
+						<a type="button" data-ng-class="{selected: options.sort===sort.username}" class="no-href btn-link" data-ng-click="setSort(sort.username)">Username</a>
 					</div>
 					<div class="paging-controls pull-right">
-						<span data-ng-show="results.totalSize > 0">
-							{{(results.pageSize*results.pageNumber)+1}} - {{(results.pageSize*results.pageNumber) + users.length}} of {{results.totalSize}}
-						</span>
-						<span data-ng-show="results.totalPages > 1">
-							<a type="button" class="no-link btn-link" data-ng-click="goToPage(0)"><i class="fa fa-angle-double-left"></i></a>
-							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.pageNumber-1)"><i class="fa fa-angle-left"></i></a>
-							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.pageNumber+1)"><i class="fa fa-angle-right"></i></a>
-							<a type="button" class="no-link btn-link" data-ng-click="goToPage(results.totalPages-1)"><i class="fa fa-angle-double-right"></i></a>
-						</span>
+						<div data-asy-pager
+						     data-page-number="results.pageNumber"
+						     data-page-size="results.pageSize"
+						     data-total-size="results.totalSize"
+						     data-max-page-size="50"
+						     data-current-size="users.length"
+						     data-on-change="goToPage(pageNumber)"
+							></div>
 					</div>
 				</div>
 				<br style="clear:both;"/>
@@ -65,20 +109,45 @@
 			<table class="asymmetrik table table-condensed table-hover table-striped" data-ng-show="results.totalSize > 0">
 				<thead>
 					<tr>
-						<th>Name</th>
-						<th>Username</th>
-						<th>Last Login</th>
-						<th>Roles</th>
+						<th data-ng-show="columns.name">Name</th>
+						<th data-ng-show="columns.username">Username</th>
+						<th data-ng-show="columns._id">ID</th>
+						<th data-ng-show="columns.organization">Organization</th>
+						<th data-ng-show="columns.email">Email</th>
+						<th data-ng-show="columns.phone">Phone</th>
+						<th data-ng-show="columns.acceptedEua">EUA</th>
+						<th data-ng-show="columns.lastLogin">Last Login</th>
+						<th data-ng-show="columns.created">Created</th>
+						<th data-ng-show="columns.updated">Updated</th>
+						<th data-ng-show="columns.bypassAccessCheck" class="center">Bypass AC</th>
+						<th data-ng-show="columns.externalRoles">External Roles</th>
+						<th data-ng-show="columns.externalGroups">External Groups</th>
+						<th data-ng-show="columns.roles">Roles</th>
 						<th>&nbsp;</th>
 					</tr>
 				</thead>
 
 				<tbody>
 					<tr data-ng-repeat="user in users track by user._id">
-						<td >{{user.name}}</td>
-						<td ><div class="hideOverflow" style="max-width:400px;">{{user.username}}</div></td>
-						<td >{{user.lastLogin | agoDateFilter}}</td>
-						<td style="width: 240px;">
+						<td data-ng-show="columns.name">{{user.name}}</td>
+						<td data-ng-show="columns.username"><div class="hideOverflow" style="max-width:400px;">{{user.username}}</div></td>
+						<td data-ng-show="columns._id">{{user._id}}</td>
+						<td data-ng-show="columns.organization">{{user.organization}}</td>
+						<td data-ng-show="columns.email">{{user.email}}</td>
+						<td data-ng-show="columns.phone">{{user.phone}}</td>
+						<td data-ng-show="columns.acceptedEua">{{user.acceptedEua | agoDateFilter}}</td>
+						<td data-ng-show="columns.lastLogin">{{user.lastLogin | agoDateFilter}}</td>
+						<td data-ng-show="columns.created">{{user.created | agoDateFilter}}</td>
+						<td data-ng-show="columns.updated">{{user.updated | agoDateFilter}}</td>
+
+						<td data-ng-show="columns.bypassAccessCheck" class="center">
+							<i class="fa fa-fw" disabled data-ng-class="{'fa-check-square-o': user.bypassAccessCheck, 'fa-square-o': !user.bypassAccessCheck }"></i>
+						</td>
+
+						<td data-ng-show="columns.externalRoles" class="hideOverflow" style="max-width:200px;">{{user.externalRoles}}</td>
+						<td data-ng-show="columns.externalGroups" class="hideOverflow" style="max-width:200px;">{{user.externalGroups}}</td>
+
+						<td data-ng-show="columns.roles" style="width: 310px;">
 							<div class="btn-group">
 								<button data-ng-repeat="role in roles"
 										type="button" class="btn btn-sm" disabled
@@ -88,9 +157,11 @@
 								</button>
 							</div>
 						</td>
-						<td style="width: 100px;">
+
+						<td style="width: 120px;">
 							<div class="pull-right">
 								<a title="Edit" data-ui-sref="admin.user.edit({ userId: user._id })" type="button" class="btn btn-default btn-sm"><span class="fa fa-edit"></span></a>
+								<button title="Refresh" type="button" class="btn btn-default btn-sm" data-ng-disabled="user.isRefreshing" data-ng-click="refreshUserCredentials(user)"><span class="fa fa-refresh"></span></button>
 								<button title="Delete" type="button" class="btn btn-danger btn-sm" data-ng-click="deleteUser(user)"><span class="fa fa-trash-o"></span></button>
 							</div>
 						</td>

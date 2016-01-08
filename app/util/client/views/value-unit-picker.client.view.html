@@ -1,0 +1,12 @@
+<div>
+		<input style="width: 80px;" type="text" class="form-control input-sm" data-ng-model="displayValue">
+		<!-- Toggle button -->
+		<div class="input-group-btn btn-group" data-dropdown>
+			<button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-dropdown-toggle>{{unit.name}} <span class="caret"></span></button>
+			<ul class="dropdown-menu" role="menu">
+				<li data-ng-repeat="u in units">
+					<a class="no-href" data-ng-click="setUnit(u)">{{u.name}}</a>
+				</li>
+			</ul>
+		</div>
+</div>

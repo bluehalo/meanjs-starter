@@ -7,24 +7,25 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 	function ($scope, $state, $log, $modal, $stateParams, $q, 
 			  userService, groupService, Help, Alerts, Authentication) {
 
+		// Grab the group id from the state params
+		$scope.group = {};
 		var groupId = $stateParams.groupId;
+
+		// Put some of the helper shared services into the scope
 		$scope.auth = Authentication;
 		$scope.alertService = Alerts;
 		$scope.alertService.clearAll();
 		$scope.help = Help;
 
-		// State logic
-		$scope.addingUser = false;
-
 		// Controller models
 		$scope.roles = groupService.roles;
-		$scope.group = {};
+
 
 		/**
 		 * Group Members and Paging
 		 */
 		$scope.members = {
-			sort: userService.sort,
+			sort: userService.sort.map,
 			results: {
 				pageNumber: 0,	// The current page number
 				pageSize: 0,	// The number of elements in the current page
@@ -34,33 +35,42 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 			},
 			options: {
 				pageNumber: 0,
-				pageSize: 25,
+				pageSize: 50,
 				sort: userService.sort.map.name
 			}
 		};
 
 		// Go to specific page number
 		$scope.goToPage = function(pageNumber) {
-			$scope.options.pageNumber = Math.min($scope.results.totalPages-1, Math.max(pageNumber, 0));
-			$scope.applySearch();
+			$scope.members.options.pageNumber = pageNumber;
+			$scope.applyMemberSearch();
+		};
+
+		// Set the sort order
+		$scope.setSort = function(sort){
+			$scope.members.options.sort = sort;
+			$scope.applyMemberSearch();
 		};
 
 		$scope.applyMemberSearch = function() {
-			groupService.searchMembers(groupId, undefined, undefined, {
-				page: $scope.members.options.pageNumber,
-				size: $scope.members.options.pageSize,
-				sort: $scope.members.options.sort.sort,
-				dir: $scope.members.options.sort.dir
-			}).then(function(result){
-				if(null != result) {
-					$scope.members.results = result;
-				} else {
-					$scope.members.results = {};
-				}
-			}, function(error) {
-				$scope.alertService.add(error.message);
-				$log.error(error);
-			});
+
+			return groupService.searchMembers(groupId, undefined, undefined, {
+					page: $scope.members.options.pageNumber,
+					size: $scope.members.options.pageSize,
+					sort: $scope.members.options.sort.sort,
+					dir: $scope.members.options.sort.dir
+				})
+				.then(function(results){
+					if(null != results) {
+						$scope.members.results = results;
+					} else {
+						$scope.members.results = {};
+					}
+
+					// Reset the extra user state
+					generateUserState(results);
+				});
+
 		};
 
 		/**
@@ -72,8 +82,8 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 			return userService.match({ 'groups._id': { '$ne': groupId } }, search, {
 				page: 0,
 				size: 20,
-				sort: userService.sort.map.name.sort,
-				dir: userService.sort.map.name.dir
+				sort: $scope.members.sort.name.sort,
+				dir: $scope.members.sort.name.dir
 			}).then(function(result){
 				if(null != result){
 					return result.elements;
@@ -98,92 +108,42 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 		 * Main Controller logic methods
 		 */
 
-		// Add the user to the current group
+
+		/*
+		 * Add the user to the current group
+		 */
 		$scope.addUser = function(user) {
  
-			if(null != groupId && null != user) {
+			if(null == groupId || null == user) {
+				$scope.alertService.add('Failed to add user. Missing user or groupId');
+				return;
+			}
 
-				// Update the state
-				$scope.addingUser = true;
-
-				// Try to add the user to the group
-				groupService.addUser(groupId, user._id).then(function(result) {
+			// Try to add the user to the group
+			groupService.addUser(groupId, user._id)
+				.then(function(result) {
 
 					// Clear the user
 					$scope.user = null;
-					$scope.addingUser = false;
-					$log.info('Added user: ' + user.name + ' to group: ' + groupId);
+					$log.debug('Added user: %s to group: %s', user.name, groupId);
 
 					// Refresh the state of the UI
-					$scope.applyMemberSearch();
+					return $scope.applyMemberSearch();
 
 				}, function(error){
 
 					// Log the error and leave the user
 					$log.error(error);
-					$scope.alertService.add('Add user operation failed: ' + error, 'error');
-					$scope.addingUser = false;
+					$scope.alertService.add('Failed to add user: ' + error);
 
 				});
-			}
+
 		};
 
-		function doToggleRole(user, role) {
-			var fn = (user.groups[0].roles[role])? groupService.removeUserRole : groupService.addUserRole;
-			user.groups[0].roles[role] = !user.groups[0].roles[role];
 
-			return fn(groupId, user._id, role).then(function(result) {
-				$log.info('Toggled role: ' + role + ' for user: ' + user.name);
-				// Should probably reload the roles for the user
-				return result;
-
-			}, function(error) {
-				$log.error('Error while toggling role: ' + error);
-				$scope.alertService.add('Error while toggling role: ' + error);
-				user.groups[0].roles[role] = !user.groups[0].roles[role];
-				$q.reject(error);
-			});
-		}
-
-		$scope.toggleRole = function(user, role) {
-			// Initialize the roles if they don't already exist
-			if(null == user.groups[0].roles) {
-				user.groups[0].roles = {};
-			}
-
-			// Are we adding or removing the role
-			var remove = (user.groups[0].roles[role]);
-
-			// If we're removing our own admin, we want to verify that they know what they're doing
-			if(remove && role === 'admin' && user._id === $scope.auth.user._id && !$scope.auth.isAdmin()) {
-				var params = {
-						message: 'Are you sure you want to remove the "Group Admin" role from <strong>yourself</strong>?<br/>Once you do this, you will no longer be able to manage the members of this group. <strong>This also means you won\'t be able to give the role back to yourself</strong>.',
-						title: 'Remove "Group Admin" role?',
-						ok: 'Remove Role',
-						cancel: 'Cancel'
-					};
-
-					var dialog = $modal.open({
-						templateUrl: 'app/util/views/confirm.client.view.html',
-						controller: 'ConfirmController',
-						$scope: $scope,
-						backdrop: 'static',
-						resolve: {
-							params: function () { return params; }
-						}
-					});
-
-					dialog.result.then(function(){
-						doToggleRole(user, role).then(function(result){
-							// If the toggle roll was successful and we were removing the role from ourself, redirect away
-							$state.go('group.list');
-						});
-					});
-			} else {
-				doToggleRole(user, role);
-			}
-		};
-
+		/*
+		 * Remove user from current group
+		 */
 		$scope.removeUser = function(user) {
 			var params = {
 				message: 'Are you sure you want to remove user: "' + user.username + '" from this group?',
@@ -206,16 +166,155 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 				// Remove the user
 				groupService.removeUser(groupId, user._id).then(
 					function(result) {
-						$log.info('removed user: ' + user.username);
+						$log.debug('removed user: %s', user.username);
 						$scope.applyMemberSearch();
 					},
 					function(error){
-						$log.error('Failed to remove user from group: ' + error);
+						$log.error('Failed to remove user: %s from group: %s, error: %s', user.username, groupId, error);
 						$scope.alertService.add(error);
 					}
 				);
 			});
 		};
+
+
+		/*
+		 * Add the role to the user
+		 */
+		function addRole(user, role) {
+			// If the user is only implicitly in the group, we need to add them to the group first
+			var groupPermissions = groupService.getGroupPermissions(user, $scope.group);
+
+			var addPromise;
+			// If there is no group permissions object, the user isn't actually in the group yet
+			if(null == groupPermissions) {
+				addPromise = groupService.addUser(groupId, user._id);
+			}
+			else {
+				var d = $q.defer();
+				addPromise = d.promise;
+				d.resolve();
+			}
+
+			return addPromise.then(function() {
+				return doToggleRole(user, role, groupService.addUserRole);
+			});
+		}
+
+		/*
+		 * Remove the role from the user
+		 */
+		function removeRole(user, role) {
+
+			// If we're removing our own admin, we want to verify that they know what they're doing
+			if(role === 'admin' && user._id === $scope.auth.user._id && !$scope.auth.isAdmin()) {
+				var params = {
+					message: 'Are you sure you want to remove the "Group Admin" role from <strong>yourself</strong>?<br/>Once you do this, you will no longer be able to manage the members of this group. <strong>This also means you won\'t be able to give the role back to yourself</strong>.',
+					title: 'Remove "Group Admin" role?',
+					ok: 'Remove Role',
+					cancel: 'Cancel'
+				};
+
+				var dialog = $modal.open({
+					templateUrl: 'app/util/views/confirm.client.view.html',
+					controller: 'ConfirmController',
+					$scope: $scope,
+					backdrop: 'static',
+					resolve: {
+						params: function () { return params; }
+					}
+				});
+
+				// On the dialog decision, either proceed or bail
+				return dialog.result
+					.then(function() {
+						// On accept, toggle the role
+						return doToggleRole(user, role, groupService.removeUserRole);
+					})
+					.then(function() {
+						// If we successfully removed the role from ourselves, redirect away
+						$state.go('group.list');
+					});
+
+			}
+			// Else, we're just removing someone else's role, so proceed
+			else { 
+				return doToggleRole(user, role, groupService.removeUserRole);
+			}
+
+		}
+
+		/*
+		 * Actually do the role toggle
+		 */
+		function doToggleRole(user, role, toggleFn) {
+			// Toggle the role on the local user
+			user.groups[0].roles[role] = !user.groups[0].roles[role];
+
+			return toggleFn(groupId, user._id, role)
+				.then(function(result) {
+					return result;
+				}, function(error) {
+					// Undo the local change
+					user.groups[0].roles[role] = !user.groups[0].roles[role];
+					return $q.reject(error);
+				});
+		}
+
+
+		/*
+		 * Toggle the user's role
+		 */
+		$scope.toggleRole = function(user, role) {
+			// Get the permissions of the user for this group
+			var groupPermissions = groupService.getGroupPermissions(user, $scope.group);
+
+			// Decide if this is an addRole action or a removeRole action
+			var modifyRoleFn;
+
+			// If the role exists and is true, it's a remove action
+			if(null != groupPermissions && null != groupPermissions.roles && groupPermissions.roles[role] === true) {
+				modifyRoleFn = removeRole;
+			}
+			// Else, it is an add action
+			else {
+				modifyRoleFn = addRole;
+			}
+
+			// Do the role change
+			modifyRoleFn(user, role).then(function(result) {
+				$log.debug('Toggled role: %s for user: %s', role, user.name);
+			}, function(err) {
+				$log.error('Error toggling role, error: %s', err );
+				$scope.alertService.add(err);
+			});
+
+		};
+
+
+		/**
+		 * Given a list of users from the server, determine if a user is implicit/explicit and active/inactive
+		 * @param results
+		 */
+		function generateUserState(results) {
+			$scope.userState = {};
+
+			results.elements.forEach(function(user) {
+				// Is explicit if they are in the group
+				var explicit = user.groups.length > 0;
+
+				// Is active if they are bypassed or they meet the requirements of the group
+				var active = groupService.userActiveInGroup(user, $scope.group);
+
+				// Create an entry for this user by id
+				$scope.userState[user._id] = {
+					active: active,
+					explicit: explicit
+				};
+
+			});
+		}
+
 
 		/**
 		 * Initialization
@@ -225,7 +324,7 @@ angular.module('asymmetrik.groups').controller('ManageGroupUsersController',
 		groupService.get(groupId).then(function(result){
 			$scope.group = result;
 		}, function(error){
-			$log.error('There was an error getting the group: ' + error);
+			$log.error('There was an error getting the group: %s, error: %s', groupId, error);
 		});
 
 		// Get the members of the group

@@ -1,0 +1,217 @@
+<section>
+
+	<h3 class="page-header">
+		Audit Entries
+		<small>Browse and search audit entries</small>
+	</h3>
+
+	<script type="text/ng-template" id="userTemplate.html">
+		<a><span data-ng-bind-html="match.model | userTypeaheadFilter | typeaheadHighlight:query"></span></a>
+	</script>
+	
+	<script type="text/ng-template" id="sortColumnTemplate.html">
+		<a><span data-ng-bind-html="match.model | userTypeaheadFilter | typeaheadHighlight:query"></span></a>
+	</script>
+
+	<div class="input-group audit-filter">
+		<div class="row">
+			<label><i class="fa fa-user"></i> Actor:</label>
+			<input type="text" name="actor" class="form-control input-sm"
+					style="width: 300px;"
+					data-ng-model="query.actor" 
+					placeholder="Search..." 
+					data-typeahead="user for user in searchUsers($viewValue) | orderBy:'displayName':true"
+					data-typeahead-input-formatter="$model | userTypeaheadFilter"
+					data-typeahead-template-url="userTemplate.html" 
+					data-typeahead-editable="false"
+					data-typeahead-min-length="2"
+					data-typeahead-wait-ms="300"
+					data-typeahead-on-select="refresh()"
+					data-ng-keypress="applySearchKeypress($event)">
+		</div>
+		<div class="row">
+			<label class="media-left">Actions:</label>
+			<div class="media-body controls paging-sort">
+				<label class="column-option" data-ng-repeat="value in actionOptions">
+					<input type="checkbox" data-ng-model="value.selected" data-ng-change="refresh()" />
+					{{value.display}}
+				</label>
+			</div>
+		</div>
+
+		<div class="row">
+			<label class="media-left">Type:</label>
+			<div class="media-body controls paging-sort">
+				<label class="column-option" data-ng-repeat="value in auditTypeOptions">
+					<input type="checkbox" data-ng-model="value.selected" data-ng-change="refresh()" />
+					{{value.display}}
+				</label>
+			</div>
+		</div>
+		<div class="row">
+			<label><i class="fa fa-clock-o"></i> Timestamp:</label>
+			<select style="width:150px;"
+				name="timestamp"
+				class="form-control input-sm"
+				data-ng-model="selectedTimeFilter"
+				data-ng-options="timeOpt.value as timeOpt.display for timeOpt in timeOptions"
+				data-ng-change="refresh()"></select>
+			<span style="padding-left:20px;" data-ng-show="selectedTimeFilter === 'choose'">
+				<label style="width:75px;" for="startTimestampDate">Start:</label>
+				<input
+					name="startTimestampDate"
+					type="date"
+					class="form-control input-sm"
+					data-ng-model="query.startDate"/>
+				<label style="width:75px;" for="endTimestampDate">End:</label>
+				<input
+					name="endTimestampDate"
+					type="date"
+					class="form-control input-sm"
+					data-ng-model="query.endDate"/>
+			</span>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-md-12">
+
+			<span class="controls pull-right">
+				<a class="btn-link no-href" data-ng-click="refresh()">
+					<i class="fa fa-refresh"></i>
+					<span>Refresh</span>
+				</a>
+			</span>
+
+			<!-- Sorting/Paging Controls -->
+			<span class="controls pull-right"
+				style="padding-right:10px;"
+				data-ng-show="results.totalSize > 0">
+				<span data-asy-pager
+				     data-page-number="results.pageNumber"
+				     data-page-size="results.pageSize"
+				     data-total-size="results.totalSize"
+				     data-max-page-size="options.pageSize"
+				     data-current-size="auditEntries.length"
+				     data-on-change="goToPage(pageNumber)"></span>
+			</span>
+
+		</div>
+	</div>
+
+	<div class="row" data-ng-show="results.resolved">
+		<div class="col-md-12">
+
+			<!-- Actual results -->
+			<table class="asymmetrik table table-condensed table-hover table-striped" data-ng-show="results.totalSize > 0">
+				<thead>
+				<tr>
+					<th>
+						<a class="no-href" data-ng-click="setSort('audit.actor.name')">
+							<i class="fa fa-user"></i> Actor
+							<i class="fa fa-fw" data-ng-class="{'fa-caret-down': options.sort.sort === 'audit.actor.name' && options.sort.dir === 'DESC', 'fa-caret-up': options.sort.sort === 'audit.actor.name' && options.sort.dir === 'ASC'}"></i>
+						</a>
+					</th>
+					<th>
+						<a class="no-href" data-ng-click="setSort('created')">
+							<i class="fa fa-clock-o"></i> Timestamp
+							<i class="fa fa-fw" data-ng-class="{'fa-caret-down': options.sort.sort === 'created' && options.sort.dir === 'DESC', 'fa-caret-up': options.sort.sort === 'created' && options.sort.dir === 'ASC'}"></i>
+						</a>
+					</th>
+					<th>
+						<a class="no-href" data-ng-click="setSort('audit.action')">
+							Action
+							<i class="fa fa-fw" data-ng-class="{'fa-caret-down': options.sort.sort === 'audit.action' && options.sort.dir === 'DESC', 'fa-caret-up': options.sort.sort === 'audit.action' && options.sort.dir === 'ASC'}"></i>
+						</a>
+					</th>
+					<th>
+						<a class="no-href" data-ng-click="setSort('audit.auditType')">
+							Type
+							<i class="fa fa-fw" data-ng-class="{'fa-caret-down': options.sort.sort === 'audit.auditType' && options.sort.dir === 'DESC', 'fa-caret-up': options.sort.sort === 'audit.auditType' && options.sort.dir === 'ASC'}"></i>
+						</a>
+					</th>
+					<th>Object</th>
+					<th><i class="fa fa-history"></i> Before</th>
+					<th><i class="fa fa-file-text-o"></i> Message</th>
+				</tr>
+				</thead>
+
+				<tbody>
+				<tr data-ng-repeat="entry in auditEntries">
+					<td >
+						<div class="hideOverflow" style="max-width:200px;">
+							<div data-asy-audit-object="entry.audit.actor" data-asy-audit-type="'user'"></div>
+						</div>
+					</td>
+					<td >
+						<div class="hideOverflow" style="max-width:200px;">
+							{{entry.created | date:"yyyy-MM-dd HH:mm:ss 'Z'":'UTC' }}
+						</div>
+					</td>
+					<td >
+						<div class="hideOverflow" style="max-width:200px;">
+							{{entry.audit.action}}
+						</div>
+					</td>
+					<td >
+						<div class="hideOverflow" style="max-width:200px;">
+							{{entry.audit.auditType}}
+						</div>
+					</td>
+					<td >
+						<div class="hideOverflow" style="max-width:200px;">
+							<div data-asy-audit-object="(null != entry.audit.object.after) ? entry.audit.object.after : entry.audit.object" data-asy-audit-type="entry.audit.auditType"></div>
+							<div> <!-- Place "View Details" link below the display -->
+								<small data-ng-if="entry.audit.action === 'create' || entry.audit.action === 'delete'">
+									<a class="btn-icon no-href"
+									   data-ng-show="entry.audit.object"
+									   data-ng-click="viewDetails(entry)">
+										<i class="fa fa-eye"></i>
+										<span>View Details</span>
+									</a>
+								</small>
+								<small style="opacity: 0.5" data-ng-if="entry.audit.action === 'save'"><span>No Changes Detected</span></small>
+							</div>
+						</div>
+					</td>
+					<td >
+						<div class="hideOverflow" style="max-width:200px;">
+							<div data-asy-audit-object="entry.audit.object.before" data-asy-audit-type="entry.audit.auditType"></div>
+							<div> <!-- Place "View Changes" link below the display -->
+								<small data-ng-if="entry.audit.action === 'update'">
+									<a class="btn-icon no-href"
+										data-ng-show="entry.audit.object.before"
+										data-tooltip="See details of the update"
+										data-tooltip-placement="bottom"
+										data-ng-click="viewChanges(entry)">
+										<i class="fa fa-eye"></i>
+										<span>View Changes</span>
+									</a>
+								</small>
+								<small style="opacity: 0.5" data-ng-if="entry.audit.action === 'save'"><span>No Changes Detected</span></small>
+							</div>
+						</div>
+					</td>
+					<td >
+						<div class="hideOverflow" style="max-width:200px;">
+							{{entry.message}}
+						</div>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+
+			<div class="col-md-6 col-md-offset-3 center" data-ng-hide="results.totalSize > 0">
+				<h3>
+					No Audit Entries?<br/>
+					<small>
+						Either there were no Audit Entries that matched your search or you don't have access to Audit Entries.<br/>
+						Read our <a data-ui-sref="help.overview">getting started page</a> for more details.
+					</small>
+				</h3>
+			</div>
+
+		</div>
+	</div>
+
+</section>

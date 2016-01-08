@@ -17,22 +17,22 @@ module.exports = function(app) {
 	 */
 
 	app.route('/euas')
-		.post(users.requiresLogin, users.requiresRoles(['admin']), users.searchEuas);
+		.post(users.hasAdminAccess, users.searchEuas);
 
 	app.route('/eua/accept')
-		.post(users.requiresLogin, users.acceptEua);
+		.post(users.has(users.requiresLogin), users.acceptEua);
 
 	app.route('/eua/:euaId/publish')
-		.post(users.requiresLogin, users.requiresRoles(['admin']), users.publishEua);
+		.post(users.hasAdminAccess, users.publishEua);
 
 	app.route('/eua/:euaId')
-		.get(   users.requiresLogin, users.requiresRoles(['admin']), users.getEuaById)
-		.post(  users.requiresLogin, users.requiresRoles(['admin']), users.updateEua)
-		.delete(users.requiresLogin, users.requiresRoles(['admin']), users.deleteEua);
+		.get(   users.hasAdminAccess, users.getEuaById)
+		.post(  users.hasAdminAccess, users.updateEua)
+		.delete(users.hasAdminAccess, users.deleteEua);
 
 	app.route('/eua')
-		.get( users.requiresLogin, users.getCurrentEua)
-		.post(users.requiresLogin, users.requiresRoles(['admin']), users.createEua);
+		.get( users.has(users.requiresLogin), users.getCurrentEua)
+		.post(users.hasAdminAccess, users.createEua);
 
 	// Finish by binding the user middleware
 	app.param('euaId', users.euaById);

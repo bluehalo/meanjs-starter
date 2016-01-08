@@ -2,10 +2,10 @@
 
 angular.module('asymmetrik.users').controller('ListUsersController',
 		[ '$scope', '$location', '$log', '$modal', 
-		  'userService', 'adminService', 'Authentication', 'authService', 'UserConfig', 'Alerts', 
+		  'userService', 'adminService', 'Authentication', 'authService', 'cacheEntriesService', 'UserConfig', 'Alerts', 
 
 	function( $scope, $location, $log, $modal, 
-			  userService, adminService, Authentication, authService, UserConfig, Alerts) {
+			  userService, adminService, Authentication, authService, cacheEntriesService, UserConfig, Alerts) {
 
 		// Store our global objects in the scope
 		$scope.auth = Authentication;
@@ -20,7 +20,23 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 		$scope.search = '';
 
 		// Sort options for the page
-		$scope.sort = userService.sort;
+		$scope.sort = userService.sort.map;
+
+		$scope.columns = {
+ 			'name': true,
+ 			'username': true,
+ 			'email': false,
+ 			'phone': false,
+ 			'acceptedEua': false,
+ 			'lastLogin': true,
+ 			'created': false,
+ 			'updated': false,
+ 			'roles': true,
+ 			'bypassAccessCheck': false,
+ 			'externalRoles': false,
+ 			'externalGroups': false,
+ 			'_id': false,
+		};
 
 		// Metadata about the currently displayed set of data
 		$scope.results = {
@@ -34,8 +50,8 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 		// The current configuration of the paging/sorting options
 		$scope.options = {
 			pageNumber: 0,
-			pageSize: 20,
-			sort: $scope.sort.map.name
+			pageSize: 50,
+			sort: $scope.sort.name
 		};
 
 
@@ -44,14 +60,8 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 		 */
 
 		// Go to specific page number
-		$scope.goToPage = function(pageNumber){
-			$scope.options.pageNumber = Math.min($scope.results.totalPages-1, Math.max(pageNumber, 0));
-			$scope.applySearch();
-		};
-
-		// Set the page size
-		$scope.setPageSize = function(pageSize){
-			$scope.options.pageSize = pageSize;
+		$scope.goToPage = function(pageNumber) {
+			$scope.options.pageNumber = pageNumber;
 			$scope.applySearch();
 		};
 
@@ -63,22 +73,62 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 
 
 		/**
-		 * Searching the subscriptions
+		 * Searching the users
 		 */
+
+		$scope.filters = {
+			bypassAC: false,
+			noUserRole: false,
+			editorRole: false,
+			auditorRole: false,
+			adminRole: false
+		};
+
+		function getQuery() {
+			var query;
+			var elements = [];
+
+			if($scope.filters.bypassAC) {
+				elements.push({ bypassAccessCheck: true });
+			}
+
+			if($scope.filters.noUserRole) {
+				elements.push({ 'roles.user': false });
+				elements.push({ 'roles.user': { '$exists': false } });
+			}
+
+			if($scope.filters.editorRole) {
+				elements.push({ 'roles.editor': true });
+			}
+
+			if($scope.filters.auditorRole) {
+				elements.push({ 'roles.auditor': true });
+			}
+
+			if($scope.filters.adminRole) {
+				elements.push({ 'roles.admin': true });
+			}
+
+			if(elements.length > 0) {
+				query = { $or: elements };
+			}
+			return query;
+		}
 
 		// Method handler for return keypress in the search box
 		$scope.applySearchKeypress = function(keyEvent) {
-			if(keyEvent.which === 13){
+			if(keyEvent.which === 13) {
+				$scope.options.pageNumber = 0;
 				$scope.applySearch();
 			}
 		};
 
-		// Search method that actually executes the search and updates the subscriptions list
+		// Search method that actually executes the search and updates the streams list
 		$scope.applySearch = function() {
 
 			$scope.results.resolved = false;
 
-			adminService.search(undefined, $scope.search, {
+			adminService.search(getQuery(), $scope.search, {
 				page: $scope.options.pageNumber,
 				size: $scope.options.pageSize,
 				sort: $scope.options.sort.sort,
@@ -101,8 +151,39 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 				$scope.results.resolved = true;
 			});
 		};
+		
+		$scope.exportUserData = function() {
+			var dialog = $modal.open({
+				templateUrl: 'app/users/views/report/get-user-field.client.view.html',
+				controller: 'GetUserFieldController',
+				backdrop: 'static',
+				size: 'lg'
+			});
+			
+			// No need to do anything on dialog.result
+		};
 
+		$scope.refreshUserCredentials = function(user) {
+			// Refresh the user
 
+			// temporary flag to show that the user is refreshing
+			user.isRefreshing = true;
+			cacheEntriesService.refreshEntry(user.providerData.dnLower).then(
+				function(result) {
+					// Show the "user refreshed" confirmation thing
+					$scope.alertService.add('Refreshed user: ' + user.username, 'success');
+
+					// remove temporary flag to disable button
+					delete user.isRefreshing;
+				},
+				function(error){
+					// remove temporary flag to enable button
+					delete user.isRefreshing;
+					$scope.alertService.add(error.message);
+				}
+			);
+			$log.debug('refresh user: %s', user.username);
+		};
 
 		$scope.deleteUser = function(user){
 			var params = {
@@ -134,7 +215,7 @@ angular.module('asymmetrik.users').controller('ListUsersController',
 						$scope.alertService.add(error.message);
 					}
 				);
-				$log.info('delete user: ' + user.username);
+				$log.debug('delete user: %s', user.username);
 			});
 		};
 

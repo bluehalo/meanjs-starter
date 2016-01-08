@@ -9,68 +9,112 @@ var config = require('../config'),
 	q = require('q'),
 	logger = require('./bunyan').logger;
 
-logger.info('Initializing MongoDB Connections...');
+// Set the mongoose debugging option based on the configuration, defaulting to false
+var mongooseDebug = (config.mongoose)? config.mongoose.debug: false;
+logger.info('Mongoose: Setting debug to %s', mongooseDebug);
+mongoose.set('debug', mongooseDebug);
 
-mongoose.set('debug', (config.mongoose)? config.mongoose.debug: false);
-
+// Override the global mongoose to use q for promises
+mongoose.Promise = require('q').Promise;
 
 // Load the mongoose models
 module.exports.loadModels = function() {
 	// Globbing model files
 	config.files.server.models.forEach(function(modelPath) {
+		logger.debug('Mongoose: Loading %s', modelPath);
 		require(path.resolve(modelPath));
 	});
 };
 
-var dbs = {};
+
+// This is the set of dbs
+module.exports.dbs = {};
 
 // Initialize Mongoose
-module.exports.connect = function(cb) {
-	var _this = this;
-
+module.exports.connect = function() {
+	var that = this;
 	var defer = q.defer();
 
-	defer.promise.then(function(result) {
+	var dbSpecs = [];
+	var defaultDbSpec;
 
-		logger.info('Loading mongoose models');
-		try {
-			_this.loadModels();
-		} catch (err) {
-			logger.fatal({err: err}, 'Mongoose model load failed');
+	// Organize the dbs we need to connect
+	for(var dbSpec in config.db) {
+		if(dbSpec === 'admin') {
+			defaultDbSpec = { name: dbSpec, connectionString: config.db[dbSpec] };
 		}
-
-		// Call callback FN
-		if (cb) cb(result);
-
-	});
-
-	// Connect to the primary database
-	var db = mongoose.connect(config.db, function(err) {
-		if (err) {
-			logger.fatal({err: err}, 'Could not connect to MongoDB!');
-			defer.reject();
-		} else {
-			logger.info('Connected to MongoDB');
-			defer.resolve(db);
-		} 
-	});
-
-	dbs.primary = db;
-
-};
-
-// Disconnect Mongoose
-module.exports.disconnect = function(cb) {
-	// Make sure the connections were made
-	if(null != dbs.primary && null != dbs.primary.disconnect) {
-		// Disconnect
-		dbs.primary.disconnect(function(err) {
-			logger.info('Disconnected from MongoDB!');
-			cb(err);
-		});
-	} else {
-		logger.warn('No MongoDB connection to disconnect!');
+		else {
+			dbSpecs.push({ name: dbSpec, connectionString: config.db[dbSpec] });
+		}
 	}
+
+	// Connect to the default db to kick off the process
+	var defaultDbDefer = q.defer();
+	var defaultDb = mongoose.connect(defaultDbSpec.connectionString, defaultDbDefer.makeNodeResolver());
+
+	// Once we're connected to the default db, try the others
+	defaultDbDefer.promise.then(function(result) {
+		logger.info('Mongoose: Connected to \'%s\' default db', defaultDbSpec.name);
+
+		// store it in the db list
+		that.dbs[defaultDbSpec.name] = defaultDb;
+
+		// Connect to the rest of the dbs
+		var promises = [];
+		dbSpecs.forEach(function(spec) {
+			var specDeferral = q.defer();
+
+			// Create the secondary connection
+			var connection = mongoose.createConnection(spec.connectionString, specDeferral.makeNodeResolver());
+			promises.push(specDeferral.promise.then(function(result) {
+				logger.info('Mongoose: Connected to \'%s\' db', spec.name);
+				that.dbs[spec.name] = connection;
+				q.resolve();
+			}, function(err) {
+				logger.fatal({err: err}, 'Mongoose: Could not connect to \'%s\' db', spec.name);
+				q.reject(err);
+			}));
+		});
+
+		q.all(promises).then(function(results) {
+			try {
+				that.loadModels();
+				// Resolve the defer because the mongoose load worked
+				defer.resolve(that.dbs);
+			} catch (err) {
+				// reject the defer and return, log at the higher level
+				defer.reject(err);
+			}
+		}, function(err) {
+			defer.reject(err);
+		});
+
+	}, function(err) {
+		logger.fatal({err: err}, 'Mongoose: Could not connect to \'%s\' db', defaultDbSpec.name);
+	});
+
+	return defer.promise;
 };
 
-module.exports.dbs = dbs;
+
+//Disconnect from Mongoose
+module.exports.disconnect = function() {
+
+	// Create defers for mongoose connections
+	var promises = [];
+	for(var d in this.dbs) {
+		var dbDeferral = q.defer();
+		promises.push(dbDeferral.promise);
+
+		if (this.dbs[d].disconnect) {
+			this.dbs[d].disconnect(dbDeferral.makeNodeResolver());
+		}
+		else {
+			dbDeferral.resolve();
+		}
+	}
+
+	// Create a join for the defers
+	return q.all(promises);
+
+};

@@ -39,7 +39,7 @@ angular.module('asymmetrik.groups').controller('ListGroupsController',
 		// The current configuration of the paging/sorting options
 		$scope.options = {
 			pageNumber: 0,
-			pageSize: 12,
+			pageSize: 50,
 			sort: $scope.sort.map.title
 		};
 
@@ -70,11 +70,11 @@ angular.module('asymmetrik.groups').controller('ListGroupsController',
 				// Remove the user
 				groupService.remove(group._id).then(
 					function(result) {
-						$log.info('deleted group: ' + group._id);
+						$log.debug('Deleted group: %s', group._id);
 						$scope.applySearch();
 					},
 					function(error){
-						$log.error('Failed to delete group: ' + error);
+						$log.error('Failed to delete group: %s, error: %s', group._id, error);
 						$scope.alertService.add('Error deleting group: ' + error);
 					}
 				);
@@ -87,13 +87,7 @@ angular.module('asymmetrik.groups').controller('ListGroupsController',
 
 			// Go to specific page number
 		$scope.goToPage = function (pageNumber) {
-			$scope.options.pageNumber = Math.min($scope.results.totalPages - 1, Math.max(pageNumber, 0));
-			$scope.applySearch();
-		};
-
-		// Set the page size
-		$scope.setPageSize = function (pageSize) {
-			$scope.options.pageSize = pageSize;
+			$scope.options.pageNumber = pageNumber;
 			$scope.applySearch();
 		};
 
@@ -110,6 +104,7 @@ angular.module('asymmetrik.groups').controller('ListGroupsController',
 		// Method handler for return keypress in the search box
 		$scope.applySearchKeypress = function (keyEvent) {
 			if (keyEvent.which === 13) {
+				$scope.options.pageNumber = 0;
 				$scope.applySearch();
 			}
 		};

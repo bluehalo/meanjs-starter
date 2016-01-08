@@ -1,0 +1,46 @@
+{
+  "name": "leaflet-filter",
+  "version": "0.2.8",
+  "authors": [
+    "reblace <reblace@gmail.com>",
+    "brianghig <brianghig@gmail.com>",
+    "amarcus <andrew@amarcus.org>"
+  ],
+  "main": "leaflet-filter.js",
+  "scripts": [
+    "leaflet-filter.js"
+  ],
+  "license": "MIT",
+  "ignore": [
+    ".DS_Store",
+    ".git",
+    ".gitignore",
+    ".travis.yml",
+    ".bowerrc",
+    ".jshintrc",
+    ".csslintrc",
+    ".project",
+    "gulpfile.js",
+    "package.json",
+    "examples",
+    "node_modules",
+    "package.json",
+    "src",
+    "test"
+  ],
+  "dependencies": {
+    "leaflet": "~0.7.3",
+    "leaflet.draw": "~0.2.3",
+    "font-awesome": "~4.4"
+  },
+  "homepage": "https://github.com/Asymmetrik/leaflet-filter",
+  "_release": "0.2.8",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.2.8",
+    "commit": "c8c11fbbc426cd3c85565c18165fa90f5aeb6e7a"
+  },
+  "_source": "git://github.com/Asymmetrik/leaflet-filter.git",
+  "_target": "~0.2",
+  "_originalSource": "leaflet-filter"
+}

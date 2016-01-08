@@ -10,114 +10,116 @@ var _ = require('lodash'),
 	config = deps.config,
 	util = deps.utilService,
 	logger = deps.logger,
-	auditLogger = deps.auditLogger,
+	auditService = deps.auditService,
 
-	User = mongoose.model('User');
+	userAuthService = require(path.resolve('./app/users/server/services/users.authentication.server.service.js')),
+	User = dbs.admin.model('User');
 
 
 /**
+ * ==========================================================
  * Private methods
+ * ==========================================================
  */
 
-function save(user, req, res) {
-	user.save(function(err) {
-		util.catchError(res, err, function() {
-			// Audit admin creates
-			auditLogger.audit('admin user create', 'user', 'admin user create',
-				User.auditCopy(req.user),
-				{ user: User.auditCopy(user) });
-
-			res.jsonp(User.fullCopy(user));
-		});
-	});
-}
-
-// Login the user
+//Login the user
 function login(user, req, res) {
-	// Remove sensitive data before login
-	delete user.password;
-	delete user.salt;
-
-	req.login(user, function(err) {
-		if (err) {
-			res.status(400).send(err);
-		} else {
-			// update the user's last login time
-			User.findOneAndUpdate(
-				{ _id: user._id },
-				{ lastLogin: Date.now() },
-				{ new: true, upsert: false },
-				function(err, user) {
-					util.catchError(res, err, function() {
-						res.jsonp(User.fullCopy(user));
-					});
-				});
-		}
+	userAuthService.login(user, req).then(function(result) {
+		res.status(200).json(result);
+	}, function(errorResult) {
+		util.handleErrorResponse(res, errorResult);
 	});
 }
 
-// Authenticate and login the user. Passport handles authentication.
-function authenticateAndLogin(strategy, req, res, next) {
-	passport.authenticate(strategy, function(err, user, info) {
-		if (err || !user) {
-			// Audit failed authentication
-			auditLogger.audit('authentication failed', 'user', 'authentication failed',
-				{ }, 
-				{ err: err, user: user, info: info });
-
-			res.status(400).send(info);
-		} else {
-			login(user, req, res);
-		}
-	})(req, res, next);
+//Authenticate and login the user. Passport handles authentication.
+function authenticateAndLogin(req, res, next) {
+	userAuthService.authenticateAndLogin(req).then(function(result) {
+		res.status(200).json(result);
+	}, function(errorResult) {
+		util.handleErrorResponse(res, errorResult);
+	}).done();
 }
+
+// Admin creates a user
+function adminCreateUser(user, req, res) {
+
+	// Initialize the user
+	userAuthService.initializeNewUser(user).then(function(result) {
+
+		// Save the new user
+		result.save(function(err) {
+			util.catchError(res, err, function() {
+				// Audit admin creates
+				auditService.audit('admin user create', 'user', 'admin user create',
+					User.auditCopy(req.user),
+					User.auditCopy(result));
+
+				// Return a full copy of the user
+				res.jsonp(User.fullCopy(result));
+			});
+		});
+	}).done();
+}
+
 
 //Signup the user - creates the user object and logs in the user
 function signup(user, req, res) {
-	// Then save the user 
-	user.save(function(err) {
-		util.catchError(res, err, function() {
-			// Audit user signup
-			auditLogger.audit('user signup', 'user', 'user signup',
-				{},
-				{ user: User.auditCopy(user) });
 
-			login(user, req, res);
+	// Initialize the user
+	userAuthService.initializeNewUser(user).then(function(result) {
+
+		// Then save the user 
+		user.save(function(err, newUser) {
+			if(null != err) {
+				util.handleErrorResponse(res, err);
+			}
+			else {
+				// Audit user signup
+				auditService.audit('user signup', 'user', 'user signup',
+					{},
+					User.auditCopy(newUser));
+
+				// Attempt to login
+				login(newUser, req, res);
+			}
 		});
-	});
+
+	}).done();
 }
 
 
-/**
- * Configuration Access
- */
-exports.getAuthConfig = function(req, res) {
-	var toReturn = {
-		auth: config.auth.strategy
-	};
-
-	res.json(toReturn);
-};
-
-
 
 /**
- * The various ways to signup and signin
+ * ==========================================================
+ * Public Methods
+ * ==========================================================
  */
 
-// Local strategy signup (provide username/password)
+/**
+ * Local Signup strategy. Provide a username/password
+ * and user info in the request body.
+ */
 exports.signup = function(req, res) {
 	var user = new User(User.createCopy(req.body));
 	user.provider = 'local';
 
+	// Need to set null passwords to empty string for mongoose validation to work
+	if(null == user.password) {
+		user.password = '';
+	}
+
 	signup(user, req, res);
 };
 
-// Proxy PKI Signup, provides user dn via header
+
+/**
+ * Proxy PKI signup. Provide a DN in the request header
+ * and then user info in the request body.
+ */
 exports.proxyPkiSignup = function(req, res) {
 	var dn = req.headers[config.auth.header];
 	if(null == dn) {
-		res.status('400').send({ message: 'Missing PKI information.' });
+		res.status('400').json({ message: 'Missing PKI information.' });
 		return;
 	}
 
@@ -129,18 +131,31 @@ exports.proxyPkiSignup = function(req, res) {
 	signup(user, req, res);
 };
 
-//Admin Create a User (Local Strategy)
+
+/**
+ * Admin Create a User (Local Strategy)
+ */
 exports.adminCreateUser = function(req, res) {
 	var user = new User(User.createCopy(req.body));
+	user.bypassAccessCheck = req.body.bypassAccessCheck;
 	user.roles = req.body.roles;
 	user.provider = 'local';
 
-	save(user, req, res);
+	// Need to set null passwords to empty string for mongoose validation to work
+	if(null == user.password) {
+		user.password = '';
+	}
+
+	adminCreateUser(user, req, res);
 };
 
-//Admin Create a User (Pki Strategy)
+
+/**
+ * Admin Create a User (Pki Strategy)
+ */
 exports.adminCreateUserPki = function(req, res) {
 	var user = new User(User.createCopy(req.body));
+	user.bypassAccessCheck = req.body.bypassAccessCheck;
 	user.roles = req.body.roles;
 
 	if(null != req.body.username) {
@@ -149,26 +164,21 @@ exports.adminCreateUserPki = function(req, res) {
 	}
 	user.provider = 'pki';
 
-	save(user, req, res);
+	adminCreateUser(user, req, res);
 };
 
-// Local signin
+
+/**
+ * Local Signin
+ */
 exports.signin = function(req, res, next) {
-	authenticateAndLogin('local', req, res, next);
-};
-
-// Signin via proxied pki
-exports.proxyPkiSignin = function(req, res, next) {
-	authenticateAndLogin('proxy-pki', req, res, next);
-};
-
-// Signin via direct pki
-exports.pkiSignin = function(req, res, next) {
-	authenticateAndLogin('pki', req, res, next);
+	authenticateAndLogin(req, res, next);
 };
 
 
-// Signout - logs the user out and redirects them
+/**
+ * Signout - logs the user out and redirects them
+ */
 exports.signout = function(req, res) {
 	req.logout();
 	res.redirect('/');

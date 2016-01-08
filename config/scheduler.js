@@ -33,21 +33,24 @@ function timeoutHandler() {
 
 				// Service is running
 				service.running = true;
+				var startTs = Date.now();
 
 				// Run and update the last run time
 				service.service.run(service.config).then(function() {
 					service.lastRun = Date.now();
 					service.running = false;
+					logger.debug('Scheduler: Ran %s in %s ms', service.file, (Date.now() - startTs));
 				}, function(err) {
 					// failure... eventually, we may want to react differently
 					service.lastRun = Date.now();
 					service.running = false;
+					logger.warn('Scheduler: %s failed in %s ms', service.file, (Date.now() - startTs));
 				});
 
 			}
 		} catch(err) {
 			// the main loop won't die if a service is failing
-			logger.error(err, 'Error in scheduler loop, continuing execution.');
+			logger.error(err, 'Scheduler: Unexpected error running scheduled service: %s, continuing execution.', service.file);
 		}
 	});
 
@@ -67,6 +70,7 @@ module.exports.start = function() {
 			var service = {};
 
 			// Get the implementation of the service
+			service.file = serviceConfig.file;
 			service.service = require(path.resolve(serviceConfig.file));
 
 			// Store the original service config
@@ -78,7 +82,7 @@ module.exports.start = function() {
 
 			// Validate the service
 			if(null == service.interval || service.interval < 1000) {
-				logger.warn(service, 'Bad service configuration provided');
+				logger.warn(service, 'Scheduler: Bad service configuration provided');
 			} else {
 				// Store it in the services array
 				services.push(service);

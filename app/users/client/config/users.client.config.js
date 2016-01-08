@@ -5,25 +5,54 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 	function($httpProvider) {
 
 		// Set the httpProvider "not authorized" interceptor
-		$httpProvider.interceptors.push( [ '$q', '$location', '$injector', 'Authentication',
-			function($q, $location, $injector, Authentication) {
+		$httpProvider.interceptors.push( [ '$rootScope', '$q', '$location', '$injector', 'Authentication',
+			function($rootScope, $q, $location, $injector, Authentication) {
 				return {
 					responseError: function(rejection) {
 						var $state = $injector.get('$state');
+						var $log = $injector.get('$log');
+
+						$rootScope.asyTargetState = undefined;
+						if(null != $state.current) {
+							$rootScope.asyTargetState = {
+								state: $state.current.name,
+								params: $state.current.params
+							};
+						}
 
 						switch (rejection.status) {
 							case 401:
 								// Deauthenticate the global user
 								Authentication.setUser(null);
-	
-								// Redirect to signin page
-								$state.go('auth.signin');
+
+								if(rejection.data.type === 'invalid-certificate') {
+									// Redirect to invalid credentials page
+									$log.debug('UserState: Server doesn\'t recognize the submitted cert, go to the invalid cert page');
+									$state.go('auth.invalid-certificate');
+								}
+								else {
+									// Redirect to signin page
+									$log.debug('UserState: Server doesn\'t think the user is authenticated, go to auth.signin');
+									$state.go('auth.signin');
+								}
+
 								break;
 							case 403:
-								if(rejection.data.type === 'eua') {
+								if (rejection.data.type === 'eua') {
+									$log.debug('UserState: Server thinks the user needs to accept eua, go to user.eua');
 									$state.go('user.eua');
-								} else {
-								// Add unauthorized behaviour
+								}
+								else if (rejection.data.type === 'inactive') {
+									$log.debug('UserState: Server thinks the user is inactive, go to auth.inactive');
+									$state.go('user.inactive');
+								}
+								else if (rejection.data.type === 'noaccess') {
+									$log.debug('UserState: Server thinks the user does not have the required access, go to user.noaccess');
+									$state.go('user.noaccess');
+								}
+								else {
+									// Add unauthorized behavior
+									$log.debug('UserState: Server thinks the user accessed something they shouldn\'t, go to user.unauthorized');
 									$state.go('user.unauthorized', { 
 										message: 'You are not authorized to access this resource.',
 										rejection: rejection
@@ -41,6 +70,7 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 	}
 ]).run([ '$rootScope', '$state', '$location', '$log', 'Authentication', 
 	function($rootScope, $state, $location, $log, Authentication){
+
 		$rootScope.$on('$stateChangeError', function(event, toState, toParams) {
 			$log.warn(event);
 		});
@@ -49,8 +79,10 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 			$log.warn(event);
 		});
 
-		$rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
-			$log.info('routing to: ' + toState.name);
+		$rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+			$log.debug('UserState: State change from [%s] to [%s].', (null != fromState)? fromState.name : 'null', toState.name);
+			$state.prevState = fromState;
+			$state.prevParams = fromParams;
 
 			// -----------------------------------------------------------
 			// Setup
@@ -71,7 +103,8 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 			// If the state requires authentication and the user is not authenticated, then go to the signin state
 			if(requiresAuthentication && !Authentication.isAuthenticated()) {
 				event.preventDefault();
-				$log.info('go to user.signin');
+				$rootScope.asyTargetState = { state: toState, params: toParams };
+				$log.debug('UserState: User is not authenticated, go to user.signin');
 				$state.go('auth.signin');
 				return;
 			}
@@ -84,7 +117,8 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 			if(Authentication.isAuthenticated() && !Authentication.isAdmin() && !Authentication.isEuaCurrent() ) {
 				if(toState.name !== 'user.eua') {
 					event.preventDefault();
-					$log.info('go to user.eua');
+					$rootScope.asyTargetState = { state: toState, params: toParams };
+					$log.debug('UserState: User is authenticated, but needs to accept EUA, go to user.eua');
 					$state.go('user.eua');
 					return;
 				}
@@ -110,10 +144,11 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 					if(Authentication.isAuthenticated() && !Authentication.hasRole('user')) {
 
 						// If the user is missing the user role, they are pending
-						if(toState.name !== 'user.pending') {
+						if(toState.name !== 'user.inactive') {
 							event.preventDefault();
-							$log.info('go to user.pending');
-							$state.go('user.pending');
+							$rootScope.asyTargetState = { state: toState, params: toParams };
+							$log.debug('UserState: User is authenticated, but account is not active, go to user.inactive');
+							$state.go('user.inactive');
 							return;
 						}
 
@@ -122,7 +157,8 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 						// The user doesn't have the needed roles to view the page
 						if(toState.name !== 'user.unauthorized') {
 							event.preventDefault();
-							$log.info('go to user.unauthorized');
+							$rootScope.asyTargetState = { state: toState, params: toParams };
+							$log.debug('UserState: User is authenticated, but doesn\'t have the roles needed to view the page, go to user.unauthorized');
 							$state.go('user.unauthorized');
 							return;
 						}
@@ -131,6 +167,7 @@ angular.module('asymmetrik.users').config(['$httpProvider',
 
 				}
 			}
+
 		});
 
 	}

@@ -1,10 +1,11 @@
 <div class="footer" data-ng-controller="CoreController">
 
 	<div class="copyright"
-		data-ng-show="copyright.showBanner">{{copyright.string}}</div>
+		data-ng-show="copyright.showBanner" data-ng-bind-html="copyright.string"></div>
 
 	<div class="classification"
 		data-ng-class="classification.css"
-		data-ng-show="classification.showBanner">{{classification.string}}</div>
+		data-ng-show="classification.showBanner"
+		data-ng-bind-html="classification.string"></div>
 
 </div>

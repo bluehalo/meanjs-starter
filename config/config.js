@@ -114,14 +114,14 @@ var initGlobalConfigFiles = function(config, assets) {
 	// Setting Globbed policies files
 	config.files.server.policies = getGlobbedPaths(assets.server.policies);
 
+	// Setting Globbed server test files
+	config.files.server.tests = getGlobbedPaths((null != assets.tests && null != assets.tests.server)? assets.tests.server : []);
+
 	// Setting Globbed js files
 	config.files.client.js = getGlobbedPaths(assets.client.lib.js, 'public/').concat(getGlobbedPaths(assets.client.js, ['client/', 'public/']));
 
 	// Setting Globbed css files
 	config.files.client.css = getGlobbedPaths(assets.client.lib.css, 'public/').concat(getGlobbedPaths(assets.client.css, ['client/', 'public/']));
-
-	// Setting Globbed test files
-	config.files.client.tests = getGlobbedPaths(assets.client.tests);
 
 };
 
@@ -146,7 +146,7 @@ var initGlobalConfig = function() {
 	var mode = (null != config.assets) ? config.assets : 'development';
 
 	// Get the default assets
-	var defaultAssets = require(path.join(process.cwd(), 'config/assets/default'));
+	var defaultAssets = _.clone(require(path.join(process.cwd(), 'config/assets/default')));
 
 	// Get the current assets
 	var environmentAssets = require(path.join(process.cwd(), 'config/assets/', mode)) || {};

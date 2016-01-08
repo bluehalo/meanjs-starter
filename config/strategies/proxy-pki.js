@@ -3,13 +3,21 @@
 /**
  * Module dependencies.
  */
-var passport = require('passport'),
-	mongoose = require('mongoose'),
+var mongoose = require('mongoose'),
+	passport = require('passport'),
+	path = require('path'),
+	q = require('q'),
 	util = require('util'),
-	config = require('../config'),
+
+	deps = require(path.resolve('./config/dependencies.js')),
+	config = deps.config,
+	auditService = deps.auditService,
+
+	accessChecker = require(path.resolve('./app/access-checker/server/services/access-checker.server.service.js')),
+	userAuthService = require(path.resolve('./app/users/server/services/users.authentication.server.service.js')),
 	User = mongoose.model('User');
 
-function Strategy(options, verify) {
+function ProxyPkiStrategy(options, verify) {
 	if (typeof options === 'function') {
 		verify = options;
 		options = {};
@@ -27,7 +35,7 @@ function Strategy(options, verify) {
 /**
  * Inherit from `passport.Strategy`.
  */
-util.inherits(Strategy, passport.Strategy);
+util.inherits(ProxyPkiStrategy, passport.Strategy);
 
 /**
  * Authenticate request based on the contents of the dn header value.
@@ -35,57 +43,189 @@ util.inherits(Strategy, passport.Strategy);
  * @param {Object} req
  * @api protected
  */
-Strategy.prototype.authenticate = function(req, options) {
-	options = options || {};
+ProxyPkiStrategy.prototype.authenticate = function(req) {
 	var self = this;
 
+	// Get the DN from the header of the request
 	var dn = req.headers[self._header];
-	if (!dn) {
-		return this.fail(400);
-	}
-
-	function verified(err, user, info) {
-		if (err) { return self.error(err); }
-		if (!user) { return self.fail(info); }
-		self.success(user);
-	}
 
 	try {
-		self._verify(req, dn, verified);
+		// Call the configurable verify function
+		self._verify(req, dn, function (err, user, info) {
+
+			// If there was an error, pass it through
+			if (err) { return self.error(err); }
+
+			// If there was no user, fail the auth check
+			if (!user) { return self.fail(info); }
+
+			// Otherwise, succeed
+			self.success(user);
+		});
+
 	} catch(ex) {
 		return self.error(ex);
 	}
 };
 
+function copyACMetadata(dest, src) {
+	src = src || {};
+	dest = dest || {};
+
+	// Copy each field from the access checker user to the local user
+	['name', 'organization', 'email', 'username'].forEach(function(e) {
+		// Only overwrite if there's a value
+		if(null != src[e] && src[e].trim() !== '') {
+			dest[e] = src[e];
+		}
+	});
+
+	return dest;
+}
+
+function copyACRoles(dest, src) {
+	src = src || {};
+	dest = dest || {};
+
+	dest.externalRoles = src.roles;
+
+	return dest;
+}
+
+function copyACGroups(dest, src) {
+	src = src || {};
+	dest = dest || {};
+
+	dest.externalGroups = src.groups;
+
+	return dest;
+}
+
+/**
+ * Create the user locally given the information from access checker
+ */
+function createUser(dn, acUser) {
+
+	// Create the new user
+	var newUser = new User({
+		name: 'unknown',
+		organization: 'unknown',
+		email: 'unknown@mail.com',
+		username: dn.toLowerCase()
+	});
+
+	// Copy over the access checker metadata
+	copyACMetadata(newUser, acUser);
+	copyACRoles(newUser, acUser);
+	copyACGroups(newUser, acUser);
+
+	// Add the provider data
+	newUser.providerData = { dn: dn, dnLower: dn.toLowerCase() };
+	newUser.provider = 'pki';
+
+	// Initialize the new user
+	return userAuthService.initializeNewUser(newUser).then(function(initializedUser) {
+		// Save the new user
+		return initializedUser.save();
+	});
+
+}
+
+function updateUser(dn, fields) {
+	return User.findOneAndUpdate( { 'providerData.dnLower': dn.toLowerCase() }, fields, { new: true, upsert: false }).exec();
+}
 
 
-// Export our custom token local strategy
+/**
+ * Export the PKI Proxy strategy
+ */
 module.exports = function() {
 
-	passport.use(new Strategy({
-		header: config.auth.header
-	},function(req, dn, done) {
+	passport.use(new ProxyPkiStrategy({
+		header: 'x-ssl-client-s-dn'
+	}, function(req, dn, done) {
+
+		// If there is no DN, we can't authenticate
 		if(!dn){
-			return done(null, false, { message: 'Missing PKI information.' });
+			return done(null, false, {status: 400, type: 'missing-credentials', message: 'Missing certiticate' });
 		}
 
-		User.findOne({
-			'providerData.dnLower': dn.toLowerCase()
-		}, function(err, user) {
-			// Error from the system
-			if (err) {
-				return done(err);
+		var dnLower = dn.toLowerCase();
+
+		// Get the user locally and from access checker
+		q.all([
+			q.ninvoke(User, 'findOne', { 'providerData.dnLower': dnLower }),
+			accessChecker.get(dnLower)
+		]).then(function(resultsArray) {
+			var localUser = resultsArray[0];
+			var acUser = resultsArray[1];
+
+			// Default to creating accounts automatically
+			var autoCreateAccounts = (null != config.auth && null != config.auth.autoCreateAccounts)? config.auth.autoCreateAccounts : true;
+
+			// If the user is not known locally, is not known by access checker, and we are creating accounts, create the account as an empty account
+			if(null == localUser && null == acUser && !autoCreateAccounts) {
+				done(null, false, { status: 401, type: 'invalid-credentials', message: 'Certificate unknown, expired, or unauthorized' });
+			}
+			// Else if the user is not known locally, and we are creating accounts, create the account as an empty account
+			else if(null == localUser && autoCreateAccounts) {
+				// Create the user
+				createUser(dn, acUser).then(function(newUser) {
+					// Audit user signup
+					return auditService.audit( 'user signup', 'user', 'user signup',
+							{},
+							User.auditCopy(newUser))
+						.then(function() {
+							return q(newUser);
+						});
+				})
+				.then(function(result) {
+					// Return the user
+					done(null, result);
+				}, done).done();
+			}
+			// Else if the user is known locally, but not in access checker, update their user info to reflect
+			else if(null == acUser) {
+				// Update the user only if we are not bypassing access checker
+				if(!localUser.bypassAccessCheck) {
+					updateUser(dn, { externalRoles: [], externalGroups: [] }).then(function(updatedUser) {
+						// Audit user signup
+						return auditService.audit('user updated from access checker', 'user', 'update',
+							User.auditCopy(localUser),
+							User.auditCopy(updatedUser)).then(function() {
+								return q(updatedUser);
+							});
+					})
+					.then(function(result) {
+						// Return the user
+						done(null, result);
+					}, done).done();
+				}
+				// Otherwise, just return the user
+				else {
+					done(null, localUser);
+				}
+			}
+			// If the user is known locally and in access checker, update their user info
+			else {
+				updateUser(dn, copyACGroups(copyACRoles(copyACMetadata({}, acUser), acUser), acUser)).then(function(updatedUser) {
+					// Audit user signup
+					return auditService.audit('user updated from access checker', 'user', 'update',
+						User.auditCopy(localUser),
+						User.auditCopy(updatedUser)).then(function() {
+							return q(updatedUser);
+						});
+				}).then(function(result) {
+					// Return the user
+					done(null, result);
+				}, done).done();
 			}
 
-			// The user was't found
-			if (!user) {
-				return done(null, false, {
-					message: 'Unknown user'
-				});
-			}
-
-			// Return the user
-			return done(null, user);
+		}, function(err) {
+			// If there was an error, then something is broken and authentication has failed
+			return done(err);
 		});
+
 	}));
+
 };

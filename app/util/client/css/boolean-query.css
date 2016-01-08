@@ -1,0 +1,80 @@
+.wfboolean {
+	float: left;
+	padding: 1px 3px 1px 3px;
+}
+
+.wfboolean .group {
+	border: 1px solid;
+	border-radius: 5px;
+	margin: 2px;
+	color: black;
+}
+
+.wfboolean .term {
+	border: 1px solid;
+	border-radius: 5px;
+	margin: 2px;
+	color: black;
+}
+
+.wfboolean .group .term {
+	border: none;
+	padding: 0 2px 0 2px;
+	margin: 0;
+}
+
+.wfboolean .group .operator {
+	border: none;
+	padding: 0 2px 0 2px;
+	margin: 0;
+}
+
+.wfboolean .not .term {
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+.wfboolean .operator {
+	/* font-weight: bold; */
+	border: 1px solid;
+	border-radius: 10px;
+	margin: 2px;
+	font-weight: bold;
+}
+
+.wfboolean .and {
+	color: #3a87ad;
+	/* light #def */
+	/* dark  #5bc0de */
+	/* text  #3a87ad */
+}
+
+.wfboolean .or {
+	color: #777f93;
+	/* light #e4eaf0 */
+	/* dark  #cbd0d6 */
+	/* text  #777f93 */
+}
+
+.wfboolean .not {
+	/* light #e99897 */
+	/* dark  #c25152 */
+	/* text  #7f2a2a */
+	color: #7f2a2a;
+	border: 1px solid;
+	border-radius: 5px;
+	margin: 2px;
+}
+
+.wfboolean .not .operator {
+	border: none;
+	padding: 0 2px 0 0;
+	margin: 0;
+}
+
+.wfboolean .group .not {
+	border: none;
+	padding: 0 2px 0 2px;
+	margin: 0;
+}

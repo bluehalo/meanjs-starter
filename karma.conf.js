@@ -19,10 +19,10 @@ module.exports = function(karmaConfig) {
 
 		// Test results reporter to use
 		// Possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-		reporters: ['progress'],
+		reporters: ['mocha'],
 
 		// Web server port
-		port: config.karma.port,
+		port: config.devPorts.karma,
 
 		// Enable / disable colors in the output (reporters and logs)
 		colors: true,
@@ -42,13 +42,11 @@ module.exports = function(karmaConfig) {
 		// - Safari (only Mac)
 		// - PhantomJS
 		// - IE (only Windows)
-		browsers: ['PhantomJS'],
+		browsers: ['Chrome'],
 
 		// If browser does not capture in given timeout [ms], kill it
 		captureTimeout: 60000,
 
-		// Continuous Integration mode
-		// If true, it capture browsers, run tests and exit
-		singleRun: true
+		singleRun: false
 	});
 };

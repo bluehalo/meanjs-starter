@@ -9,121 +9,245 @@ var mongoose = require('mongoose'),
 	config = deps.config,
 	dbs = deps.dbs,
 	logger = deps.logger,
-	auditLogger = deps.auditLogger,
+	auditService = deps.auditService,
 	util = deps.utilService,
 
-	Group = mongoose.model('Group'),
-	GroupPermission = mongoose.model('GroupPermission'),
-	Report = mongoose.model('Report'),
-	User = mongoose.model('User');
+	Group = dbs.admin.model('Group'),
+	GroupPermission = dbs.admin.model('GroupPermission'),
+	User = dbs.admin.model('User');
+
+/*
+ * Local Functions
+ */
+
 
 /**
- * Local Functions
+ * Copies the mutable fields from src to dest
  */
 function copyGroupMutableFields(dest, src) {
 	dest.title = src.title;
 	dest.description = src.description;
+	dest.requiresExternalGroups = src.requiresExternalGroups;
 }
 
-
-function userAddFunc(user, groupPermission, callback) {
-	User.update({ _id: user._id}, { $addToSet: { groups: groupPermission } }, callback);
+/**
+ * Checks if the user meets the required external groups for the group
+ * If the user is bypassed, they automatically meet the required external groups
+ * @returns true or false
+ */
+function meetsRequiredExternalGroups(user, group) {
+	if(true === user.bypassAccessCheck) {
+		return true;
+	} else {
+		// Check the required external groups against the user's externalGroups
+		return _.difference(group.requiresExternalGroups, user.externalGroups).length === 0;
+	}
 }
 
-function getGroupPermission(groupId, user) {
-	if (null != groupId && null != user.groups) {
-		var groupPermissions = user.groups.filter(function(group) {
-			return group._id.id === new mongoose.Types.ObjectId(groupId).id;
-		});
-		if (null != groupPermissions && groupPermissions.length > 0) {
-			return groupPermissions[0];
+/**
+ * Gets the permission object for the specified user and group
+ * @param groupId The id of the group of interest
+ * @param user The user object of interest
+ * @returns Returns the group permission object or null if none found
+ */
+function getGroupPermissions(user, group) {
+	var groupPermissions;
+
+	// Try to find the groupId in the list of groups on the user
+	user.groups.some(function(gps) {
+		if(null != gps._id && gps._id.equals(group._id)) {
+			groupPermissions = gps;
+			return true;
+		}
+		else {
+			return false;
+		}
+	});
+
+	return groupPermissions;
+}
+
+/**
+ * Gets the permissions object for the specified user and group
+ * and also applies the business logic of if they are implicitly a member
+ * of the group or if they are an inactive explicit member of a group
+ * @returns a set of permissions roles, or null if the user is not a member of the group
+ */
+function getActiveGroupPermissions(user, group) {
+	// No matter what, we need to get these
+	var groupPermissions = getGroupPermissions(user, group);
+
+	// If we are in proxy-pki mode
+	if(config.auth.strategy === 'proxy-pki') {
+
+		// Check if the user is "active" for this group
+		var meetsRequiredExternalGroups = meetsRequiredExternalGroups(user, group);
+
+		// If the user is active
+		if(meetsRequiredExternalGroups) {
+			// Return either the group permissions (if they exist), or default permissions
+			return (null != groupPermissions)? groupPermissions : { '_id': group._id, roles: {} };
+		}
+		// The user is inactive
+		else {
+			// Return null since no matter what, they have no permissions to this group
+			return null;
 		}
 	}
-
-	return null;
-}
-
-function getGroupRoles(groupId, user) {
-	var permission = getGroupPermission(groupId, user);
-	if (null != permission) {
-		return permission.roles;
+	// We are not in proxy-pki mode
+	else {
+		// Return the group permissions
+		return groupPermissions;
 	}
-
-	return null;
 }
 
+/**
+ * Checks if the user is the last admin of the group
+ * @param user The user object of interest
+ * @param group The group object of interest
+ * @returns a promise that resolves if the user is not the last admin, and rejects otherwise
+ */
 function verifyNotLastAdmin(user, group) {
-	var defer = q.defer();
-	User.findOne({ _id: { $ne: user._id }, groups: { $elemMatch: { _id: group._id, 'roles.admin': true } } }).exec(function(err, user) {
-		if(null != user) {
-			defer.resolve(user);
-		} else if(null != err){
-			defer.reject(err);
-		} else {
-			defer.reject('Group must have at least one admin.');
+
+	// Search for all users who have the admin role set to true
+	return User.find({
+		_id: { $ne: user._id },
+		groups: { $elemMatch: { _id: group._id, 'roles.admin': true } }
+	})
+	.exec()
+	.then(function(results) {
+		// Just need to make sure we find one active admin who isn't the user
+		var adminFound = results.some(function(user) {
+			return (null != getActiveGroupPermissions(user, group));
+		});
+
+		if(adminFound) {
+			return q();
 		}
+		else {
+			return q.reject({ status: 400, type: 'bad-request', message: 'Group must have at least one admin' });
+		}
+
 	});
-	return defer.promise;
 }
 
-function verifyNoReportsInGroup(group) {
-	var defer = q.defer();
-	Report.findOne({ group: group._id }).exec(function(err, report) {
-		if(null != err) {
-			// There was an error
-			defer.reject(err);
-		} else if(null != report){
-			// There are reports left
-			defer.reject('There are still reports in this group.');
-		} else {
-			// No errors, no reports
-			defer.resolve();
-		}
-	});
-	return defer.promise;
-}
 
-// Create
-exports.create = function(req, res) {
-	var newGroup = new Group(req.body);
-	newGroup.created = Date.now();
-	newGroup.updated = Date.now();
 
-	newGroup.save(function(err, group) {
-		util.catchError(res, err, function() {
-			var groupPermission = new GroupPermission({ _id: group._id, roles: { editor: true, admin: true } });
+/**
+ * Helper function to add group permissions to a user
+ */
+function addUserToGroup(user, group, permissions) {
+	// Create the new group permission to apply to the user
+	var groupPermission = new GroupPermission({ _id: group._id, roles: permissions });
 
-			userAddFunc(req.user, groupPermission, function(err) {
-				util.catchError(res, err, function() {
-					res.json(group);
-
-					// Audit creation of groups
-					auditLogger.audit('group created', 'group', 'create',
-						User.auditCopy(req.user),
-						{ group: Group.auditCopy(group) });
+	// Update the user, then audit the change
+	return User.update(
+				{ _id: user._id },
+				{ $addToSet: { groups: groupPermission } })
+		.exec()
+		.then(function(result) {
+			// Audit the groupPermission delete
+			return auditService.audit('group user added', 'group-permission', 'user add',
+					User.auditCopy(user),
+					Group.auditCopyGroupPermission(group, user))
+				.then(function() {
+					return q(result);
 				});
+		});
+}
+
+
+/**
+ * Helper function to remove group permission from a user
+ */
+function removeUserFromGroup(user, group) {
+	// Verify the user is not the last admin in the group
+	return verifyNotLastAdmin(user, group)
+		.then(function() {
+			// Apply the update
+			return User.update(
+					{ _id: user._id },
+					{ $pull: { groups: { _id: group._id } } })
+			.exec()
+			.then(function(updatedUser) {
+				// Audit the groupPermission delete
+				return auditService.audit('group user removed', 'group-permission', 'user remove',
+						User.auditCopy(user),
+						Group.auditCopyGroupPermission(group, user))
+					.then(function() {
+						return q(updatedUser);
+					});
 			});
 		});
-	});
+}
+
+
+/**
+ * Validates that the roles are one of the accepted values
+ */
+function validateGroupRole(role) {
+	if('admin' === role || 'editor' === role || 'follower' === role) {
+		return q();
+	}
+	else {
+		return q.reject({ status: 400, type: 'bad-argument', message: 'Group role does not exist' });
+	}
+}
+
+
+/*
+ * CRUD Operations
+ */
+
+/**
+ * Create a new group. The creator is added as an admin
+ */
+module.exports.create = function(req, res) {
+
+	// Create the new group model
+	var newGroup = new Group(req.body);
+
+	// Write the auto-generated metadata
+	newGroup.creator = req.user;
+	newGroup.created = Date.now();
+	newGroup.updated = Date.now();
+	newGroup.creatorName = req.user.name;
+
+	// Create the new group and add the user to the group
+	newGroup.save()
+		.then(function(group) {
+			// Audit the creation event
+			return auditService.audit('group created', 'group', 'create',
+					User.auditCopy(req.user),
+					Group.auditCopy(group))
+				.then(function() {
+					return q(group);
+				});
+		})
+		.then(function(group) {
+			return addUserToGroup(req.user, group, { editor: true, admin: true, follower: false });
+		})
+		.then(function(result) {
+			res.status(200).json(result);
+		}, function(err) {
+			util.handleErrorResponse(res, err);
+		}).done();
+
 };
 
 
-// Read
-exports.read = function(req, res) {
-	var group = req.group;
-
-	// Attaching the list of users to the group
-	User.find({ 'groups._id': group._id }).exec(function(err, results){
-		util.catchError(res, err, function() {
-			group.users = User.filteredCopy(results);
-			res.json(group);
-		});
-	});
+/**
+ * Read the group
+ */
+module.exports.read = function(req, res) {
+	res.status(200).json(req.group);
 };
 
 
-// Update
-exports.update = function(req, res) {
+/**
+ * Update the group metadata
+ */
+module.exports.update = function(req, res) {
 	// Retrieve the group from persistence
 	var group = req.group;
 
@@ -137,71 +261,56 @@ exports.update = function(req, res) {
 	copyGroupMutableFields(group, req.body);
 
 	// Save
-	group.save(function(err) {
-		util.catchError(res, err, function() {
-			res.json(group);
-		});
-	});
+	group.save().then(function(updatedGroup) {
+		// Audit the save action
+		return auditService.audit('group updated', 'group', 'update',
+				User.auditCopy(req.user),
+				{ before: originalGroup, after: Group.auditCopy(group) })
+			.then(function() {
+				return q(updatedGroup);
+			});
+	})
+	.then(function(result) {
+		res.status(200).json(result);
+	}, function(err) {
+		util.handleErrorResponse(res, err);
+	}).done();
 
-	// Audit the save action
-	auditLogger.audit('group updated', 'group', 'update',
-		User.auditCopy(req.user),
-		{ before: originalGroup, after: Group.auditCopy(group) });
 };
 
 
-
-// Delete
-exports.delete = function(req, res) {
+/**
+ * Delete the group
+ */
+module.exports.delete = function(req, res) {
 	var group = req.group;
 
-	// Make sure that there are no reports under this channel
-	verifyNoReportsInGroup(group).then(function(){
-
-		// There were no report`s, so proceed with the delete
-
-		// Build the promise response
-		var deleteGroupDefer = q.defer();
-		group.remove(function(err) {
-			if(null != err){
-				deleteGroupDefer.reject(err);
-			} else {
-				deleteGroupDefer.resolve();
-			}
-		});
-		var deleteUserGroupsDefer = q.defer();
-		User.update({ 'groups._id': group._id}, { $pull: { groups: { _id: group._id } } }, function(err, numAffected) {
-			if(null != err){
-				deleteUserGroupsDefer.reject(err);
-			} else {
-				deleteUserGroupsDefer.resolve(numAffected);
-			}
-		});
-
-		// Run the two commands concurrently
-		q.all([deleteGroupDefer.promise, deleteUserGroupsDefer.promise]).then(function(results){
-			group.usersRemoved = results[1];
-			res.json(group);
-		}, function(err){
-			// failure
-			return util.send400Error(res, err);
-		});
-
+	// Run the group remove and user update in parallel
+	return q.all([
+		group.remove,
+		User.update(
+			{ 'groups._id': group._id },
+			{ $pull: { groups: { _id: group._id } } })
+	])
+	.then(function() {
 		// Audit the group delete attempt
-		auditLogger.audit('group deleted', 'group', 'delete',
-			User.auditCopy(req.user),
-			{ group: Group.auditCopy(req.group) });
-
-	}, function(err){
-		return util.send400Error(res, err);
-	});
+		return auditService.audit('group deleted', 'group', 'delete',
+				User.auditCopy(req.user),
+				Group.auditCopy(req.group));
+	})
+	.then(function() {
+		res.status(200).json(group);
+	}, function(err) {
+		util.handleErrorResponse(res, err);
+	}).done();
 
 };
 
 
-
-// Search - with paging and sorting
-exports.search = function(req, res) {
+/**
+ * Search the groups, includes paging and sorting
+ */
+module.exports.search = function(req, res) {
 	var query = req.body.q;
 	var search = req.body.s;
 	var roles = req.body.roles || {};
@@ -210,10 +319,9 @@ exports.search = function(req, res) {
 	var size = req.query.size;
 	var sort = req.query.sort;
 	var dir = req.query.dir;
+	var runCount = req.query.runCount !== 'false';
 
-	// Limit has to be at least 1 and no more than 100
-	if(null == size){ size = 20; }
-	size = Math.max(1, Math.min(100, size));
+	if(null == size){ size = 1000; }
 
 	// Page needs to be positive and has no upper bound
 	if(null == page){ page = 0; }
@@ -221,6 +329,9 @@ exports.search = function(req, res) {
 
 	// Sort can be null, but if it's non-null, dir defaults to DESC
 	if(null != sort && dir == null){ dir = 'ASC'; }
+
+	// runCount is null then set to true
+	if (null == runCount){ runCount = true; }
 
 	// Create the variables to the search call
 	var limit = size;
@@ -240,31 +351,53 @@ exports.search = function(req, res) {
 			req.user.groups.forEach(function(group) {
 				var include = true;
 
-				if(roles.admin && roles.editor) {
-					// we need to have admin and editor
-					include = group.admin && group.editor;
-				} else if(roles.admin) {
-					// we need only admin
+				// Check that the expressed roles in the query actually match the user's real roles
+				if (roles.admin && include) {
 					include = group.admin;
-				} else if(roles.editor) {
-					// we need only editor
+				}
+
+				if (roles.editor && include) {
 					include = group.editor;
 				}
 
+				if (roles.follower && include) {
+					include = group.follower;
+				}
+
 				if(include) {
-					groups.push(group._id);
+					groups.push(group.id);
 				}
 			});
 		}
 
 		// Build the query
 		query = query || {};
+
+		// If the query already has a filter by group, take the intersection
+		if (null != query._id && null != query._id.$in) {
+			groups = groups.filter(function(group) {
+				return query._id.$in.indexOf(group) > -1;
+			});
+		}
+
+		// If we were left with no remaining groups, return no results
+		if (groups.length === 0) {
+			res.jsonp({
+				totalSize: 0,
+				pageNumber: 0,
+				pageSize: size,
+				totalPages: 0,
+				elements: []
+			});
+			return;
+		}
+
 		query._id = {
 			$in: groups
 		};
 	}
 
-	Group.search(query, search, limit, offset, sortArr).then(function(result){
+	Group.search(query, search, limit, offset, sortArr, runCount).then(function(result){
 		// success
 		var toReturn = {
 			totalSize: result.count,
@@ -275,16 +408,16 @@ exports.search = function(req, res) {
 		};
 
 		// Serialize the response
-		res.jsonp(toReturn);
-	}, function(error){
-		// failure
-		logger.error({err: error, req: req}, 'Error searching for groups');
-		return util.send400Error(res, error);
-	});
+		res.status(200).json(toReturn);
+	}, function(err){
+		util.handleErrorResponse(res, err);
+	}).done();
 };
 
-// Search the members of a group
-exports.searchMembers = function(req, res) {
+/**
+ * Search the members of the group
+ */
+module.exports.searchMembers = function(req, res) {
 	var user = req.userParam;
 	var group = req.group;
 
@@ -316,8 +449,14 @@ exports.searchMembers = function(req, res) {
 	}
 
 	// Inject the group query parameters
+	// Finds users explicitly added to the group using the id OR
+	// users implicitly added by having the externalGroup required by requiresExternalGroup
+	// TODO: This logic should resemble (bypass && hasPermissions) || (meetsExternalGroups)
 	query = query || {};
-	query['groups._id'] = group._id;
+	query.$or = [
+		{'groups._id': group._id},
+		{'externalGroups': {$in: group.requiresExternalGroups}}
+	];
 
 	User.search(query, search, limit, offset, sortArr).then(function(result){
 
@@ -337,174 +476,275 @@ exports.searchMembers = function(req, res) {
 		};
 
 		// Serialize the response
-		res.jsonp(toReturn);
-	}, function(error){
-		// failure
-		logger.error(error);
-		return util.send400Error(res, error);
-	});
+		res.status(200).json(toReturn);
+	}, function(err){
+		util.handleErrorResponse(res, err);
+	}).done();
 
 };
 
 
-// Add a user to a group (automatically gives them read access)
-exports.userAdd = function(req, res) {
+/**
+ * Add a user to a group, defaulting to read-only access
+ */
+module.exports.userAdd = function(req, res) {
 	var user = req.userParam;
 	var group = req.group;
 
-	var groupPermission = new GroupPermission({ _id: group._id, roles: { editor: false, admin: false } });
+	return addUserToGroup(
+			user,
+			group, 
+			{ editor: false, admin: false, follower: false })
+		.then(function() {
+			// Audit the addition of the user to the group
+			return auditService.audit('group user added', 'group-permission', 'user add',
+				User.auditCopy(req.user), Group.auditCopyGroupPermission(group, user));
+		})
+		.then(function() {
+			res.status(204).end();
+		}, function(err) {
+			util.handleErrorResponse(res, err);
+		}).done();
 
-	userAddFunc(user, groupPermission, function(err) {
-		util.catchError(res, err, function() {
-			res.json(groupPermission);
-		});
-	});
-
-	// Audit the create action
-	auditLogger.audit('group user added', 'group', 'user add',
-		Group.auditCopy(req.user), { groupPermission: Group.auditCopyGroupPermission(group, user) });
 };
 
 
-
-// Remove a user from a group (automatically clears all their roles)
-exports.userRemove = function(req, res) {
+/**
+ * Remove a user from a group, removing all their accesses
+ */
+module.exports.userRemove = function(req, res) {
 	var user = req.userParam;
 	var group = req.group;
 
-	verifyNotLastAdmin(user, group).then(function(){
-		User.update({ _id: user._id}, { $pull: { groups: { _id: group._id } } }, function(err) {
-			util.catchError(res, err, function() {
-				res.json( { success: true } );
-			});
-		});
-
-		// Audit the groupPermission delete attempt
-		auditLogger.audit('group user removed', 'group', 'user remove',
-			Group.auditCopy(req.user), { groupPermission: Group.auditCopyGroupPermission(group, user) });
-	}, function(error) {
-		util.send400Error(res, error);
-	});
+	removeUserFromGroup(user, group)
+		.then(function() {
+			res.status(204).end();
+		}, function(err) {
+			util.handleErrorResponse(res, err);
+		}).done();
 };
 
-function validateGroupRole(role, res) {
-	if(null != role && 'admin' !== role && 'editor' !== role) {
-		util.send400Error(res, 'Bad request. Role does not exist.');
-	}
+
+function changeUserRole(user, group, role, add) {
+	return validateGroupRole(role)
+		.then(function() {
+			// Build the set command for setting the role for the group
+			var setValue = {};
+			setValue['groups.$.roles.' + role] = add;
+	
+			return User.update({ _id: user._id, 'groups._id': group._id }, { $set: setValue });
+		})
+		.then(function(user) {
+			// Audit the addition of the user role
+			return auditService.audit(
+					'group user role ' + (add)? 'added' : 'removed',
+					'group-permission',
+					'user role ' + (add)? 'add' : 'remove',
+					User.auditCopy(user),
+					Group.auditCopyGroupPermission(group, user, role));
+		});
 }
 
-// Add a user role to the user in the group
-exports.userRoleAdd = function(req, res) {
+
+/**
+ * Add a group role to a user
+ */
+module.exports.userRoleAdd = function(req, res) {
 	var user = req.userParam;
 	var group = req.group;
 	var role = req.query.role;
 
-	validateGroupRole(role, res);
-	var setValue = {};
-	setValue['groups.$.roles.' + role] = true;
-
-	// Save
-	User.update({ _id: user._id, 'groups._id': group._id }, { $set: setValue }, function(err) {
-		util.catchError(res, err, function() {
-			res.json( { success: true } );
-		});
-	});
-
-	// Audit the create action
-	auditLogger.audit('group user role added', 'group', 'user role add',
-		Group.auditCopy(req.user), { groupPermission: Group.auditCopyGroupPermission(group, user, role) });
+	changeUserRole(user, group, role, true)
+		.then(function() {
+			res.status(204).end();
+		}, function(err) {
+			util.handleErrorResponse(res, err);
+		}).done();
 };
 
 
-// Remove a user role to the user in the group
-exports.userRoleRemove = function(req, res) {
+/**
+ * Remove a group role from a user
+ */
+module.exports.userRoleRemove = function(req, res) {
 	var user = req.userParam;
 	var group = req.group;
 	var role = req.query.role;
 
-	validateGroupRole(role, res);
-
-	var doUserRoleRemove = function() {
-		var setValue = {};
-		setValue['groups.$.roles.' + role] = false;
-
-		// Save
-		User.update({ _id: user._id, 'groups._id': group._id }, { $set: setValue }, function(err) {
-			util.catchError(res, err, function() {
-				res.json( { success: true } );
-			});
-		});
-
-		// Audit the create action
-		auditLogger.audit('group user role removed', 'group', 'user role remove',
-			Group.auditCopy(req.user), { groupPermission: Group.auditCopyGroupPermission(group, user, role) });
-	};
+	var changeUserRolePromise;
 
 	if(role === 'admin') {
-		verifyNotLastAdmin(user, group).then(doUserRoleRemove, function(error) {
-			util.send400Error(res, error);
-		});	
+		// If the role is admin, we need to make sure the user isn't the last admin
+		changeUserRolePromise = verifyNotLastAdmin(user, group);
 	} else {
-		doUserRoleRemove();
+		changeUserRolePromise = q();
 	}
 
+	changeUserRolePromise.then(function() {
+			return changeUserRole(user, group, role, false);
+		})
+		.then(function() {
+			res.status(204).end();
+		}, function(err) {
+			util.handleErrorResponse(res, err);
+		}).done();
 };
 
 
 /**
  * Group middleware
  */
-exports.groupById = function(req, res, next, id) {
-	Group.findOne({ _id: id }).exec(function(err, group) {
-		if (err) return next(err);
-		if (!group) return next(new Error('Failed to load group ' + id));
-		req.group = group;
-		next();
+module.exports.groupById = function(req, res, next, id) {
+	Group.findOne({ _id: id })
+		.exec()
+		.then(function(group) {
+			if (null == group) {
+				next(new Error('Could not find group: ' + id));
+			}
+			else {
+				req.group = group;
+				next();
+			}
+		}, next);
+};
+
+/**
+ * Retrieves a batch of Group details for the input IDs
+ */
+module.exports.groupsByIds = function(ids) {
+	// If the ids are empty or null, just return an empty array
+	if (null === ids || ids.length === 0) {
+		return q([]);
+	}
+	else {
+		return Group.find({ _id: { $in: ids } }).exec();
+	}
+};
+
+
+
+/**
+ * Group authorization Middleware
+ */
+
+module.exports.getGroupIds = function(user) {
+	var groupIds = [];
+	if (null != user && null != user.groups) {
+		groupIds = user.groups.map(function(item) {
+			return item.id;
+		});
+	}
+	return groupIds;
+};
+
+module.exports.getFollowerGroupIds = function(user) {
+	var groupIds = [];
+	if (null != user && null != user.groups) {
+		user.groups.forEach(function(group) {
+			if (group.roles && (group.roles.admin || group.roles.follower)) {
+				groupIds.push(group.id);
+			}
+		});
+	}
+	return groupIds;
+};
+
+module.exports.getEditGroupIds = function(user) {
+	var groupIds = [];
+	if (null != user && null != user.groups) {
+		user.groups.forEach(function(group) {
+			if (group.roles && (group.roles.admin || group.roles.editor)) {
+				groupIds.push(group.id);
+			}
+		});
+	}
+	return groupIds;
+};
+
+module.exports.getAdminGroupIds = function(user) {
+	var groupIds = [];
+	if (null != user && null != user.groups) {
+		user.groups.forEach(function(group) {
+			if (group.roles && group.roles.admin) {
+				groupIds.push(group.id);
+			}
+		});
+	}
+	return groupIds;
+};
+
+// Constrain a set of groupIds provided by the user to those the user actually has access to.
+module.exports.filterGroupIds = function(user, groupIds) {
+	var userGroupIds = exports.getGroupIds(user);
+
+	// If no groupIds are provided, return all the groups the user has access to
+	if (null == groupIds) {
+		return userGroupIds;
+	}
+	// The user may have requested a subset of groups.  If they did, make sure it is
+	// limited to those the user has access to.
+	var outGroupIds = [];
+	groupIds.forEach(function(id) {
+		if (userGroupIds.indexOf(id) >= 0) {
+			outGroupIds.push(id);
+		}
 	});
+	return outGroupIds;
 };
 
 
 /**
- * Group authorization middleware
+ * Does the user have the referenced role in the group
  */
-exports.hasAuthorization = function(req, res, next) {
-	User.findOne({ _id: req.user._id, 'groups._id': req.group._id }).exec(function(err, user) {
-		// If there was an error, obviously we need to bail
-		if (err){
-			return next(err);
+module.exports.requiresRole = function(role, rejectStatus) {
+	rejectStatus = rejectStatus || { status: 403, type: 'missing-group-roles', message: 'User is missing required group roles' };
+
+	return function(req) {
+
+		// Verify that the user and group are on the request
+		var user = req.user;
+		if(null == user) {
+			return q.reject({ status: 400, type: 'bad-request', message: 'No user for request' });
+		}
+		var group = req.group;
+		if(null == group) {
+			return q.reject({ status: 400, type: 'bad-request', message: 'No group for request' });
 		}
 
-		// If there was no user, then we didn't find a user with this group
-		if (!user){
-			return util.send403Error(res);
+		// Check the user group permissions
+		var permissions = getActiveGroupPermissions(user, group);
+		if(null != permissions && null != permissions.roles && permissions.roles[role] === true) {
+			return q();
 		}
-
-		// Now check the actual group permissions and see if the user 
-		var groupRoles = getGroupRoles(req.group._id, user);
-		if(null == groupRoles || !groupRoles.admin) {
-			return util.send403Error(res);
+		else {
+			return q.reject({ status: 403, type: 'missing-roles', message: 'The user does not have the required roles for the group' });
 		}
-
-		next();
-	});
+	};
 };
 
+exports.requiresAdmin = function(req) {
+	return module.exports.requiresRole('admin')(req);
+};
 
-exports.hasGroupEdit = function(groupId, user) {
-	var roles = getGroupRoles(groupId, user);
+exports.requiresEditor = function(req) {
+	return module.exports.requiresRole('editor')(req);
+};
 
-	if (null != roles) {
-		return roles.editor;
+exports.requiresFollower = function(req) {
+	return module.exports.requiresRole('follower')(req);
+};
+
+/**
+ * Is the user a member of the referenced group?
+ * To be a member of a group, the user must have an active group permissions object
+ */
+module.exports.requiresMember = function(req) {
+	var permissions = getActiveGroupPermissions(req.user, req.group);
+	if(null != permissions) {
+		return q();
 	}
-
-	return false;
-};
-
-exports.hasGroup = function(groupId, user) {
-	var permission = getGroupPermission(groupId, user);
-	if (null != permission) {
-		return true;
+	else {
+		return q.reject({ status: 403, type: 'missing-group-roles', message: 'The user is not a member of the group' });
 	}
-
-	return false;
 };
+

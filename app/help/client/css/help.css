@@ -1,0 +1,23 @@
+.help-content .map-circle-icon {
+	width: 20px;
+	height: 20px;
+}
+
+.help-content .fa-check {
+	color: green;
+}
+
+.help-content .awesome-marker {
+	display: inline-block;
+	position: static;
+	background-position: -106px 0;
+	vertical-align: top;
+}
+
+.help-content .awesome-marker .fa-twitter {
+	font-size: 14px;
+	letter-spacing: 8px;
+	position: relative;
+	top: 0;
+	left: 6px;
+}

@@ -21,11 +21,18 @@
 	margin: 8px 16px 4px 16px;
 	padding: 4px 8px 4px 8px;
 	border: 1px solid #eee;
-	border-radius: 3px;
+}
+.tile {
+	border-bottom: 0;
+}
+.tile:last-child {
+	border-bottom: 1px solid #eee;
 }
 .tile:hover {
 	background-color: #f5f5f5;
 	border-color: #ddd;
+	border-bottom: 1px solid #ddd;
+	padding-bottom: 3px;
 }
 .tile-header {
 	margin-bottom: 8px;
@@ -141,26 +148,6 @@ dl.dl-horizontal > dd, dl.dl-horizontal > dt {
 	color: #d55;
 }
 
-a.no-link {
-	color: #333;
-	text-decoration: none;
-	cursor: pointer;
-}
-a.no-link:hover {
-	color: #933;
-	text-decoration: none;
-}
-a.no-link.muted {
-	color: #888;
-}
-a.no-link.danger:hover {
-	color: #d55;
-	text-decoration: none;
-}
-a.no-href {
-	cursor: pointer; 
-}
-
 .btn-selected {
 	color: #222;
 	background-color: #cec;
@@ -187,6 +174,28 @@ a.no-href {
 .btn-unselected.active:active {
 	border-color: #aaa;
 }
+
+
+/*
+=====================================
+	Icon Buttons
+=====================================
+*/
+a.no-href:hover { cursor: pointer; }
+a.btn-icon { 
+	opacity: 0.5;
+	color: inherit;
+	text-decoration: none;
+	padding-right: 3px;
+	padding-left: 3px;
+}
+a.btn-icon.light {
+	opacity: 0.25;
+}
+a.btn-icon:hover { opacity: 0.9; text-decoration: none; }
+a.btn-icon.danger:hover { color: #d55; }
+
+
 /*
 =====================================
 	Callouts
@@ -281,6 +290,12 @@ ul.items .value {
 .label {
 	color: #888;
 	font-weight: normal;
+
+	-o-transition:background .2s ease-out;
+	-ms-transition:background .2s ease-out;
+	-moz-transition:background .2s ease-out;
+	-webkit-transition:background .2s ease-out;
+	transition:background .2s ease-out;
 }
 .label-sm {
 	font-size: 12px;
@@ -296,7 +311,18 @@ table.asymmetrik tr td {
 table.asymmetrik, table.asymmetrik thead>tr>th{
 	border-bottom: 1px solid #ddd;
 }
+table.asymmetrik > thead > tr.section > th {
+	border-bottom: 1px solid #aaa;
+}
 
+.label-gray {
+	color: white;
+	background: #777;
+}
+.label-highlight {
+	color: white;
+	background: #B22222;
+}
 
 /*
 =====================================
@@ -331,4 +357,26 @@ table.asymmetrik, table.asymmetrik thead>tr>th{
 */
 .tab {
 	padding-top: 8px;
+}
+
+.scroll-container {
+	overflow-x: hidden;
+	overflow-y: scroll;
+
+	height: 100%;
+	margin: 0;
+}
+
+/*
+=====================================
+	Custom font-awesome icons
+=====================================
+*/
+/* \f142 is ellipsis-v */
+/* \202F is thin unbreakable space */
+.fa.fa-grip:before {
+	content: "\f142 \202F \f142 \202F \f142";
+}
+.fa.fa-grip-large:before {
+	content: "\f142 \202F \f142 \202F \f142 \202F \f142 \202F \f142 \202F \f142 \202F \f142";
 }

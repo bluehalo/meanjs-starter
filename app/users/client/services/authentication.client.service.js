@@ -1,7 +1,7 @@
 'use strict';
 
 //Authentication Object
-angular.module('asymmetrik.users').factory('Authentication', [ function() {
+angular.module('asymmetrik.users').factory('Authentication', [ '$rootScope', function($rootScope) {
 
 	// Store the user object
 	var data = {
@@ -17,10 +17,11 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 		map: {
 			user: { label: 'User', description: 'Account is enabled, has access to the system', role: 'user' },
 			editor: { label: 'Editor', description: 'Can create and manage resources in the system', role: 'editor' },
+			auditor: { label: 'Auditor', description: 'Has the ability to view auditing, logging, and metrics information', role: 'auditor' },
 			admin: { label: 'Admin', description: 'Has full, unrestricted access to the system', role: 'admin' }
 		}
 	};
-	data.roles.array = [ data.roles.map.user, data.roles.map.editor, data.roles.map.admin ];
+	data.roles.array = [ data.roles.map.user, data.roles.map.editor, data.roles.map.auditor, data.roles.map.admin ];
 
 
 	// General auth methods
@@ -30,12 +31,17 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 	data.isEuaCurrent = function() {
 		return (null == data.eua) || (null == data.eua.published) || (null != data.user.acceptedEua && data.user.acceptedEua >= data.eua.published);
 	};
-
+	data.isActive = function() {
+		return data.isAuthenticated() && (data.isAdmin() || data.isEuaCurrent());
+	};
 	data.hasRole = function(role) {
 		return (null != data.user) && (null != data.user.roles) && (data.user.roles[role]);
 	};
 	data.isAdmin = function() {
 		return data.hasRole('admin');
+	};
+	data.isNonAdmin = function() {
+		return data.isAuthenticated() && data.isEuaCurrent() && !data.isAdmin();
 	};
 	data.isGroupEditor = function() {
 		return data.hasRole('editor');
@@ -71,22 +77,42 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 	data.hasEditableGroups = function() {
 		return data.isEditorOfAGroup;
 	};
-	data.canCreateReports = function() {
+	data.canEditGroup = function(groupId) {
+		return data.isAdmin() || data.hasGroupEdit(groupId);
+	};
+	data.canEditAlert = function(alert) {
+		return data.isAdmin() || data.isAlertCreator(alert);
+	};
+	data.isAlertCreator = function(alert) {
+		return data.user._id === alert.creator;
+	};
+	data.canCreateDecks = function() {
 		return data.isAdmin() || data.isEditorOfAGroup;
 	};
-	data.canEditReports = function(groupId) {
-		return data.isAdmin() || data.hasGroupEdit(groupId);
+	data.canEditDecks = function(groupId) {
+		return data.canEditGroup(groupId);
+	};
+	data.canEditDeck = function(deck) {
+		return (null != deck) ? data.canEditDecks(deck.group._id) : false;
+	};
+	data.canViewDecks = function(groupId) {
+		return data.isAdmin() || data.hasGroup(groupId);
+	};
+	data.canViewDeck = function(deck) {
+		return data.canViewDecks(deck.group._id);
 	};
 
 	data.setUser = function(user) {
-		if(null == user || null == user.username) {
+		if (null == user || null == user.username) {
 			user = null;
 		}
+
+		var wasActive = data.isActive();
 
 		data.user = user;
 		data.groups = {};
 
-		if(null != data.user) {
+		if (null != data.user) {
 
 			// Search the groups to see if we're an admin of any
 			if (null != data.user.groups) {
@@ -103,7 +129,15 @@ angular.module('asymmetrik.users').factory('Authentication', [ function() {
 					}
 				});
 			}
+		}
 
+		var isActive = data.isActive();
+
+		if (!wasActive && isActive) {
+			$rootScope.$broadcast('user:active', data);
+		}
+		else if (wasActive && !isActive) {
+			$rootScope.$broadcast('user:inactive', data);
 		}
 	};
 
@@ -263,6 +297,22 @@ angular.module('asymmetrik.users').factory('authService',
 
 	}
 
+	/**
+	 * Validate a pair of passwords
+	 * The server will perform full validation, so for now all we're really doing is
+	 * verifying that the two passwords are the same.
+	 */
+	function validatePassword(p1, p2) {
+		p1 = (angular.isString(p1) && p1 !== '')? p1 : undefined;
+		p2 = (angular.isString(p2) && p2 !== '')? p2 : undefined;
+
+		if(p1 !== p2) {
+			return { valid: false, message: 'Passwords do not match' };
+		}
+		else {
+			return { valid: true };
+		}
+	}
 
 	/**
 	 * Private methods
@@ -297,7 +347,8 @@ angular.module('asymmetrik.users').factory('authService',
 		validateToken: validateToken,
 		updatePassword: updatePassword,
 		getCurrentEua: getCurrentEua,
-		acceptEua: acceptEua
+		acceptEua: acceptEua,
+		validatePassword: validatePassword
 	});
 
 }]);

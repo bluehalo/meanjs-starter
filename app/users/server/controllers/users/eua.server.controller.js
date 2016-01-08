@@ -4,15 +4,16 @@ var _ = require('lodash'),
 	mongoose = require('mongoose'),
 	passport = require('passport'),
 	path = require('path'),
+	q = require('q'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
 	dbs = deps.dbs,
 	util = deps.utilService,
 	logger = deps.logger,
-	auditLogger = deps.auditLogger,
+	auditService = deps.auditService,
 
-	User = mongoose.model('User'),
-	UserAgreement = mongoose.model('UserAgreement');
+	User = dbs.admin.model('User'),
+	UserAgreement = dbs.admin.model('UserAgreement');
 
 
 /**
@@ -75,7 +76,7 @@ function searchEuas(req, res) {
  */
 
 // Publish the EUA
-exports.publishEua = function(req, res) {
+module.exports.publishEua = function(req, res) {
 	var eua = req.euaParam;
 	eua.published = Date.now();
 
@@ -88,7 +89,7 @@ exports.publishEua = function(req, res) {
 
 
 // Accept the current EUA
-exports.acceptEua = function(req, res) {
+module.exports.acceptEua = function(req, res) {
 
 	// Make sure the user is logged in
 	if(null == req.user){
@@ -103,7 +104,7 @@ exports.acceptEua = function(req, res) {
 		function(err, user) {
 			util.catchError(res, err, function() {
 				// Audit accepted eua
-				auditLogger.audit('eua accepted', 'eua', 'accepted',
+				auditService.audit('eua accepted', 'eua', 'accepted',
 					User.auditCopy(user), {});
 
 				res.jsonp(User.fullCopy(user));
@@ -113,7 +114,7 @@ exports.acceptEua = function(req, res) {
 };
 
 // Create a new User Agreement
-exports.createEua = function(req, res) {
+module.exports.createEua = function(req, res) {
 	var eua = new UserAgreement(req.body);
 	eua.created = Date.now();
 	eua.updated = eua.created;
@@ -121,9 +122,9 @@ exports.createEua = function(req, res) {
 	eua.save(function(err) {
 		util.catchError(res, err, function() {
 			// Audit eua creates
-			auditLogger.audit('eua create', 'eua', 'create',
+			auditService.audit('eua create', 'eua', 'create',
 				User.auditCopy(req.user),
-				{ eua: UserAgreement.auditCopy(eua) });
+				UserAgreement.auditCopy(eua));
 
 			res.jsonp(eua);
 		});
@@ -132,7 +133,7 @@ exports.createEua = function(req, res) {
 
 
 // Retrieve the Current User Agreement
-exports.getCurrentEua = function(req, res) {
+module.exports.getCurrentEua = function(req, res) {
 	UserAgreement.getCurrentEua().then(function(result) {
 		return res.jsonp(result);
 	}, function(error){
@@ -144,13 +145,13 @@ exports.getCurrentEua = function(req, res) {
 
 
 // Retrieve the arbitrary User Agreement
-exports.getEuaById = function(req, res) {
+module.exports.getEuaById = function(req, res) {
 
 	// The eua is placed into this parameter by the middleware
 	var eua = req.euaParam;
 
 	if(null == eua){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'End User Agreement does not exist'
 		});
 		return;
@@ -161,13 +162,13 @@ exports.getEuaById = function(req, res) {
 
 
 // Search (Retrieve) all user Agreements
-exports.searchEuas = function(req, res) {
+module.exports.searchEuas = function(req, res) {
 	searchEuas(req, res);
 };
 
 
 // Update a User Agreement
-exports.updateEua = function(req, res) {
+module.exports.updateEua = function(req, res) {
 
 	// The persistence user
 	var eua = req.euaParam;
@@ -176,7 +177,7 @@ exports.updateEua = function(req, res) {
 	var originalEua = UserAgreement.auditCopy(eua);
 
 	if(null == eua){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'Could not find end user agreement'
 		});
 		return;
@@ -193,7 +194,7 @@ exports.updateEua = function(req, res) {
 	eua.save(function(err) {
 		util.catchError(res, err, function() {
 			// Audit user update
-			auditLogger.audit('end user agreement updated', 'eua', 'update',
+			auditService.audit('end user agreement updated', 'eua', 'update',
 				User.auditCopy(req.user),
 				{ before: originalEua, after: UserAgreement.auditCopy(eua) });
 
@@ -204,11 +205,11 @@ exports.updateEua = function(req, res) {
 
 
 // Delete a User Agreement
-exports.deleteEua = function(req, res) {
+module.exports.deleteEua = function(req, res) {
 	var eua = req.euaParam;
 
 	if(null == eua){
-		res.status(400).send({
+		res.status(400).json({
 			message: 'Could not find end user agreement'
 		});
 		return;
@@ -218,9 +219,9 @@ exports.deleteEua = function(req, res) {
 	eua.remove(function(err) {
 		util.catchError(res, err, function() {
 			// Audit eua delete
-			auditLogger.audit('eua deleted', 'eua', 'delete',
+			auditService.audit('eua deleted', 'eua', 'delete',
 				User.auditCopy(req.user),
-				{ eua: UserAgreement.auditCopy(eua) });
+				UserAgreement.auditCopy(eua));
 
 			res.json(eua);
 		});
@@ -229,7 +230,7 @@ exports.deleteEua = function(req, res) {
 
 
 //EUA middleware - stores user corresponding to id in 'userParam'
-exports.euaById = function(req, res, next, id) {
+module.exports.euaById = function(req, res, next, id) {
 	UserAgreement.findOne({
 		_id: id
 	}).exec(function(err, eua) {
@@ -241,25 +242,33 @@ exports.euaById = function(req, res, next, id) {
 };
 
 
-//EUA route auth middleware
-exports.requiresEua = function(req, res, next) {
+
+/*
+ * Route Auth Middleware
+ */
+
+/**
+ * Check the state of the EUA
+ */
+module.exports.requiresEua = function(req) {
+	var defer = q.defer();
+
 	UserAgreement.getCurrentEua().then(function(result){
 
 		// compare the current eua to the user's acceptance state
-		if(null == result || null == result.published || User.hasRoles(req.user, ['admin']) || (req.user.acceptedEua && req.user.acceptedEua >= result.published)){
+		if(null == result || null == result.published || (req.user.acceptedEua && req.user.acceptedEua >= result.published)){
 			// if the user's acceptance is valid, then proceed
-			return next();
+			defer.resolve();
 		} else {
-			return res.status(403).send({
-				type: 'eua',
-				message: 'User must accept end-user agreement.'
-			});
+			defer.reject({ status: 403, type: 'eua', message: 'User must accept end-user agreement.'});
 		}
 
 	}, function(error){
 		// failure
 		logger.error(error);
-		return util.send400Error(res, error);
+		defer.reject({ status: 500, type: 'error', error: error });
 	});
-
+	
+	return defer.promise;
 };
+

@@ -3,28 +3,18 @@
 var _ = require('lodash'),
 	crypto = require('crypto'),
 	mongoose = require('mongoose'),
-	Schema = mongoose.Schema,
 	path = require('path'),
+	q = require('q'),
+	uniqueValidator = require('mongoose-unique-validator'),
 
 	deps = require(path.resolve('./config/dependencies.js')),
-	query = deps.queryService;
-
+	util = deps.utilService,
+	query = deps.queryService,
+	GetterSchema = deps.schemaService.GetterSchema;
 
 /**
  * Validation
  */
-
-// Validate that the property is not empty
-var validateNonEmpty = function(property) {
-	var toReturn = true;
-
-	// Only care if it's local
-	if(this.provider === 'local') {
-		toReturn = (null != property && property.length > 0);
-	}
-
-	return toReturn;
-};
 
 // Validate the password
 var validatePassword = function(password) {
@@ -37,46 +27,65 @@ var validatePassword = function(password) {
 
 	return toReturn;
 };
-var passwordMessage = 'Password must be at least 6 characters long.';
+var passwordMessage = 'Password must be at least 6 characters long';
 
 
-var GroupPermissionSchema = new Schema({
+/**
+ * User Schema
+ */
+
+
+var GroupPermissionSchema = new GetterSchema({
 	_id: {
-		type: Schema.ObjectId,
+		type: mongoose.Schema.ObjectId,
 		ref: 'Group'
 	},
 	roles: {
 		type: {
 			editor: {
-				type: String,
+				type: Boolean,
 				default: false
 			},
 			admin: {
-				type: String,
+				type: Boolean,
+				default: false
+			},
+			follower: {
+				type: Boolean,
 				default: false
 			}
 		}
 	}
 });
 
-var UserSchema = new Schema({
+var UserSchema = new GetterSchema({
 	name: {
 		type: String,
 		trim: true,
-		default: '',
-		validate: [validateNonEmpty, 'Please provide a name']
+		required: 'Name is required'
+	},
+	organization: {
+		type: String,
+		trim: true,
+		required: 'Organization is required'
 	},
 	email: {
 		type: String,
 		trim: true,
+		required: 'Email is required',
+		match: [/.+\@.+\..+/, 'A valid email address is required']
+	},
+	phone: {
+		type: String,
+		trim: true,
 		default: '',
-		validate: [validateNonEmpty, 'Please provide an email address'],
-		match: [/.+\@.+\..+/, 'Please provide a valid email address']
+		match: [/.+\@.+\..+/, 'A valid phone number and cellular provider is required'],
+		required: false
 	},
 	username: {
 		type: String,
-		unique: 'There is already an account with this username',
-		required: 'Please provide a username',
+		unique: 'This username is already taken',
+		required: 'Username is required',
 		trim: true
 	},
 	password: {
@@ -96,47 +105,68 @@ var UserSchema = new Schema({
 	roles: {
 		type: {
 			user: {
-				type: String,
+				type: Boolean,
 				default: false
 			},
 			editor: {
-				type: String,
+				type: Boolean,
+				default: false
+			},
+			auditor: {
+				type: Boolean,
 				default: false
 			},
 			admin: {
-				type: String,
+				type: Boolean,
 				default: false
 			}
 		}
 	},
+	externalGroups: {
+		type: [],
+		default: []
+	},
+	externalRoles: {
+		type: [],
+		default: []
+	},
+	bypassAccessCheck: {
+		type: Boolean,
+		default: false
+	},
 	updated: {
-		type: Date
+		type: Date,
+		get: util.dateParse
 	},
 	created: {
 		type: Date,
-		default: Date.now
+		default: Date.now,
+		get: util.dateParse
 	},
 	/* For reset password */
 	resetPasswordToken: {
 		type: String
 	},
 	resetPasswordExpires: {
-		type: Date
+		type: Date,
+		get: util.dateParse
 	},
 	acceptedEua: {
 		type: Date,
-		default: null
+		default: null,
+		get: util.dateParse
 	},
 	lastLogin: {
 		type: Date,
-		default: null
+		default: null,
+		get: util.dateParse
 	},
 	groups: {
 		type: [GroupPermissionSchema],
 		default: []
 	}
 });
-
+UserSchema.plugin(uniqueValidator);
 
 /**
  * Index declarations
@@ -160,10 +190,11 @@ UserSchema.pre('save', function(next) {
 		user.password = user.hashPassword(user.password);
 	}
 
+	// Remember whether the document was new, for the post-save hook
+	this.wasNew = this.isNew;
+
 	next();
 });
-
-
 
 
 /**
@@ -187,16 +218,20 @@ UserSchema.methods.authenticate = function(password) {
 };
 
 
+
 /**
  * Static Methods
  */
 
 UserSchema.statics.hasRoles = function(user, roles){
+	if (null == user.roles) {
+		return false;
+	}
 	var toReturn = true;
 
-	if(null != roles) {
+	if (null != roles) {
 		roles.forEach(function(element) {
-			if(!user.roles[element]) {
+			if (!user.roles[element]) {
 				toReturn = false;
 			}
 		});
@@ -244,6 +279,8 @@ UserSchema.statics.groupCopy = function(user, groupId) {
 		toReturn.username = user.username;
 		toReturn.created = user.created;
 		toReturn.lastLogin = toReturn.lastLogin;
+		toReturn.externalGroups = user.externalGroups;
+		toReturn.bypassAccessCheck = user.bypassAccessCheck;
 
 		// Copy only the relevant group roles
 		toReturn.groups = [];
@@ -267,16 +304,22 @@ UserSchema.statics.fullCopy = function(user) {
 		toReturn = {};
 
 		toReturn._id = user._id;
+		toReturn.providerData = user.providerData;
 		toReturn.name = user.name;
+		toReturn.organization = user.organization;
 		toReturn.email = user.email;
 		toReturn.phone = user.phone;
 		toReturn.username = user.username;
 		toReturn.roles = user.roles;
+		toReturn.externalRoles = user.externalRoles;
+		toReturn.externalGroups = user.externalGroups;
+		toReturn.bypassAccessCheck = user.bypassAccessCheck;
 		toReturn.updated = user.updated;
 		toReturn.created = user.created;
 		toReturn.acceptedEua = user.acceptedEua;
 		toReturn.lastLogin = user.lastLogin;
 		toReturn.groups = user.groups;
+		toReturn.preferences = user.preferences;
 	}
 
 	return toReturn;
@@ -287,6 +330,7 @@ UserSchema.statics.createCopy = function(user) {
 	var toReturn = {};
 
 	toReturn.name = user.name;
+	toReturn.organization = user.organization;
 	toReturn.email = user.email;
 	toReturn.phone = user.phone;
 	toReturn.username = user.username;

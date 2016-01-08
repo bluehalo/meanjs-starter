@@ -6,7 +6,7 @@ var config = require('../config'),
 
 function stdoutStream() {
 	return {
-		level: 'debug',
+		level: config.bunyan.consoleLevel || 'info',
 		stream: process.stdout
 	};
 }

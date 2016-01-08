@@ -15,7 +15,7 @@ angular.module('asymmetrik.users').controller('ManageEuaController',
 		 * Create a user based on the current state of the controller
 		 */
 		function createEua() {
-			$log.info('Create eua: ' + $scope.eua.title );
+			$log.debug('Create eua: %s', $scope.eua.title );
 
 			euaService.create({
 				title: $scope.eua.title,
@@ -34,7 +34,7 @@ angular.module('asymmetrik.users').controller('ManageEuaController',
 		 * Admin-mode update eua
 		 */
 		function updateEua() {
-			$log.info('Edit eua: ' + $scope.eua.title );
+			$log.debug('Edit eua: %s', $scope.eua.title );
 
 			euaService.update({
 				_id: $scope.eua._id,
@@ -55,7 +55,7 @@ angular.module('asymmetrik.users').controller('ManageEuaController',
 		 * Load draft eua into a modal dialog
 		 */
 		function previewEua() {
-			$log.info('Preview eua: ' + $scope.eua.title );
+			$log.debug('Preview eua: %s', $scope.eua.title );
 			$scope.preview = true;
 			var modalInstance = $modal.open({
 				templateUrl: 'app/users/views/eua/eua.client.view.html',
@@ -90,7 +90,7 @@ angular.module('asymmetrik.users').controller('ManageEuaController',
 			euaService.get($stateParams.euaId).then(function(result){
 				$scope.eua = result;
 			}, function(error){
-				$log.error('EUA with id: ' + $stateParams.euaId + ' does not exist.');
+				$log.error('EUA with id: %s does not exist.', $stateParams.euaId);
 			});
 
 		} else {

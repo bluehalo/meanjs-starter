@@ -50,7 +50,7 @@ angular.module('asymmetrik.users').controller('PasswordController',
 				return;
 			}
 
-			$log.info('Requesting password reset for user: ' + $scope.username);
+			$log.debug('Requesting password reset for user: %s', $scope.username);
 			authService.forgotPassword($scope.username).then(function(result){
 				$scope.username = null;
 				$scope.success = result;
@@ -67,8 +67,9 @@ angular.module('asymmetrik.users').controller('PasswordController',
 			$scope.success = $scope.error = null;
 
 			// Check the password
-			if($scope.password !== $scope.verifyPassword){
-				$scope.error = 'Passwords do not match.';
+			var validatePassword = authService.validatePassword($scope.password, $scope.verifyPassword);
+			if(!validatePassword.valid) {
+				$scope.alertService.add(validatePassword.message);
 				return;
 			}
 

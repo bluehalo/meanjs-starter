@@ -1,0 +1,7 @@
+<span data-ng-show="null != object && null != object.name">
+	<i class="fa fa-user"></i> {{object.name}} ({{object.username}})
+<!-- 	{{object.name}}<br />({{object.username}}) -->
+</span>
+<span data-ng-show="null == object || null == object.name">
+	<i>N/A</i>
+</span>

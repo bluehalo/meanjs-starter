@@ -12,29 +12,29 @@ module.exports = function(app) {
 	 */
 
 	app.route('/group')
-		.post(users.requiresLogin, users.requiresEua, users.requiresRoles(['editor']), groups.create);
+		.post(users.hasEditorAccess, groups.create);
 
 	app.route('/groups')
-		.post(users.requiresLogin, users.requiresEua, groups.search);
+		.post(users.hasAccess, groups.search);
 
 	app.route('/group/:groupId')
-		.get(users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.read)
-		.post(users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.update)
-		.delete(users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.delete);
+		.get(   users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.read)
+		.post(  users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.update)
+		.delete(users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.delete);
 
 	/**
 	 * Group editors Routes (requires group admin role)
 	 */
 	app.route('/group/:groupId/users')
-		.post(users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.searchMembers);
+		.post(users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.searchMembers);
 
 	app.route('/group/:groupId/user/:userId')
-		.post(  users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.userAdd)
-		.delete(users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.userRemove);
+		.post(  users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.userAdd)
+		.delete(users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.userRemove);
 
 	app.route('/group/:groupId/user/:userId/role')
-		.post(  users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.userRoleAdd)
-		.delete(users.requiresLogin, users.requiresEua, users.hasAdminOr(groups.hasAuthorization), groups.userRoleRemove);
+		.post(  users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.userRoleAdd)
+		.delete(users.hasAccess, users.hasAny(users.requiresAdminRole, groups.requiresAdmin), groups.userRoleRemove);
 
 
 	// Finish by binding the group middleware

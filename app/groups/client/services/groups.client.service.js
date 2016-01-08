@@ -6,13 +6,13 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 	var roles = {};
 	roles.map = {
 		admin: { label: 'Group Admin', description: 'This user can manage the membership and metadata of the group', role: 'admin' },
-		editor: { label: 'Resource Editor', description: 'This user can create/edit/delete resources within this group', role: 'editor' }
+		editor: { label: 'Editor', description: 'This user can create/edit/delete resources within this group', role: 'editor' }
 	};
 	roles.array = [ roles.map.admin, roles.map.editor ];
 
 	var sort = {};
 	sort.map = {
-		title: {label: 'Title', sort: 'title', dir: 'ASC'},
+		title: {label: 'Title', sort: 'title_lowercase', dir: 'ASC'},
 		relevance: {label: 'Relevance', sort: 'score', dir: 'DESC'}
 	};
 	sort.array = [ sort.map.title, sort.map.relevance ];
@@ -81,6 +81,15 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 			params: pageable
 		});
 		return request.then(handleSuccess, handleFailure);
+	}
+
+	function selectionList() {
+		var query = {};
+		if (!Authentication.isAdmin()) {
+			query = { _id: { $in: Authentication.editableGroups().map(function(group) { return group._id; }) } };
+		}
+
+		return search(query, undefined, { sort: 'title', runCount:false });
 	}
 
 	function list() {
@@ -160,6 +169,32 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 	/**
 	 * Private methods
 	 */
+	function userActiveInGroup(user, group) {
+		if(true === user.bypassAccessCheck) {
+			return true;
+		} else {
+			// Check the required external groups against the user's externalGroups
+			return _.difference(group.requiresExternalGroups, user.externalGroups).length === 0;
+		}
+	}
+
+	function getGroupPermissions(user, group) {
+		var groupPermissions;
+
+		// Try to find the groupId in the list of groups on the user
+		user.groups.some(function(gps) {
+			if(gps._id === group._id) {
+				groupPermissions = gps;
+				return true;
+			}
+			else {
+				return false;
+			}
+		});
+
+		return groupPermissions;
+	}
+
 	function reloadUser(userId) {
 		// If the userId matches the current user, reload the current user
 		if(null != Authentication.user && Authentication.user._id === userId) {
@@ -190,6 +225,7 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 		create: create,
 		get: get,
 		list: list,
+		selectionList: selectionList,
 		search: search,
 		update: update,
 		remove: remove,
@@ -198,7 +234,9 @@ angular.module('asymmetrik.groups').service('groupService', ['$http', '$q', '$lo
 		addUser: addUser,
 		removeUser: removeUser,
 		addUserRole: addUserRole,
-		removeUserRole: removeUserRole
+		removeUserRole: removeUserRole,
+		userActiveInGroup: userActiveInGroup,
+		getGroupPermissions: getGroupPermissions
 
 	});
 

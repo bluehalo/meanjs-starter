@@ -20,7 +20,8 @@ var path = require('path'),
 	flash = require('connect-flash'),
 	consolidate = require('consolidate'),
 	path = require('path'),
-	logger = require('./bunyan').logger;
+	logger = require('./bunyan').logger,
+	staticAsset = require('static-asset');
 
 /**
  * Initialize local variables
@@ -151,15 +152,28 @@ function initHelmetHeaders(app) {
 }
 
 /**
+ * Configure the static asset library
+ */
+function initStaticAsset(app) {
+	app.use('/', staticAsset(path.resolve('./public/')));
+}
+
+/**
  * Configure the modules static routes
  */
 function initModulesClientRoutes(app) {
-	// Setting the app router and static folder
-	app.use('/', express.static(path.resolve('./public')));
+	/*
+	 * Exposing the public directory (contains lib and min static resources)
+	 * All of the files in here are cache-busted, so we are setting max age high
+	 */
+	app.use('/', express.static(path.resolve('./public'), { maxAge: 31536000000 }));
 
-	// Globbing static routing
+	/*
+	 * Exposing the module static resources (js and html)
+	 * These files are not cache-busted, so we are setting the cache time to 0
+	 */
 	config.folders.client.forEach(function (staticPath) {
-		app.use(staticPath.replace('/client', ''), express.static(path.resolve('./' + staticPath)));
+		app.use(staticPath.replace('/client', ''), express.static(path.resolve('./' + staticPath), { maxAge: 0 }));
 	});
 }
 
@@ -184,6 +198,17 @@ function initModulesServerRoutes(app) {
 }
 
 /**
+ * Configure the modules sockets by simply including the files.
+ * Do not instantiate the modules.
+ */
+function initModulesServerSockets(app) {
+	// Globbing socket files
+	config.files.server.sockets.forEach(function (socketPath) {
+		require(path.resolve(socketPath));
+	});
+}
+
+/**
  * Configure error handling
  */
 function initErrorRoutes(app) {
@@ -196,13 +221,13 @@ function initErrorRoutes(app) {
 		console.error(err.stack);
 
 		// send server error
-		res.status(500).send('server-error');
+		res.status(500).json({ status: 500, type: 'server-error', message: 'Unexpected server error' });
 	});
 
 	// Assume 404 since no middleware responded
 	app.use(function (req, res) {
 		// Send 404 with error message
-		res.status(404).send('resource not found');
+		res.status(404).json({ status: 404, type: 'not-found', message: 'The resource was not found' });
 	});
 }
 
@@ -235,6 +260,12 @@ module.exports.init = function (db) {
 	// Initialize Express view engine
 	initViewEngine(app);
 
+	// Initialize static asset manager
+	initStaticAsset(app);
+
+	// Initialize modules static client routes
+	initModulesClientRoutes(app);
+
 	// Initialize Express session
 	initSession(app, db);
 
@@ -247,14 +278,14 @@ module.exports.init = function (db) {
 	// Initialize Helmet security headers
 	initHelmetHeaders(app);
 
-	// Initialize modules static client routes
-	initModulesClientRoutes(app);
-
 	// Initialize modules server authorization policies
 	initModulesServerPolicies(app);
 
 	// Initialize modules server routes
 	initModulesServerRoutes(app);
+
+	// Initialize modules sockets
+	initModulesServerSockets(app);
 
 	// Initialize error routes
 	initErrorRoutes(app);
