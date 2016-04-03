@@ -32,7 +32,7 @@ var getGlobbedPaths = function(globPatterns, excludes) {
 			if (excludes) {
 				files = files.map(function(file) {
 					if (_.isArray(excludes)) {
-						for (var i in excludes) {
+						for (var i in excludes) { 
 							file = file.replace(excludes[i], '');
 						}
 					} else {
@@ -118,7 +118,7 @@ var initGlobalConfigFiles = function(config, assets) {
 	config.files.server.tests = getGlobbedPaths((null != assets.tests && null != assets.tests.server)? assets.tests.server : []);
 
 	// Setting Globbed js files
-	config.files.client.js = getGlobbedPaths(assets.client.lib.js, 'public/').concat(getGlobbedPaths(assets.client.js, ['client/', 'public/']));
+	config.files.client.js = getGlobbedPaths(assets.client.lib.js, ['public/', 'node_modules']).concat(getGlobbedPaths(assets.client.js, [ 'public/']));
 
 	// Setting Globbed css files
 	config.files.client.css = getGlobbedPaths(assets.client.lib.css, 'public/').concat(getGlobbedPaths(assets.client.css, ['client/', 'public/']));

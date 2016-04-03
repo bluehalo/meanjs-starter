@@ -17,6 +17,14 @@
 		"postinstall": "bower install --config.interactive=false"
 	},
 	"dependencies": {
+        "gulp-typescript": "2.12.1",
+		"angular2": "2.0.0-beta.13",
+		"systemjs": "0.19.25",
+		"es6-shim": "^0.35.0",
+		"reflect-metadata": "0.1.2",
+		"rxjs": "5.0.0-beta.2",
+		"zone.js": "0.6.6",
+
 		"async": "1.5",
 		"body-parser": "1.14",
 		"bower": "1.7",

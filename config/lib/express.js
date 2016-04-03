@@ -156,6 +156,8 @@ function initHelmetHeaders(app) {
  */
 function initStaticAsset(app) {
 	app.use('/', staticAsset(path.resolve('./public/')));
+	app.use('/', staticAsset(path.resolve('./node_modules/')));
+	app.use('/tsc', staticAsset(path.resolve('./tsc/')));
 }
 
 /**
@@ -166,15 +168,17 @@ function initModulesClientRoutes(app) {
 	 * Exposing the public directory (contains lib and min static resources)
 	 * All of the files in here are cache-busted, so we are setting max age high
 	 */
-	app.use('/', express.static(path.resolve('./public'), { maxAge: 31536000000 }));
+	app.use('/', express.static(path.resolve('./public'),{ maxAge: 31536000000 }));
+	app.use('/', express.static(path.resolve('./node_modules'),{ maxAge: 31536000000 }));
+	app.use('/tsc', express.static(path.resolve('./tsc'),{ maxAge: 0 }));
 
 	/*
 	 * Exposing the module static resources (js and html)
 	 * These files are not cache-busted, so we are setting the cache time to 0
 	 */
-	config.folders.client.forEach(function (staticPath) {
-		app.use(staticPath.replace('/client', ''), express.static(path.resolve('./' + staticPath), { maxAge: 0 }));
-	});
+	// config.folders.client.forEach(function (staticPath) {
+	// 	app.use(staticPath.replace('/client', ''), express.static(path.resolve('./' + staticPath), { maxAge: 0 }));
+	// });
 }
 
 /**

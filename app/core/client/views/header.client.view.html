@@ -8,7 +8,7 @@
 			data-ng-bind-html="classification.string"></div>
 
 		<div class="navbar-container">
-	
+
 			<!-- The navbar toggle button and logo -->
 			<div class="navbar-header">
 	
@@ -19,7 +19,9 @@
 				</button>
 	
 				<!-- Logo Image -->
-				<a href="/#!/" style="margin-top:-15px;" class="navbar-brand"><img class="logo" src="app/core/img/brand/logo-dark-bg.png"/></a>
+				<a href="/#!/" class="navbar-brand">
+					<img class="logo" style="height: 36px; width: auto; margin-top:-9px;" src="app/core/img/brand/logo-dark-bg.png"/>
+				</a>
 			</div>
 	
 	
@@ -28,8 +30,8 @@
 	
 				<!-- Left part of navbar -->
 				<ul class="nav navbar-nav">
-					<li>
-						<a data-ui-sref="dashboard" data-ng-show="auth.isAuthenticated()">Dashboard</a>
+					<li data-ng-hide="true"> <!-- TODO: Re-enable after ES data refactor -->
+						<a data-ui-sref="lambda.search" data-ng-show="auth.isAuthenticated()">Dashboard</a>
 					</li>
 				</ul>
 
@@ -46,7 +48,6 @@
 						<a data-ui-sref="auth.signup">Request Account</a>
 					</li>
 				</ul>
-
 
 				<!-- Right side user logged in area -->
 				<ul class="nav navbar-nav navbar-right" data-ng-show="auth.isAuthenticated()">
@@ -89,6 +90,12 @@
 						</ul>
 					</li>
 				</ul>
+
+				<!-- FTS Search box -->
+				<form class="navbar-form navbar-right" role="search" data-ng-show="auth.isAuthenticated()">
+					<div asy-fts-search-box="">
+					</div>
+				</form>
 
 			</div><!--/.navbar-collapse -->
 		</div>

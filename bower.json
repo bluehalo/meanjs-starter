@@ -1,6 +1,9 @@
 {
 	"name": "MeanJSStarter",
 	"dependencies": {
+		"es6-shim": "0.35",
+        "systemjs": "*",
+
 		"angular": "1.3",
 		"angular-animate": "1.3",
 		"angular-bootstrap": "0.13",

@@ -10,6 +10,7 @@ var _ = require('lodash'),
 	gulp = require('gulp'),
 	gulpLoadPlugins = require('gulp-load-plugins'),
 	plugins = gulpLoadPlugins(),
+	ts = require('gulp-typescript'),
 
 	pkg = require('./package.json'),
 	defaultAssets = require('./config/assets/default'),
@@ -34,7 +35,18 @@ gulp.task('env:test', function (done) {
 	done();
 });
 
-
+/*
+ * TypeScript Tasks
+ */
+var tsProject = ts.createProject('./config/tsconfig.json');
+gulp.task('ts', function() {
+	var tsResult = gulp.src(defaultAssets.client.ts)
+		.pipe(ts(tsProject));
+	if (undefined === tsProject.options.outDir) {
+		console.log('Error: no outDir property set in tsconfig.json');
+	}
+	return tsResult.js.pipe(gulp.dest(tsProject.options.outDir));
+});
 
 /*
  * Running/Monitoring/Watching Tasks
@@ -128,6 +140,7 @@ gulp.task('watch', function() {
 	gulp.watch(defaultAssets.server.views).on('change', plugins.livereload.changed);
 	gulp.watch(defaultAssets.server.allJS, ['jshint']).on('change', plugins.livereload.changed);
 	gulp.watch(defaultAssets.client.views).on('change', plugins.livereload.changed);
+	gulp.watch(defaultAssets.client.ts, ['ts']); // don't call livereload for ts because that will pick up changes to .js
 	gulp.watch(defaultAssets.client.js, ['jshint']).on('change', plugins.livereload.changed);
 	gulp.watch(defaultAssets.client.css, ['csslint']).on('change', plugins.livereload.changed);
 });
@@ -291,7 +304,7 @@ gulp.task('build', function(done) {
  *   about 10-15 seconds to initially load.
  */
 gulp.task('debug', function(done) {
-	runSequence('build', ['nodemon', 'watch', 'nodeInspector'], done);
+	runSequence('build', ['ts', 'nodemon', 'watch', 'nodeInspector'], done);
 });
 
 /**

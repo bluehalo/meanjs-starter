@@ -2,6 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
+	<base href="/">
 	<title>{{title}}</title>
 
 	<!-- General META -->
@@ -32,6 +33,7 @@
 
 	<section class="content container">
 		<div class="col-md-12">
+			<my-app>Loading...</my-app>
 			{% block content %}{% endblock %}
 		</div>
 	</section>
@@ -44,6 +46,7 @@
 		var config = {{ config | json | safe }};
 	</script>
 
+
 	<!--Application JavaScript Files-->
 	{% for jsFile in jsFiles %}<script type="text/javascript" src="{{assetFingerprint(jsFile)}}"></script>
 	{% endfor %} 
@@ -53,6 +56,21 @@
 	<script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':' + {{liveReloadPort}} + '/livereload.js"></' + 'script>')</script>
 
 	{% endif %}
+
+	<!--Configure SystemJS-->
+	<script>
+		System.config({
+			packages: {
+				tsc: {
+					format: 'register',
+					defaultExtension: 'js'
+				}
+			}
+		});
+		System.import('tsc/core/main')
+				.then(null, console.error.bind(console));
+	</script>
+
 </body>
 
 </html>
